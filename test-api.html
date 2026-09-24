@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test OKURMEN API</title>
+</head>
+<body>
+    <h1>OKURMEN API Test</h1>
+    <button onclick="testAPI()">Test API Endpoints</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function testAPI() {
+            const output = document.getElementById('output');
+            output.textContent = 'Testing...\n';
+
+            try {
+                // Test courses
+                const coursesRes = await fetch('http://localhost:3001/api/courses?includeInactive=true');
+                const courses = await coursesRes.json();
+                output.textContent += `✅ Courses: ${courses.data?.length || 0} found\n`;
+
+                // Test employees
+                const employeesRes = await fetch('http://localhost:3001/api/employees?includeInactive=true');
+                const employees = await employeesRes.json();
+                output.textContent += `✅ Employees: ${employees.data?.length || 0} found\n`;
+
+                // Test applications
+                const applicationsRes = await fetch('http://localhost:3001/api/applications');
+                const applications = await applicationsRes.json();
+                output.textContent += `✅ Applications: ${applications.data?.length || 0} found\n`;
+
+                // Test payments
+                const paymentsRes = await fetch('http://localhost:3001/api/payments');
+                const payments = await paymentsRes.json();
+                output.textContent += `✅ Payments: ${payments.data?.length || 0} found\n`;
+
+                output.textContent += '\n✅ All tests passed!';
+            } catch (error) {
+                output.textContent += `\n❌ Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

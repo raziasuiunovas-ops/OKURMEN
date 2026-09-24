@@ -1,0 +1,429 @@
+// OKURMEN IT Database Schema
+// Based on OKURMEN_DBB.md specification
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ENUMS
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  DROPPED
+}
+
+enum EmployeePosition {
+  FOUNDER
+  TEACHER
+  MENTOR
+  MANAGER
+  SALES
+  MARKETING
+  ADMIN_STAFF
+  OTHER
+}
+
+enum CourseFormat {
+  ONLINE
+  OFFLINE
+  HYBRID
+}
+
+enum ApplicationStatus {
+  PENDING
+  CONTACTED
+  CONFIRMED
+  REJECTED
+  CANCELLED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum ReviewType {
+  STUDENT
+  PARENT
+}
+
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
+enum GrantReasonType {
+  EMPLOYMENT
+  COMMERCIAL_PROJECT
+}
+
+enum GrantStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum ActivityType {
+  ORATORY_COURSE
+  SEMINAR
+  TALKING_CLUB
+  ONUGUU_SABAKTAR
+  AI_COURSE
+  OTHER
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum LanguageCode {
+  KY
+  RU
+  EN
+}
+
+// MODELS
+
+model User {
+  id                String           @id @default(cuid())
+  fullName          String           @map("full_name")
+  phone             String?
+  email             String?          @unique
+  passwordHash      String?          @map("password_hash")
+  role              UserRole         @default(CLIENT)
+  preferredLanguage LanguageCode     @default(RU) @map("preferred_language")
+  isActive          Boolean          @default(true) @map("is_active")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+
+  studentProfile    StudentProfile?
+  employeeProfile   EmployeeProfile?
+  applications      Application[]
+  reviews           Review[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model StudentProfile {
+  id        String        @id @default(cuid())
+  userId    String        @unique @map("user_id")
+  status    StudentStatus @default(ACTIVE)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollments Enrollment[]
+  payments    Payment[]
+  alumni      Alumni[]
+  grants      Grant[]
+
+  @@index([status])
+  @@map("student_profiles")
+}
+
+model EmployeeProfile {
+  id         String           @id @default(cuid())
+  userId     String           @unique @map("user_id")
+  position   EmployeePosition
+  bio        String?          @db.Text
+  education  String?          @db.Text
+  experience String?          @db.Text
+  photoUrl   String?          @map("photo_url")
+  sortOrder  Int              @default(0) @map("sort_order")
+  joinedAt   DateTime?        @map("joined_at")
+  isActive   Boolean          @default(true) @map("is_active")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseTeachers  CourseTeacher[]
+  mentorEnrollments Enrollment[]
+
+  @@index([position])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("employee_profiles")
+}
+
+model Course {
+  id        String        @id @default(cuid())
+  slug      String        @unique
+  price     Decimal       @db.Decimal(10, 2)
+  duration  String?
+  format    CourseFormat  @default(HYBRID)
+  isActive  Boolean       @default(true) @map("is_active")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  translations   CourseTranslation[]
+  teachers       CourseTeacher[]
+  enrollments    Enrollment[]
+  applications   Application[]
+  payments       Payment[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("courses")
+}
+
+model CourseTranslation {
+  id           String       @id @default(cuid())
+  courseId     String       @map("course_id")
+  languageCode LanguageCode @map("language_code")
+  title        String
+  description  String?      @db.Text
+  program      String?      @db.Text
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, languageCode])
+  @@index([languageCode])
+  @@map("course_translations")
+}
+
+model CourseTeacher {
+  courseId   String @map("course_id")
+  employeeId String @map("employee_id")
+
+  course   Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  employee EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@id([courseId, employeeId])
+  @@map("course_teachers")
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  studentId   String           @map("student_id")
+  courseId    String           @map("course_id")
+  mentorId    String?          @map("mentor_id")
+  status      EnrollmentStatus @default(ACTIVE)
+  startedAt   DateTime?        @map("started_at")
+  completedAt DateTime?        @map("completed_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  student StudentProfile   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course           @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  mentor  EmployeeProfile? @relation(fields: [mentorId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([courseId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+model Application {
+  id        String            @id @default(cuid())
+  userId    String?           @map("user_id")
+  courseId  String            @map("course_id")
+  fullName  String            @map("full_name")
+  phone     String
+  email     String?
+  comment   String?           @db.Text
+  status    ApplicationStatus @default(PENDING)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  user          User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  course        Course                  @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  payments      Payment[]
+  notifications TelegramNotification[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("applications")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  applicationId     String?       @map("application_id")
+  studentId         String?       @map("student_id")
+  courseId          String        @map("course_id")
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String        @default("KGS")
+  provider          String?
+  providerPaymentId String?       @map("provider_payment_id")
+  status            PaymentStatus @default(PENDING)
+  paidAt            DateTime?     @map("paid_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+
+  application   Application?           @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  student       StudentProfile?        @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  course        Course                 @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  notifications TelegramNotification[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+model TelegramNotification {
+  id                String             @id @default(cuid())
+  paymentId         String?            @map("payment_id")
+  applicationId     String?            @map("application_id")
+  status            NotificationStatus @default(PENDING)
+  telegramMessageId String?            @map("telegram_message_id")
+  sentAt            DateTime?          @map("sent_at")
+  createdAt         DateTime           @default(now()) @map("created_at")
+
+  payment     Payment?     @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@map("telegram_notifications")
+}
+
+model Review {
+  id         String       @id @default(cuid())
+  userId     String?      @map("user_id")
+  authorName String       @map("author_name")
+  reviewType ReviewType   @map("review_type")
+  text       String       @db.Text
+  rating     Int?         @default(5)
+  photoUrl   String?      @map("photo_url")
+  videoUrl   String?      @map("video_url")
+  status     ReviewStatus @default(PENDING)
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+model Alumni {
+  id         String   @id @default(cuid())
+  studentId  String?  @map("student_id")
+  name       String
+  company    String?
+  position   String?
+  story      String?  @db.Text
+  photoUrl   String?  @map("photo_url")
+  isFeatured Boolean  @default(false) @map("is_featured")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  student StudentProfile? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([isFeatured])
+  @@map("alumni")
+}
+
+model Grant {
+  id          String          @id @default(cuid())
+  studentId   String          @map("student_id")
+  amount      Decimal         @db.Decimal(10, 2)
+  currency    String          @default("KGS")
+  reasonType  GrantReasonType @map("reason_type")
+  description String?         @db.Text
+  status      GrantStatus     @default(PENDING)
+  awardedAt   DateTime?       @map("awarded_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("grants")
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  type      ActivityType @default(OTHER)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  translations ActivityTranslation[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("activities")
+}
+
+model ActivityTranslation {
+  id           String       @id @default(cuid())
+  activityId   String       @map("activity_id")
+  languageCode LanguageCode @map("language_code")
+  title        String
+  description  String?      @db.Text
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, languageCode])
+  @@map("activity_translations")
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  isPublished Boolean  @default(false) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  translations PageTranslation[]
+
+  @@index([slug])
+  @@map("pages")
+}
+
+model PageTranslation {
+  id           String       @id @default(cuid())
+  pageId       String       @map("page_id")
+  languageCode LanguageCode @map("language_code")
+  title        String
+  content      String       @db.Text
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, languageCode])
+  @@map("page_translations")
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String
+  url       String
+  label     String?
+  isActive  Boolean  @default(true) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
+
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("social_links")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  fileUrl   String   @map("file_url")
+  fileType  String   @map("file_type")
+  altText   String?  @map("alt_text")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("media")
+}
