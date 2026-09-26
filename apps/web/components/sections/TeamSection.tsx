@@ -4,9 +4,11 @@ import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Users, User, Info, Laptop } from 'lucide-react';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function TeamSection() {
   const t = useTranslations('team');
+  const { ref, isVisible } = useScrollAnimation(0.2);
 
   // Placeholder для будущих данных из OKURMEN_TEAM.md
   const teamPlaceholders = [
@@ -33,9 +35,15 @@ export default function TeamSection() {
   ];
 
   return (
-    <section id="team" className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+    <section 
+      id="team" 
+      ref={ref}
+      className={`py-20 bg-gradient-to-br from-gray-50 to-gray-100 parallax-section ${
+        isVisible ? 'section-transition visible' : 'section-transition'
+      }`}
+    >
       <Container>
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : ''}`}>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             {t('title')}
           </h2>
@@ -48,7 +56,13 @@ export default function TeamSection() {
         {/* Подтверждённая информация о команде */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Основатели */}
-          <Card hover className="bg-gradient-to-br from-primary-50 to-accent-50">
+          <Card 
+            hover 
+            className={`bg-gradient-to-br from-primary-50 to-accent-50 card-3d ${
+              isVisible ? 'stagger-item' : ''
+            }`}
+            style={{ animationDelay: '0s' }}
+          >
             <div className="flex items-center space-x-4 mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center">
                 <Users className="w-8 h-8 text-white" />
@@ -77,7 +91,13 @@ export default function TeamSection() {
           </Card>
 
           {/* Онлайн-преподаватель */}
-          <Card hover className="bg-gradient-to-br from-purple-50 to-pink-50">
+          <Card 
+            hover 
+            className={`bg-gradient-to-br from-purple-50 to-pink-50 card-3d ${
+              isVisible ? 'stagger-item' : ''
+            }`}
+            style={{ animationDelay: '0.1s' }}
+          >
             <div className="flex items-center space-x-4 mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
                 <Laptop className="w-8 h-8 text-white" />

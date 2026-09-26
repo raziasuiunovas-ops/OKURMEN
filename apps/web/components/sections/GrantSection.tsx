@@ -4,9 +4,11 @@ import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Gift, DollarSign, Briefcase, Rocket, Target } from 'lucide-react';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function GrantSection() {
   const t = useTranslations('grant');
+  const { ref, isVisible } = useScrollAnimation(0.2);
 
   const conditions = [
     {
@@ -24,16 +26,25 @@ export default function GrantSection() {
   ];
 
   return (
-    <section className="py-20 bg-white relative overflow-hidden">
+    <section 
+      ref={ref}
+      className={`py-20 bg-white relative overflow-hidden ${
+        isVisible ? 'section-transition visible' : 'section-transition'
+      }`}
+    >
       {/* Background Decoration */}
       <div className="absolute inset-0 overflow-hidden opacity-10">
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-yellow-300 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-amber-300 rounded-full blur-3xl"></div>
+        <div className={`absolute -top-20 -right-20 w-96 h-96 bg-yellow-300 rounded-full blur-3xl ${
+          isVisible ? 'float-animation' : ''
+        }`}></div>
+        <div className={`absolute -bottom-20 -left-20 w-96 h-96 bg-amber-300 rounded-full blur-3xl ${
+          isVisible ? 'float-animation' : ''
+        }`} style={{ animationDelay: '1s' }}></div>
       </div>
 
       <Container className="relative z-10">
-        <div className="text-center mb-16">
-          <div className="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 px-6 py-2 rounded-full font-bold text-lg mb-6 shadow-lg animate-pulse">
+        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : ''}`}>
+          <div className="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 px-6 py-2 rounded-full font-bold text-lg mb-6 shadow-lg pulse-glow">
             <Gift className="w-5 h-5 inline mr-2" />Специальное предложение
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
@@ -43,8 +54,8 @@ export default function GrantSection() {
         </div>
 
         {/* Main Grant Card */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <Card className="bg-gradient-to-br from-yellow-400 via-amber-400 to-orange-400 text-gray-900 overflow-hidden shadow-2xl">
+        <div className={`max-w-4xl mx-auto mb-12 ${isVisible ? 'magnetic-hover' : ''}`}>
+          <Card className="bg-gradient-to-br from-yellow-400 via-amber-400 to-orange-400 text-gray-900 overflow-hidden shadow-2xl card-3d">
             <div className="relative">
               {/* Decorative Elements */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -mr-16 -mt-16"></div>

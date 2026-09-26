@@ -151,6 +151,7 @@ model StudentProfile {
   payments    Payment[]
   alumni      Alumni[]
   grants      Grant[]
+  courseReviews CourseReview[]
 
   @@index([status])
   @@index([groupId])
@@ -182,14 +183,21 @@ model EmployeeProfile {
 }
 
 model Course {
-  id        String        @id @default(cuid())
-  slug      String        @unique
-  price     Decimal       @db.Decimal(10, 2)
-  duration  String?
-  format    CourseFormat  @default(HYBRID)
-  isActive  Boolean       @default(true) @map("is_active")
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
+  id                String        @id @default(cuid())
+  slug              String        @unique
+  price             Decimal       @db.Decimal(10, 2)
+  duration          String?
+  totalHours        Int?          @map("total_hours") // Длительность в часах
+  format            CourseFormat  @default(HYBRID)
+  coverImage        String?       @map("cover_image") // URL фото курса
+  coverGradient     String?       @map("cover_gradient") // JSON: {from, to, direction}
+  icon              String?       // Emoji или название иконки
+  rating            Decimal?      @default(0) @db.Decimal(3, 2) // Средний рейтинг 0-5
+  totalReviews      Int           @default(0) @map("total_reviews") // Количество оценок
+  enrolledStudents  Int           @default(0) @map("enrolled_students") // Количество студентов
+  isActive          Boolean       @default(true) @map("is_active")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
 
   translations   CourseTranslation[]
   teachers       CourseTeacher[]
@@ -197,9 +205,12 @@ model Course {
   applications   Application[]
   payments       Payment[]
   groups         Group[]
+  courseReviews  CourseReview[]
+  lessons        Lesson[]
 
   @@index([slug])
   @@index([isActive])
+  @@index([rating])
   @@map("courses")
 }
 
@@ -470,4 +481,42 @@ model Group {
   @@index([courseId])
   @@index([isActive])
   @@map("groups")
+}
+
+model CourseReview {
+  id        String   @id @default(cuid())
+  courseId  String   @map("course_id")
+  studentId String   @map("student_id")
+  rating    Int      // 1-5 звёзд
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  course  Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, studentId]) // Один студент = одна оценка курса
+  @@index([courseId])
+  @@index([rating])
+  @@map("course_reviews")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  courseId    String   @map("course_id")
+  title       String
+  description String?  @db.Text
+  content     String?  @db.Text
+  videoUrl    String?  @map("video_url")
+  duration    Int?     // Длительность в минутах
+  sortOrder   Int      @default(0) @map("sort_order")
+  isPublished Boolean  @default(false) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([sortOrder])
+  @@map("lessons")
 }

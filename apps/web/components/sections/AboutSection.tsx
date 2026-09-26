@@ -22,9 +22,15 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="section section-bg-white">
+    <section 
+      id="about" 
+      ref={ref}
+      className={`section section-bg-white parallax-section ${
+        isVisible ? 'section-transition visible' : 'section-transition'
+      }`}
+    >
       <Container>
-        <div className="section-header">
+        <div className={`section-header ${isVisible ? 'fade-in-up' : ''}`}>
           <h2 className="section-title">{t('title')}</h2>
           <div className="section-divider"></div>
         </div>
@@ -33,7 +39,13 @@ export default function AboutSection() {
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className="about-stat-card">
+              <div 
+                key={index} 
+                className={`about-stat-card magnetic-hover ${
+                  isVisible ? 'stagger-item' : ''
+                }`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 <Icon className="about-stat-icon" size={48} />
                 <div className="about-stat-number">{stat.number}</div>
                 <p className="about-stat-label">{stat.label}</p>

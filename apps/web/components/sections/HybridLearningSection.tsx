@@ -3,9 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Monitor, Users, School, MessageCircle, Smartphone, Globe, Target } from 'lucide-react';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function HybridLearningSection() {
   const t = useTranslations('hybrid');
+  const { ref, isVisible } = useScrollAnimation(0.2);
 
   const steps = [
     {
@@ -41,9 +43,15 @@ export default function HybridLearningSection() {
   ];
 
   return (
-    <section id="learning" className="py-20 bg-white overflow-hidden">
+    <section 
+      id="learning" 
+      ref={ref}
+      className={`py-20 bg-white overflow-hidden parallax-section ${
+        isVisible ? 'section-transition visible' : 'section-transition'
+      }`}
+    >
       <Container>
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : ''}`}>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             {t('title')}
           </h2>
@@ -52,7 +60,9 @@ export default function HybridLearningSection() {
 
         {/* Desktop Timeline */}
         <div className="hidden lg:block relative">
-          <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-accent-200 to-purple-200 transform -translate-y-1/2"></div>
+          <div className={`absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-primary-200 via-accent-200 to-purple-200 transform -translate-y-1/2 ${
+            isVisible ? 'pulse-glow' : ''
+          }`}></div>
 
           <div className="relative z-10 flex justify-between items-center">
             {steps.map((step, index) => {

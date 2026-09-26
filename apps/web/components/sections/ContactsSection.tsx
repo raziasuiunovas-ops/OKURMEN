@@ -5,9 +5,11 @@ import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MapPin, Phone, Mail, Clock, Smartphone, Shield } from 'lucide-react';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function ContactsSection() {
   const t = useTranslations('contacts');
+  const { ref, isVisible } = useScrollAnimation(0.2);
 
   // Статические значения для кругов (чтобы избежать hydration mismatch)
   const backgroundCircles = [
@@ -24,20 +26,29 @@ export default function ContactsSection() {
   ];
 
   return (
-    <section id="contacts" className="py-20 bg-gradient-to-br from-primary-500 via-accent-500 to-purple-500 text-white relative overflow-hidden">
+    <section 
+      id="contacts" 
+      ref={ref}
+      className={`py-20 bg-gradient-to-br from-primary-500 via-accent-500 to-purple-500 text-white relative overflow-hidden ${
+        isVisible ? 'section-transition visible' : 'section-transition'
+      }`}
+    >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-full h-full">
           {backgroundCircles.map((circle, i) => (
             <div
               key={i}
-              className="absolute bg-white rounded-full"
+              className={`absolute bg-white rounded-full ${
+                isVisible ? 'float-animation' : ''
+              }`}
               style={{
                 width: circle.width + 'px',
                 height: circle.height + 'px',
                 left: circle.left + '%',
                 top: circle.top + '%',
                 opacity: circle.opacity,
+                animationDelay: `${i * 0.2}s`,
               }}
             ></div>
           ))}
@@ -45,7 +56,7 @@ export default function ContactsSection() {
       </div>
 
       <Container className="relative z-10">
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : ''}`}>
           <h2 className="text-4xl sm:text-5xl font-bold mb-4">
             {t('title')}
           </h2>

@@ -5,9 +5,11 @@ import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Laptop, Mouse, Briefcase as BagIcon, Plug, DollarSign, Package, GraduationCap, Info } from 'lucide-react';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function LaptopsSection() {
   const t = useTranslations('laptops');
+  const { ref, isVisible } = useScrollAnimation(0.2);
 
   const includes = [
     {
@@ -33,9 +35,14 @@ export default function LaptopsSection() {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section 
+      ref={ref}
+      className={`py-20 bg-white parallax-section ${
+        isVisible ? 'section-transition visible' : 'section-transition'
+      }`}
+    >
       <Container>
-        <div className="text-center mb-16">
+        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : ''}`}>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             {t('title')}
           </h2>
@@ -47,7 +54,7 @@ export default function LaptopsSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12">
           {/* Laptop Visual */}
-          <div className="relative">
+          <div className={`relative ${isVisible ? 'float-animation' : ''}`}>
             <Card className="bg-gradient-to-br from-gray-100 to-gray-200 p-12 text-center shadow-2xl">
               <Laptop className="w-32 h-32 mx-auto mb-6 text-gray-600" />
               <div className="bg-white rounded-xl p-6 shadow-lg">
