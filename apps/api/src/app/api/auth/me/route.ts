@@ -9,10 +9,25 @@ const JWT_SECRET = new TextEncoder().encode(
 
 export async function GET(request: NextRequest) {
   try {
+    // Пробуем получить токен из Authorization заголовка или cookie
+    const authHeader = request.headers.get('authorization');
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
+    const cookieToken = cookieStore.get('auth-token')?.value;
+    
+    let token = cookieToken;
+    
+    // Если есть Authorization заголовок, используем его
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+      console.log('Using token from Authorization header');
+    } else {
+      console.log('Using token from cookie');
+    }
+
+    console.log('Token exists:', !!token);
 
     if (!token) {
+      console.log('No token found');
       return NextResponse.json(
         { success: false, error: 'Not authenticated' },
         { status: 401 }
@@ -20,18 +35,27 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify JWT
+    console.log('Verifying JWT...');
     const { payload } = await jwtVerify(token, JWT_SECRET);
 
-    if (!payload.id) {
+    console.log('JWT payload:', payload);
+
+    // Проверяем userId (может быть в разных полях)
+    const userId = (payload.id || payload.userId) as string;
+
+    if (!userId) {
+      console.log('No userId in token');
       return NextResponse.json(
         { success: false, error: 'Invalid token' },
         { status: 401 }
       );
     }
 
+    console.log('User ID from token:', userId);
+
     // Get fresh user data
     const user = await prisma.user.findUnique({
-      where: { id: payload.id as string },
+      where: { id: userId },
       select: {
         id: true,
         fullName: true,
@@ -43,16 +67,25 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    console.log('User found:', !!user);
+
     if (!user || !user.isActive) {
+      console.log('User not found or inactive');
       return NextResponse.json(
         { success: false, error: 'User not found or inactive' },
         { status: 401 }
       );
     }
 
+    console.log('Returning user data');
     return NextResponse.json({
       success: true,
-      data: user,
+      user: {
+        id: user.id,
+        name: user.fullName,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error('Get me error:', error);

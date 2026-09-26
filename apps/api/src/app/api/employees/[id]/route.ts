@@ -49,15 +49,25 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    await requireAdmin(request); // Передаём request
 
     const { id } = await params;
     const body = await request.json();
+    
+    // Детальное логирование для отладки
+    console.log('=== PATCH /api/employees/[id] ===');
+    console.log('Employee ID:', id);
+    console.log('Request body keys:', Object.keys(body));
+    console.log('Request body:', JSON.stringify(body, null, 2));
+    
     const validation = updateEmployeeSchema.safeParse(body);
 
     if (!validation.success) {
+      console.error('Validation failed:', validation.error.flatten().fieldErrors);
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
+    
+    console.log('Validation passed ✓');
 
     const {
       fullName,
@@ -126,7 +136,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    await requireAdmin(request); // Передаём request
 
     const { id } = await params;
 

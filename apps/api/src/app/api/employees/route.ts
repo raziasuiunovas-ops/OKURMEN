@@ -55,14 +55,23 @@ export async function GET(request: NextRequest) {
 // POST /api/employees - Protected (admin only)
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin();
+    await requireAdmin(request); // Передаём request
 
     const body = await request.json();
+    
+    // Детальное логирование для отладки
+    console.log('=== POST /api/employees ===');
+    console.log('Request body keys:', Object.keys(body));
+    console.log('Request body:', JSON.stringify(body, null, 2));
+    
     const validation = createEmployeeSchema.safeParse(body);
 
     if (!validation.success) {
+      console.error('Validation failed:', validation.error.flatten().fieldErrors);
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
+    
+    console.log('Validation passed ✓');
 
     const {
       fullName,

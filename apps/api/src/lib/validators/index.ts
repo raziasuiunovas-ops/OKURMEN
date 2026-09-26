@@ -21,15 +21,21 @@ export const updateCourseSchema = createCourseSchema.partial().omit({ slug: true
 // Employee validators
 export const createEmployeeSchema = z.object({
   fullName: z.string().min(1),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
-  position: z.enum(['FOUNDER', 'TEACHER', 'MENTOR', 'MANAGER', 'SALES', 'MARKETING', 'ADMIN_STAFF', 'OTHER']),
-  bio: z.string().optional(),
-  education: z.string().optional(),
-  experience: z.string().optional(),
-  photoUrl: z.string().url().optional(),
+  phone: z.string().optional().transform(val => val === '' ? undefined : val),
+  email: z.preprocess(
+    (val) => val === '' ? undefined : val,
+    z.string().email().optional()
+  ),
+  position: z.enum(['FOUNDER', 'TEACHER', 'MENTOR', 'MANAGER', 'DEVELOPER', 'SALES', 'MARKETING', 'ADMIN_STAFF', 'OTHER']),
+  bio: z.string().optional().transform(val => val === '' ? undefined : val),
+  education: z.string().optional().transform(val => val === '' ? undefined : val),
+  experience: z.string().optional().transform(val => val === '' ? undefined : val),
+  photoUrl: z.string().optional().transform(val => val === '' ? undefined : val),
   sortOrder: z.number().default(0),
-  joinedAt: z.string().datetime().optional(),
+  joinedAt: z.preprocess(
+    (val) => val === '' ? undefined : val,
+    z.string().datetime().optional()
+  ),
   isActive: z.boolean().default(true),
 });
 
@@ -41,7 +47,7 @@ export const createReviewSchema = z.object({
   reviewType: z.enum(['STUDENT', 'PARENT']),
   text: z.string().min(10),
   rating: z.number().min(1).max(5).optional(),
-  photoUrl: z.string().url().optional(),
+  photoUrl: z.string().optional(), // Разрешаем любую строку (включая base64)
   videoUrl: z.string().url().optional(),
   status: z.enum(['PENDING', 'PUBLISHED', 'REJECTED']).default('PENDING'),
 });
@@ -54,12 +60,24 @@ export const createAlumniSchema = z.object({
   company: z.string().optional(),
   position: z.string().optional(),
   story: z.string().optional(),
-  photoUrl: z.string().url().optional(),
+  photoUrl: z.string().optional(), // Разрешаем любую строку (включая base64)
   isFeatured: z.boolean().default(false),
   studentId: z.string().optional(),
 });
 
 export const updateAlumniSchema = createAlumniSchema.partial();
+
+// Group validators
+export const createGroupSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  courseId: z.string().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  isActive: z.boolean().default(true),
+});
+
+export const updateGroupSchema = createGroupSchema.partial();
 
 // Application/Booking validators
 export const createApplicationSchema = z.object({

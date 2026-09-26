@@ -51,6 +51,70 @@ export async function GET(
   }
 }
 
+// PUT /api/courses/[id] - Protected (admin only) - Простой формат для админки
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAdmin();
+
+    const { id } = await params;
+    const body = await request.json();
+    
+    const { title, description, duration, price, level } = body;
+
+    // Проверка что курс существует
+    const existingCourse = await prisma.course.findUnique({
+      where: { id },
+      include: { translations: true },
+    });
+
+    if (!existingCourse) {
+      return notFoundResponse('Course');
+    }
+
+    // Преобразуем level
+    let courseLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' = 'BEGINNER';
+    if (level === 'INTERMEDIATE' || level === 'Средний') {
+      courseLevel = 'INTERMEDIATE';
+    } else if (level === 'ADVANCED' || level === 'Продвинутый') {
+      courseLevel = 'ADVANCED';
+    }
+
+    // Обновляем курс
+    const course = await prisma.course.update({
+      where: { id },
+      data: {
+        price: price !== undefined ? price : existingCourse.price,
+        duration: duration || existingCourse.duration,
+        translations: {
+          deleteMany: { languageCode: 'RU' },
+          create: {
+            languageCode: 'RU',
+            title: title || existingCourse.translations.find(t => t.languageCode === 'RU')?.title || '',
+            description: description || existingCourse.translations.find(t => t.languageCode === 'RU')?.description || '',
+            level: courseLevel,
+          },
+        },
+      },
+      include: {
+        translations: true,
+      },
+    });
+
+    return successResponse(course);
+  } catch (error: any) {
+    console.error('Update course error:', error);
+    
+    if (error.message === 'Forbidden: Admin access required') {
+      return forbiddenResponse();
+    }
+    
+    return serverErrorResponse();
+  }
+}
+
 // PATCH /api/courses/[id] - Protected (admin only)
 export async function PATCH(
   request: NextRequest,

@@ -1,0 +1,366 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Plus, Search, Edit, Trash2, Award, Briefcase, MapPin } from 'lucide-react';
+
+// Disable SSR for this page
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
+interface Alumni {
+  id: string;
+  name: string;
+  position: string;
+  company: string;
+  testimonial: string;
+  image: string | null;
+  course: {
+    title: string;
+  } | null;
+  createdAt: string;
+}
+
+export default function AlumniPage() {
+  const [alumni, setAlumni] = useState<Alumni[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingAlumni, setEditingAlumni] = useState<Alumni | null>(null);
+
+  useEffect(() => {
+    fetchAlumni();
+  }, []);
+
+  const fetchAlumni = async () => {
+    try {
+      const response = await fetch('http://localhost:3002/api/alumni', {
+        credentials: 'include',
+      });
+      const data = await response.json();
+      setAlumni(data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch alumni:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredAlumni = alumni.filter((person) =>
+    (person.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (person.company || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (person.position || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Вы уверены, что хотите удалить этого выпускника?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3002/api/alumni/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        setAlumni(alumni.filter((a) => a.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to delete alumni:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Выпускники
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Успешные истории наших студентов
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all space-x-2"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Добавить выпускника</span>
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Поиск по имени, компании или должности"
+          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white transition-all"
+        />
+      </div>
+
+      {/* Alumni Grid */}
+      {filteredAlumni.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
+          <p className="text-gray-500 dark:text-gray-400">Выпускники не найдены</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAlumni.map((person) => (
+            <div
+              key={person.id}
+              className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all"
+            >
+              {/* Header with gradient */}
+              <div className="h-24 bg-gradient-to-br from-orange-400 to-orange-600"></div>
+
+              {/* Alumni Info */}
+              <div className="p-6 -mt-12">
+                {/* Avatar */}
+                <div className="mb-4">
+                  {person.image ? (
+                    <img
+                      src={person.image}
+                      alt={person.name || 'Выпускник'}
+                      className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-gray-800 shadow-lg">
+                      {(person.name || 'A').charAt(0)}
+                    </div>
+                  )}
+                </div>
+
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  {person.name || 'Без имени'}
+                </h3>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Briefcase className="w-4 h-4 flex-shrink-0" />
+                    <span className="font-medium">{person.position}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm text-orange-600 dark:text-orange-400">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span>{person.company}</span>
+                  </div>
+                  {person.course && (
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Award className="w-4 h-4 flex-shrink-0" />
+                      <span>{person.course?.title || 'Курс не указан'}</span>
+                    </div>
+                  )}
+                </div>
+
+                {person.testimonial && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 italic">
+                    &ldquo;{person.testimonial}&rdquo;
+                  </p>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setEditingAlumni(person)}
+                    className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center space-x-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Изменить</span>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(person.id)}
+                    className="px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Create/Edit Modal */}
+      {(showCreateModal || editingAlumni) && (
+        <AlumniModal
+          alumni={editingAlumni}
+          onClose={() => {
+            setShowCreateModal(false);
+            setEditingAlumni(null);
+          }}
+          onSuccess={fetchAlumni}
+        />
+      )}
+    </div>
+  );
+}
+
+// Alumni Modal Component
+function AlumniModal({
+  alumni,
+  onClose,
+  onSuccess,
+}: {
+  alumni: Alumni | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    name: alumni?.name || '',
+    position: alumni?.position || '',
+    company: alumni?.company || '',
+    testimonial: alumni?.testimonial || '',
+    image: alumni?.image || '',
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const url = alumni
+        ? `http://localhost:3002/api/alumni/${alumni.id}`
+        : 'http://localhost:3002/api/alumni';
+      
+      // Адаптируем данные под существующий API
+      const payload = {
+        name: formData.name,
+        position: formData.position,
+        company: formData.company,
+        story: formData.testimonial, // API ожидает 'story'
+        photoUrl: formData.image, // API ожидает 'photoUrl'
+        isFeatured: false,
+      };
+      
+      const response = await fetch(url, {
+        method: alumni ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        onSuccess();
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to save alumni:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {alumni ? 'Редактировать выпускника' : 'Добавить выпускника'}
+          </h2>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Имя
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Должность
+              </label>
+              <input
+                type="text"
+                value={formData.position}
+                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                placeholder="Frontend Developer"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Компания
+              </label>
+              <input
+                type="text"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                placeholder="Google"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Отзыв
+            </label>
+            <textarea
+              value={formData.testimonial}
+              onChange={(e) => setFormData({ ...formData, testimonial: e.target.value })}
+              rows={4}
+              className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              URL фото
+            </label>
+            <input
+              type="url"
+              value={formData.image}
+              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              placeholder="https://example.com/photo.jpg"
+              className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
+            />
+          </div>
+
+          <div className="flex items-center space-x-4 pt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+            >
+              {loading ? 'Сохранение...' : 'Сохранить'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+            >
+              Отмена
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

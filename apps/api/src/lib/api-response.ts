@@ -46,3 +46,14 @@ export function notFoundResponse(resource = 'Resource') {
 export function serverErrorResponse() {
   return errorResponse('Internal server error', 500);
 }
+
+// Добавляем объект apiResponse для обратной совместимости
+export const apiResponse = {
+  success: successResponse,
+  error: errorResponse,
+  validationError: validationErrorResponse,
+  unauthorized: unauthorizedResponse,
+  forbidden: forbiddenResponse,
+  notFound: notFoundResponse,
+  serverError: serverErrorResponse,
+};

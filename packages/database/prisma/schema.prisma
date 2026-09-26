@@ -16,6 +16,12 @@ enum UserRole {
   CLIENT
 }
 
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
 enum StudentStatus {
   ACTIVE
   INACTIVE
@@ -28,6 +34,7 @@ enum EmployeePosition {
   TEACHER
   MENTOR
   MANAGER
+  DEVELOPER
   SALES
   MARKETING
   ADMIN_STAFF
@@ -133,17 +140,20 @@ model User {
 model StudentProfile {
   id        String        @id @default(cuid())
   userId    String        @unique @map("user_id")
+  groupId   String?       @map("group_id")
   status    StudentStatus @default(ACTIVE)
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")
 
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group       Group?        @relation(fields: [groupId], references: [id], onDelete: SetNull)
   enrollments Enrollment[]
   payments    Payment[]
   alumni      Alumni[]
   grants      Grant[]
 
   @@index([status])
+  @@index([groupId])
   @@map("student_profiles")
 }
 
@@ -186,6 +196,7 @@ model Course {
   enrollments    Enrollment[]
   applications   Application[]
   payments       Payment[]
+  groups         Group[]
 
   @@index([slug])
   @@index([isActive])
@@ -199,6 +210,7 @@ model CourseTranslation {
   title        String
   description  String?      @db.Text
   program      String?      @db.Text
+  level        CourseLevel  @default(BEGINNER)
 
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
@@ -426,4 +438,36 @@ model Media {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("media")
+}
+
+model TwoFactorCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+  @@index([expiresAt])
+  @@map("two_factor_codes")
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String   @unique // F1, F2, F3, F4, F5
+  description String?  @db.Text
+  courseId    String?  @map("course_id")
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  course      Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  students    StudentProfile[]
+
+  @@index([name])
+  @@index([courseId])
+  @@index([isActive])
+  @@map("groups")
 }

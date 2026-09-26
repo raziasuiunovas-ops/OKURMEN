@@ -10,14 +10,15 @@ if (token && chatId) {
 }
 
 interface NotificationData {
-  type: 'booking' | 'payment';
+  type: 'booking' | 'payment' | '2fa';
   data: {
-    name: string;
-    phone: string;
+    name?: string;
+    phone?: string;
     email?: string;
-    course: string;
+    course?: string;
     amount?: number;
     status?: string;
+    code?: string;
   };
 }
 
@@ -30,7 +31,16 @@ export async function sendTelegramNotification(notification: NotificationData): 
   try {
     let message = '';
 
-    if (notification.type === 'booking') {
+    if (notification.type === '2fa') {
+      message = `
+🔐 *Код подтверждения для входа*
+
+📧 Email: ${notification.data.email}
+🔑 Код: \`${notification.data.code}\`
+
+⏱ Код действителен 5 минут
+      `.trim();
+    } else if (notification.type === 'booking') {
       message = `
 🎓 *Новая заявка на курс*
 

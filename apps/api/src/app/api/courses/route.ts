@@ -38,7 +38,22 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return successResponse(courses);
+    // Преобразуем в простой формат для админки
+    const simplifiedCourses = courses.map(course => {
+      const ruTranslation = course.translations.find(t => t.languageCode === 'RU') || course.translations[0];
+      return {
+        id: course.id,
+        title: ruTranslation?.title || '',
+        description: ruTranslation?.description || '',
+        duration: course.duration,
+        price: course.price,
+        level: (ruTranslation as any)?.level || 'BEGINNER',
+        image: null,
+        createdAt: course.createdAt.toISOString(),
+      };
+    });
+
+    return successResponse(simplifiedCourses);
   } catch (error) {
     console.error('Get courses error:', error);
     return serverErrorResponse();
@@ -51,43 +66,50 @@ export async function POST(request: NextRequest) {
     await requireAdmin();
 
     const body = await request.json();
-    const validation = createCourseSchema.safeParse(body);
+    
+    // Простой формат для админки
+    const { title, description, duration, price, level, image } = body;
 
-    if (!validation.success) {
-      return validationErrorResponse(validation.error.flatten().fieldErrors);
+    if (!title || !description) {
+      return errorResponse('Title and description are required', 400);
     }
 
-    const { slug, price, duration, format, isActive, translations, teacherIds } = validation.data;
+    // Создаём slug из title
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-    // Check if slug already exists
+    // Проверка на дубликат slug
     const existingCourse = await prisma.course.findUnique({
       where: { slug },
     });
 
     if (existingCourse) {
-      return errorResponse('Course with this slug already exists', 409);
+      return errorResponse('Course with similar title already exists', 409);
     }
 
-    // Create course with translations
+    // Преобразуем level из формы в enum
+    let courseLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' = 'BEGINNER';
+    if (level === 'INTERMEDIATE' || level === 'Средний') {
+      courseLevel = 'INTERMEDIATE';
+    } else if (level === 'ADVANCED' || level === 'Продвинутый') {
+      courseLevel = 'ADVANCED';
+    }
+
+    // Создаём курс с переводом
     const course = await prisma.course.create({
       data: {
         slug,
-        price,
-        duration,
-        format,
-        isActive,
+        price: price || 0,
+        duration: duration || '0 weeks',
+        format: 'HYBRID',
+        isActive: true,
         translations: {
-          create: translations,
+          create: {
+            languageCode: 'RU',
+            title,
+            description,
+            level: courseLevel,
+          },
         },
-        ...(teacherIds && teacherIds.length > 0
-          ? {
-              teachers: {
-                create: teacherIds.map((employeeId) => ({
-                  employeeId,
-                })),
-              },
-            }
-          : {}),
       },
       include: {
         translations: true,
