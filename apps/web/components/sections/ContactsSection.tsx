@@ -1,28 +1,43 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { MapPin, Phone, Mail, Clock, Smartphone, Shield } from 'lucide-react';
 
 export default function ContactsSection() {
   const t = useTranslations('contacts');
+
+  // Статические значения для кругов (чтобы избежать hydration mismatch)
+  const backgroundCircles = [
+    { width: 120, height: 100, left: 10, top: 15, opacity: 0.2 },
+    { width: 80, height: 90, left: 85, top: 25, opacity: 0.15 },
+    { width: 100, height: 110, left: 45, top: 60, opacity: 0.25 },
+    { width: 70, height: 80, left: 20, top: 80, opacity: 0.1 },
+    { width: 90, height: 95, left: 70, top: 45, opacity: 0.18 },
+    { width: 110, height: 85, left: 30, top: 35, opacity: 0.22 },
+    { width: 75, height: 105, left: 60, top: 70, opacity: 0.12 },
+    { width: 95, height: 75, left: 15, top: 50, opacity: 0.16 },
+    { width: 85, height: 100, left: 80, top: 10, opacity: 0.19 },
+    { width: 105, height: 90, left: 50, top: 20, opacity: 0.14 },
+  ];
 
   return (
     <section id="contacts" className="py-20 bg-gradient-to-br from-primary-500 via-accent-500 to-purple-500 text-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-full h-full">
-          {[...Array(20)].map((_, i) => (
+          {backgroundCircles.map((circle, i) => (
             <div
               key={i}
               className="absolute bg-white rounded-full"
               style={{
-                width: Math.random() * 100 + 50 + 'px',
-                height: Math.random() * 100 + 50 + 'px',
-                left: Math.random() * 100 + '%',
-                top: Math.random() * 100 + '%',
-                opacity: Math.random() * 0.3,
+                width: circle.width + 'px',
+                height: circle.height + 'px',
+                left: circle.left + '%',
+                top: circle.top + '%',
+                opacity: circle.opacity,
               }}
             ></div>
           ))}
@@ -43,8 +58,8 @@ export default function ContactsSection() {
             {/* Address Card */}
             <Card className="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0 w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center text-3xl">
-                  📍
+                <div className="flex-shrink-0 w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
+                  <MapPin className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <h3 className="font-bold text-xl mb-2">{t('address')}</h3>
@@ -56,25 +71,25 @@ export default function ContactsSection() {
               </div>
             </Card>
 
-            {/* Contact Placeholders */}
+            {/* Contact Info */}
             <Card className="bg-white/10 backdrop-blur-md border border-white/20">
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <span className="text-2xl">📞</span>
+                  <Phone className="w-6 h-6 text-white" />
                   <div>
                     <p className="text-sm text-white/70">Телефон</p>
                     <div className="h-4 bg-white/20 rounded w-32 mt-1"></div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className="text-2xl">✉️</span>
+                  <Mail className="w-6 h-6 text-white" />
                   <div>
                     <p className="text-sm text-white/70">Email</p>
                     <div className="h-4 bg-white/20 rounded w-48 mt-1"></div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className="text-2xl">🕐</span>
+                  <Clock className="w-6 h-6 text-white" />
                   <div>
                     <p className="text-sm text-white/70">Часы работы</p>
                     <div className="h-4 bg-white/20 rounded w-40 mt-1"></div>
@@ -175,13 +190,21 @@ export default function ContactsSection() {
         </div>
 
         {/* Bottom Note */}
-        <div className="mt-16 text-center">
-          <p className="text-white/80 text-sm">
-            📱 Дополнительная контактная информация будет добавлена после
-            согласования
-          </p>
+        <div className="mt-16 flex flex-col items-center space-y-4">
+          <a 
+            href="http://localhost:3003" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl text-white font-medium transition-all hover:scale-105"
+          >
+            <Shield className="w-5 h-5" />
+            <span>Админ-панель</span>
+          </a>
         </div>
       </Container>
     </section>
   );
 }
+
+
+

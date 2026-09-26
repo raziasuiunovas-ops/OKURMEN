@@ -1,0 +1,89 @@
+/* UI Components Styles */
+
+/* Container */
+.ui-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.ui-container-sm {
+  max-width: 768px;
+}
+
+.ui-container-md {
+  max-width: 1024px;
+}
+
+.ui-container-full {
+  max-width: 100%;
+}
+
+/* Card */
+.ui-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  transition: all 0.3s ease;
+}
+
+.ui-card-hover:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  transform: translateY(-4px);
+}
+
+/* Button */
+.ui-btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.ui-btn-primary {
+  background: #f97316;
+  color: white;
+}
+
+.ui-btn-primary:hover {
+  background: #ea580c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.ui-btn-outline {
+  background: transparent;
+  border: 2px solid #f97316;
+  color: #f97316;
+}
+
+.ui-btn-outline:hover {
+  background: #f97316;
+  color: white;
+}
+
+.ui-btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+.ui-btn-md {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.ui-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.ui-btn-full {
+  width: 100%;
+}

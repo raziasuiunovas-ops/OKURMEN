@@ -1,21 +1,22 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
+import { Gift, DollarSign, Briefcase, Rocket, Target } from 'lucide-react';
 
 export default function GrantSection() {
   const t = useTranslations('grant');
 
   const conditions = [
     {
-      icon: '💼',
+      icon: Briefcase,
       title: 'Трудоустройство',
       description: 'Получите работу после окончания курса',
       gradient: 'from-blue-500 to-cyan-500',
     },
     {
-      icon: '🚀',
+      icon: Rocket,
       title: 'Коммерческий проект',
       description: 'Создайте крупный коммерческий проект',
       gradient: 'from-purple-500 to-pink-500',
@@ -33,7 +34,7 @@ export default function GrantSection() {
       <Container className="relative z-10">
         <div className="text-center mb-16">
           <div className="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 px-6 py-2 rounded-full font-bold text-lg mb-6 shadow-lg animate-pulse">
-            🎁 Специальное предложение
+            <Gift className="w-5 h-5 inline mr-2" />Специальное предложение
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             {t('title')}
@@ -50,7 +51,7 @@ export default function GrantSection() {
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/20 rounded-full -ml-12 -mb-12"></div>
 
               <div className="relative z-10 text-center py-12 px-8">
-                <div className="text-8xl mb-6">💰</div>
+                <DollarSign className="w-24 h-24 mx-auto mb-6 text-white" />
                 <h3 className="text-6xl sm:text-7xl font-bold mb-4">
                   10 000
                   <span className="text-4xl ml-2">сом</span>
@@ -74,31 +75,34 @@ export default function GrantSection() {
             {t('conditions')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {conditions.map((condition, index) => (
-              <Card
-                key={index}
-                hover
-                className="group relative overflow-hidden"
-              >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${condition.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
-                ></div>
-
-                <div className="relative z-10">
+            {conditions.map((condition, index) => {
+              const Icon = condition.icon;
+              return (
+                <Card
+                  key={index}
+                  hover
+                  className="group relative overflow-hidden"
+                >
                   <div
-                    className={`w-20 h-20 mb-4 bg-gradient-to-br ${condition.gradient} rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    {condition.icon}
+                    className={`absolute inset-0 bg-gradient-to-br ${condition.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
+                  ></div>
+
+                  <div className="relative z-10">
+                    <div
+                      className={`w-20 h-20 mb-4 bg-gradient-to-br ${condition.gradient} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      <Icon className="w-10 h-10 text-white" />
+                    </div>
+                    <h4 className="text-2xl font-bold text-gray-900 mb-3">
+                      {condition.title}
+                    </h4>
+                    <p className="text-gray-600 text-lg">
+                      {condition.description}
+                    </p>
                   </div>
-                  <h4 className="text-2xl font-bold text-gray-900 mb-3">
-                    {condition.title}
-                  </h4>
-                  <p className="text-gray-600 text-lg">
-                    {condition.description}
-                  </p>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         </div>
 
@@ -142,7 +146,7 @@ export default function GrantSection() {
         {/* Bottom CTA */}
         <div className="mt-12 text-center">
           <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-100 to-amber-100 px-6 py-3 rounded-full">
-            <span className="text-2xl">🎯</span>
+            <Target className="w-6 h-6 text-gray-800" />
             <p className="text-gray-800 font-medium">
               Ваш успех — наша цель
             </p>

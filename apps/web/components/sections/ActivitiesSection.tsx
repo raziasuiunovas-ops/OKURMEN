@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
+import { Sprout, Mic, Keyboard, MessageCircle, Bot, Target, GraduationCap, TrendingUp, Users } from 'lucide-react';
 
 export default function ActivitiesSection() {
   const t = useTranslations('activities');
@@ -10,37 +11,37 @@ export default function ActivitiesSection() {
   const activities = [
     {
       title: t('onugu'),
-      icon: '🌱',
+      icon: Sprout,
       gradient: 'from-green-500 to-emerald-500',
       description: 'Өнүгүү сабактары',
     },
     {
       title: t('oratory'),
-      icon: '🎤',
+      icon: Mic,
       gradient: 'from-purple-500 to-pink-500',
       description: 'Развитие навыков публичных выступлений',
     },
     {
       title: t('literacy'),
-      icon: '⌨️',
+      icon: Keyboard,
       gradient: 'from-blue-500 to-cyan-500',
       description: 'Базовые навыки работы с компьютером',
     },
     {
       title: t('talking'),
-      icon: '💬',
+      icon: MessageCircle,
       gradient: 'from-orange-500 to-red-500',
       description: 'Разговорный клуб для практики языка',
     },
     {
       title: t('ai'),
-      icon: '🤖',
+      icon: Bot,
       gradient: 'from-indigo-500 to-purple-500',
       description: 'Искусственный интеллект и современные технологии',
     },
     {
       title: t('seminars'),
-      icon: '🎯',
+      icon: Target,
       gradient: 'from-yellow-500 to-amber-500',
       description: 'Семинары от Гапыра Мадаминова',
     },
@@ -57,42 +58,45 @@ export default function ActivitiesSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activities.map((activity, index) => (
-            <Card
-              key={index}
-              hover
-              className="group relative overflow-hidden cursor-pointer"
-            >
-              {/* Background Gradient on Hover */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${activity.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
-              ></div>
-
-              <div className="relative z-10">
-                {/* Icon */}
+          {activities.map((activity, index) => {
+            const Icon = activity.icon;
+            return (
+              <Card
+                key={index}
+                hover
+                className="group relative overflow-hidden cursor-pointer"
+              >
+                {/* Background Gradient on Hover */}
                 <div
-                  className={`w-20 h-20 mb-4 rounded-2xl bg-gradient-to-br ${activity.gradient} flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
-                >
-                  {activity.icon}
-                </div>
-
-                {/* Title */}
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors duration-300">
-                  {activity.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {activity.description}
-                </p>
-
-                {/* Decorative Line */}
-                <div
-                  className={`mt-4 h-1 bg-gradient-to-r ${activity.gradient} rounded-full w-0 group-hover:w-full transition-all duration-500`}
+                  className={`absolute inset-0 bg-gradient-to-br ${activity.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
                 ></div>
-              </div>
-            </Card>
-          ))}
+
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div
+                    className={`w-20 h-20 mb-4 rounded-2xl bg-gradient-to-br ${activity.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
+                  >
+                    <Icon className="w-10 h-10 text-white" />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors duration-300">
+                    {activity.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    {activity.description}
+                  </p>
+
+                  {/* Decorative Line */}
+                  <div
+                    className={`mt-4 h-1 bg-gradient-to-r ${activity.gradient} rounded-full w-0 group-hover:w-full transition-all duration-500`}
+                  ></div>
+                </div>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Bottom Info Section */}
@@ -107,14 +111,17 @@ export default function ActivitiesSection() {
             технические, так и личностные навыки.
           </p>
           <div className="mt-6 flex items-center justify-center space-x-4 flex-wrap gap-2">
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md">
-              🎓 Образование
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md flex items-center space-x-2">
+              <GraduationCap className="w-4 h-4" />
+              <span>Образование</span>
             </span>
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md">
-              💪 Развитие
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4" />
+              <span>Развитие</span>
             </span>
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md">
-              🤝 Сообщество
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md flex items-center space-x-2">
+              <Users className="w-4 h-4" />
+              <span>Сообщество</span>
             </span>
           </div>
         </div>
@@ -122,3 +129,5 @@ export default function ActivitiesSection() {
     </section>
   );
 }
+
+

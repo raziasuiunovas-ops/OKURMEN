@@ -1,31 +1,32 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Laptop, Mouse, Briefcase as BagIcon, Plug, DollarSign, Package, GraduationCap, Info } from 'lucide-react';
 
 export default function LaptopsSection() {
   const t = useTranslations('laptops');
 
   const includes = [
     {
-      icon: '💻',
+      icon: Laptop,
       title: 'Ноутбук',
       description: 'Современная модель для обучения',
     },
     {
-      icon: '🖱️',
+      icon: Mouse,
       title: t('mouse'),
       description: 'Удобная мышь для работы',
     },
     {
-      icon: '👜',
+      icon: BagIcon,
       title: t('bag'),
       description: 'Защитная сумка для переноски',
     },
     {
-      icon: '🔌',
+      icon: Plug,
       title: t('charger'),
       description: 'Оригинальное зарядное устройство',
     },
@@ -48,7 +49,7 @@ export default function LaptopsSection() {
           {/* Laptop Visual */}
           <div className="relative">
             <Card className="bg-gradient-to-br from-gray-100 to-gray-200 p-12 text-center shadow-2xl">
-              <div className="text-9xl mb-6">💻</div>
+              <Laptop className="w-32 h-32 mx-auto mb-6 text-gray-600" />
               <div className="bg-white rounded-xl p-6 shadow-lg">
                 <div className="space-y-3">
                   <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto animate-pulse"></div>
@@ -76,8 +77,8 @@ export default function LaptopsSection() {
                   hover
                   className="group flex items-center space-x-4"
                 >
-                  <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-primary-400 to-accent-400 rounded-xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    {item.icon}
+                  <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-primary-400 to-accent-400 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <item.icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="flex-grow">
                     <h4 className="font-bold text-lg text-gray-900 mb-1">
@@ -114,36 +115,39 @@ export default function LaptopsSection() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                icon: '💰',
+                icon: DollarSign,
                 title: 'Удобная цена',
                 description: 'Доступные цены для студентов',
               },
               {
-                icon: '📦',
+                icon: Package,
                 title: 'Полный комплект',
                 description: 'Всё необходимое в одном пакете',
               },
               {
-                icon: '🎓',
+                icon: GraduationCap,
                 title: 'Для обучения',
                 description: 'Подходит для всех курсов ОКУРМЕН',
               },
-            ].map((benefit, index) => (
-              <div key={index} className="text-center">
-                <div className="text-5xl mb-3">{benefit.icon}</div>
-                <h4 className="font-bold text-lg text-gray-900 mb-2">
-                  {benefit.title}
-                </h4>
-                <p className="text-gray-600 text-sm">{benefit.description}</p>
-              </div>
-            ))}
+            ].map((benefit, index) => {
+              const Icon = benefit.icon;
+              return (
+                <div key={index} className="text-center">
+                  <Icon className="w-12 h-12 mx-auto mb-3 text-primary-600" />
+                  <h4 className="font-bold text-lg text-gray-900 mb-2">
+                    {benefit.title}
+                  </h4>
+                  <p className="text-gray-600 text-sm">{benefit.description}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Info & CTA */}
         <div className="text-center bg-white rounded-2xl p-8 shadow-lg max-w-3xl mx-auto">
           <div className="inline-block bg-primary-100 text-primary-700 px-4 py-2 rounded-full font-medium mb-4">
-            💻 Информация о ноутбуках
+            <Info className="w-5 h-5 inline mr-2" />Информация о ноутбуках
           </div>
           <p className="text-gray-700 leading-relaxed mb-6">
             Точные модели ноутбуков, цены, характеристики и условия покупки

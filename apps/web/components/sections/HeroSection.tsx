@@ -2,6 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
+import { Monitor, Users, GraduationCap, Rocket } from 'lucide-react';
+import './sections.css';
 
 export default function HeroSection() {
   const t = useTranslations('hero');
@@ -14,41 +16,42 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary-50 via-white to-accent-50">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+    <section className="hero animated-gradient-bg">
+      {/* Плавающие частицы */}
+      <div className="floating-particle" style={{ left: '10%', top: '20%' }}></div>
+      <div className="floating-particle" style={{ left: '80%', top: '40%' }}></div>
+      <div className="floating-particle" style={{ left: '15%', top: '70%' }}></div>
+      <div className="floating-particle" style={{ left: '85%', top: '15%' }}></div>
+      <div className="floating-particle" style={{ left: '50%', top: '80%' }}></div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        <div className="text-center space-y-8 animate-fade-in">
-          {/* Main Title */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold">
-            <span className="bg-gradient-to-r from-primary-600 via-accent-600 to-purple-600 bg-clip-text text-transparent animate-slide-down">
-              {t('title')}
-            </span>
-          </h1>
+      <div className="container">
+        <div className="hero-content">
+          <div className="hero-title-stack">
+            <div className="badge-enhanced pulse-glow" style={{ marginBottom: '2rem' }}>
+              <Rocket size={20} />
+              <span>Современное IT-образование в Бишкеке</span>
+            </div>
 
-          {/* Subtitle */}
-          <p className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-800 animate-slide-up">
+            <h1 className="hero-title animated-title staggered-title">
+              <span className="title-line title-line-1">{t('title').split(' ').slice(0, 2).join(' ')}</span>
+              <span className="title-line title-line-2">{t('title').split(' ').slice(2).join(' ')}</span>
+            </h1>
+          </div>
+
+          <p className="hero-subtitle text-shadow-soft">
             {t('subtitle')}
           </p>
 
-          {/* Description */}
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in animation-delay-200">
+          <p className="hero-description">
             {t('description')}
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-slide-up animation-delay-400">
+          <div className="hero-buttons">
             <Button
               size="lg"
               variant="primary"
               onClick={() => scrollToSection('#courses')}
-              className="w-full sm:w-auto"
+              className="btn-enhanced"
             >
               {t('cta_primary')}
             </Button>
@@ -56,95 +59,31 @@ export default function HeroSection() {
               size="lg"
               variant="outline"
               onClick={() => scrollToSection('#about')}
-              className="w-full sm:w-auto"
             >
               {t('cta_secondary')}
             </Button>
           </div>
 
-          {/* Visual Elements */}
-          <div className="pt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-4xl mx-auto animate-fade-in animation-delay-600">
+          <div className="hero-features">
             {[
-              { icon: '💻', label: 'IT Education' },
-              { icon: '👨‍🏫', label: 'Personal Mentor' },
-              { icon: '🎓', label: '3000+ Students' },
-              { icon: '🚀', label: 'Real Results' },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center space-y-2 p-4 bg-white/50 backdrop-blur-sm rounded-xl hover:bg-white/80 transition-all duration-300 hover:scale-105"
-              >
-                <span className="text-4xl">{item.icon}</span>
-                <span className="text-sm font-medium text-gray-700">
-                  {item.label}
-                </span>
-              </div>
-            ))}
+              { icon: Monitor, label: 'IT Education', gradient: 'from-blue-500 to-cyan-500' },
+              { icon: Users, label: 'Personal Mentor', gradient: 'from-purple-500 to-pink-500' },
+              { icon: GraduationCap, label: '3000+ Students', gradient: 'from-orange-500 to-red-500' },
+              { icon: Rocket, label: 'Real Results', gradient: 'from-green-500 to-emerald-500' },
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div key={index} className="hero-feature glass">
+                  <div className="icon-gradient">
+                    <Icon className="hero-feature-icon" size={32} />
+                  </div>
+                  <span className="hero-feature-label">{item.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <button
-          onClick={() => scrollToSection('#about')}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-          aria-label="Scroll down"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-      </div>
-
-      <style jsx>{`
-        @keyframes blob {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-        }
-
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-
-        .animation-delay-200 {
-          animation-delay: 0.2s;
-        }
-
-        .animation-delay-400 {
-          animation-delay: 0.4s;
-        }
-
-        .animation-delay-600 {
-          animation-delay: 0.6s;
-        }
-      `}</style>
     </section>
   );
 }

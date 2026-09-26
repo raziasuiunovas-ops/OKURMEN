@@ -1,4 +1,5 @@
 import React from 'react';
+import './styles.css';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -10,9 +11,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     return (
       <div
         ref={ref}
-        className={`bg-white rounded-xl p-6 shadow-md transition-all duration-300 ${
-          hover ? 'hover:shadow-xl hover:-translate-y-1' : ''
-        } ${className}`}
+        className={`ui-card ${hover ? 'ui-card-hover' : ''} ${className}`}
         {...props}
       >
         {children}

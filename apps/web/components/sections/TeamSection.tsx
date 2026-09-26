@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
+import { Users, User, Info, Laptop } from 'lucide-react';
 
 export default function TeamSection() {
   const t = useTranslations('team');
@@ -49,8 +50,8 @@ export default function TeamSection() {
           {/* Основатели */}
           <Card hover className="bg-gradient-to-br from-primary-50 to-accent-50">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center text-3xl">
-                👥
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center">
+                <Users className="w-8 h-8 text-white" />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">
@@ -78,8 +79,8 @@ export default function TeamSection() {
           {/* Онлайн-преподаватель */}
           <Card hover className="bg-gradient-to-br from-purple-50 to-pink-50">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-3xl">
-                👩‍🏫
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                <Laptop className="w-8 h-8 text-white" />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">
@@ -107,9 +108,9 @@ export default function TeamSection() {
           {teamPlaceholders.map((placeholder, index) => (
             <Card key={placeholder.id} hover className="text-center">
               <div
-                className={`w-24 h-24 mx-auto mb-4 bg-gradient-to-br ${placeholder.color} rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg hover:scale-110 transition-transform duration-300`}
+                className={`w-24 h-24 mx-auto mb-4 bg-gradient-to-br ${placeholder.color} rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300`}
               >
-                👤
+                <User className="w-12 h-12 text-white" />
               </div>
               <h4 className="font-bold text-lg text-gray-900 mb-2">
                 {placeholder.role}
@@ -127,8 +128,9 @@ export default function TeamSection() {
 
         {/* Info Message */}
         <div className="text-center bg-white rounded-2xl p-8 shadow-lg max-w-3xl mx-auto">
-          <div className="inline-block bg-primary-100 text-primary-700 px-4 py-2 rounded-full font-medium mb-4">
-            👥 Информация о команде
+          <div className="inline-flex items-center space-x-2 bg-primary-100 text-primary-700 px-4 py-2 rounded-full font-medium mb-4">
+            <Info className="w-5 h-5" />
+            <span>Информация о команде</span>
           </div>
           <p className="text-gray-700 leading-relaxed mb-4">
             Подробная информация о сотрудниках, преподавателях и менторах

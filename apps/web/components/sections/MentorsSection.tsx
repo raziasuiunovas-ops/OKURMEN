@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
+import { UserCheck, BookOpen, MessageCircle, Target, HandHeart } from 'lucide-react';
 
 export default function MentorsSection() {
   const t = useTranslations('mentors');
@@ -20,7 +21,7 @@ export default function MentorsSection() {
         {/* Key Stat Card */}
         <div className="max-w-4xl mx-auto mb-16">
           <Card className="bg-gradient-to-br from-primary-500 to-accent-500 text-white text-center py-12 px-8 shadow-2xl">
-            <div className="text-7xl mb-6">👨‍🏫</div>
+            <UserCheck className="w-20 h-20 mx-auto mb-6 text-white" />
             <h3 className="text-5xl font-bold mb-4">50</h3>
             <p className="text-2xl font-semibold mb-2">{t('description')}</p>
             <div className="w-32 h-1 bg-white/50 mx-auto rounded-full mt-6"></div>
@@ -45,42 +46,45 @@ export default function MentorsSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
-              icon: '📚',
+              icon: BookOpen,
               title: 'Обучение',
               description: 'Проведение очных занятий 2 раза в неделю',
               gradient: 'from-blue-500 to-cyan-500',
             },
             {
-              icon: '💬',
+              icon: MessageCircle,
               title: 'Поддержка',
               description: 'Ответы на вопросы студентов',
               gradient: 'from-green-500 to-emerald-500',
             },
             {
-              icon: '🎯',
+              icon: Target,
               title: 'Контроль',
               description: 'Отслеживание прогресса обучения',
               gradient: 'from-purple-500 to-pink-500',
             },
             {
-              icon: '🤝',
+              icon: HandHeart,
               title: 'Индивидуальный подход',
               description: 'Персональное сопровождение каждого студента',
               gradient: 'from-orange-500 to-red-500',
             },
-          ].map((item, index) => (
-            <Card key={index} hover className="text-center group">
-              <div
-                className={`w-20 h-20 mx-auto mb-4 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
-              >
-                {item.icon}
-              </div>
-              <h4 className="font-bold text-lg text-gray-900 mb-2">
-                {item.title}
-              </h4>
-              <p className="text-gray-600 text-sm">{item.description}</p>
-            </Card>
-          ))}
+          ].map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <Card key={index} hover className="text-center group">
+                <div
+                  className={`w-20 h-20 mx-auto mb-4 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <Icon className="w-10 h-10 text-white" />
+                </div>
+                <h4 className="font-bold text-lg text-gray-900 mb-2">
+                  {item.title}
+                </h4>
+                <p className="text-gray-600 text-sm">{item.description}</p>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Bottom Info */}
