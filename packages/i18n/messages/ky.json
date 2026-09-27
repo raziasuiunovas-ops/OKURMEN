@@ -111,7 +111,15 @@
     "title": "Байланыш",
     "address": "Дарек",
     "address_value": "ОРОЗБЕКОВА, 136",
-    "cta": "Арызды калтыруу"
+    "phone": "Телефон",
+    "email": "Email",
+    "workingHours": "Иш убактысы",
+    "workingHoursValue": "Дүй-Жум: 9:00 - 18:00",
+    "social": "Социалдык тармактарда",
+    "cta": "Арызды калтыруу",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "curator": "Куратор"
   },
   "footer": {
     "about": "ОКУРМЕН — бул 2022-жылдын май айында түзүлгөн заманбап IT билим берүү долбоору",

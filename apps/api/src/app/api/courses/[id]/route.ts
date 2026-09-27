@@ -11,6 +11,47 @@ import {
   serverErrorResponse,
 } from '@/lib/api-response';
 
+// Helper: Рассчитать реальную статистику курса
+async function calculateCourseStats(courseId: string) {
+  // 1. Рейтинг и количество отзывов из CourseReview
+  const reviews = await prisma.courseReview.findMany({
+    where: { courseId },
+    select: { rating: true },
+  });
+
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0;
+
+  // 2. Количество студентов из Enrollment (только активные и завершенные)
+  const enrollmentsCount = await prisma.enrollment.count({
+    where: {
+      courseId,
+      status: { in: ['ACTIVE', 'COMPLETED'] },
+    },
+  });
+
+  // 3. Общая длительность из опубликованных уроков
+  const lessons = await prisma.lesson.findMany({
+    where: {
+      courseId,
+      isPublished: true,
+    },
+    select: { duration: true },
+  });
+
+  const totalDurationMinutes = lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+  const totalHours = Math.round(totalDurationMinutes / 60);
+
+  return {
+    rating: Math.round(averageRating * 10) / 10, // Округляем до 1 знака
+    totalReviews: reviews.length,
+    enrolledStudents: enrollmentsCount,
+    totalHours,
+    lessonsCount: lessons.length,
+  };
+}
+
 // GET /api/courses/[id] - Public
 export async function GET(
   request: NextRequest,
@@ -37,6 +78,13 @@ export async function GET(
             },
           },
         },
+        _count: {
+          select: {
+            enrollments: true,
+            courseReviews: true,
+            lessons: true,
+          },
+        },
       },
     });
 
@@ -44,7 +92,23 @@ export async function GET(
       return notFoundResponse('Course');
     }
 
-    return successResponse(course);
+    // Рассчитываем реальную статистику
+    const stats = await calculateCourseStats(course.id);
+
+    // Возвращаем курс с вычисленными значениями
+    const courseWithStats = {
+      ...course,
+      rating: stats.rating,
+      totalReviews: stats.totalReviews,
+      enrolledStudents: stats.enrolledStudents,
+      totalHours: stats.totalHours,
+      _count: {
+        ...course._count,
+        lessons: stats.lessonsCount,
+      },
+    };
+
+    return successResponse(courseWithStats);
   } catch (error) {
     console.error('Get course error:', error);
     return serverErrorResponse();
@@ -121,7 +185,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
 
     const { id } = await params;
     const body = await request.json();
@@ -131,7 +195,17 @@ export async function PATCH(
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
 
-    const { price, duration, format, isActive, translations, teacherIds } = validation.data;
+    const {
+      price,
+      duration,
+      format,
+      coverImage,
+      coverGradient,
+      icon,
+      isActive,
+      translations,
+      teacherIds,
+    } = validation.data;
 
     // Check if course exists
     const existingCourse = await prisma.course.findUnique({
@@ -149,6 +223,9 @@ export async function PATCH(
         ...(price !== undefined && { price }),
         ...(duration !== undefined && { duration }),
         ...(format !== undefined && { format }),
+        ...(coverImage !== undefined && { coverImage }),
+        ...(coverGradient !== undefined && { coverGradient }),
+        ...(icon !== undefined && { icon }),
         ...(isActive !== undefined && { isActive }),
         ...(translations && {
           translations: {
@@ -181,6 +258,12 @@ export async function PATCH(
             },
           },
         },
+        _count: {
+          select: {
+            enrollments: true,
+            courseReviews: true,
+          },
+        },
       },
     });
 
@@ -202,7 +285,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
 
     const { id } = await params;
 

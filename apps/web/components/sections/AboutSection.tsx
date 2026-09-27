@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
@@ -17,8 +17,8 @@ export default function AboutSection() {
   ];
 
   const founders = [
-    { name: 'Санжарбек Мадумаров', role: t('founders') },
-    { name: 'Улукбек Бакыбек уулу', role: t('founders') },
+    { name: 'РЎР°РЅР¶Р°СЂР±РµРє РњР°РґСѓРјР°СЂРѕРІ', role: t('founders') },
+    { name: 'РЈР»СѓРєР±РµРє Р‘Р°РєС‹Р±РµРє СѓСѓР»Сѓ', role: t('founders') },
   ];
 
   return (
@@ -73,8 +73,8 @@ export default function AboutSection() {
 
         <div className="about-timeline">
           <div className="about-timeline-card">
-            <div className="about-timeline-badge">Май 2022</div>
-            <p className="about-timeline-text">Основание ОКУРМЕН IT</p>
+            <div className="about-timeline-badge">РњР°Р№ 2022</div>
+            <p className="about-timeline-text">РћСЃРЅРѕРІР°РЅРёРµ РћРљРЈР РњР•Рќ IT</p>
             <div className="about-timeline-dots">
               <div className="about-timeline-dot"></div>
               <div className="about-timeline-dot"></div>
@@ -86,3 +86,4 @@ export default function AboutSection() {
     </section>
   );
 }
+

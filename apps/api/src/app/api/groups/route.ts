@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
 
-    const { name, description, courseId, startDate, endDate, isActive } = validation.data;
+    const { name, description, courseId, mentorId, whatsappUrl, startDate, endDate, isActive } = validation.data;
 
     // Check if group name already exists
     const existingGroup = await prisma.group.findUnique({
@@ -93,6 +93,8 @@ export async function POST(request: NextRequest) {
         name,
         description,
         courseId,
+        mentorId,
+        whatsappUrl: whatsappUrl || null,
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
         isActive: isActive ?? true,

@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user is admin (for admin panel)
-    if (user.role !== 'ADMIN') {
+    // Check if user is admin or employee
+    if (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE') {
       return NextResponse.json(
         { error: 'Доступ запрещён' },
         { status: 403 }

@@ -111,7 +111,15 @@
     "title": "Contacts",
     "address": "Address",
     "address_value": "OROZBEKOVA, 136",
-    "cta": "Submit Application"
+    "phone": "Phone",
+    "email": "Email",
+    "workingHours": "Working Hours",
+    "workingHoursValue": "Mon-Fri: 9:00 AM - 6:00 PM",
+    "social": "Social Media",
+    "cta": "Submit Application",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "curator": "Curator"
   },
   "footer": {
     "about": "OKURMEN is a modern IT education project founded in May 2022",

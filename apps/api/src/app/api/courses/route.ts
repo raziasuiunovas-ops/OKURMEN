@@ -10,16 +10,61 @@ import {
   serverErrorResponse,
 } from '@/lib/api-response';
 
-// GET /api/courses - Public (returns only active courses)
+// Helper: Рассчитать реальную статистику курса
+async function calculateCourseStats(courseId: string) {
+  // 1. Рейтинг и количество отзывов из CourseReview
+  const reviews = await prisma.courseReview.findMany({
+    where: { courseId },
+    select: { rating: true },
+  });
+
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0;
+
+  // 2. Количество студентов из Enrollment (только активные и завершенные)
+  const enrollmentsCount = await prisma.enrollment.count({
+    where: {
+      courseId,
+      status: { in: ['ACTIVE', 'COMPLETED'] },
+    },
+  });
+
+  // 3. Общая длительность из опубликованных уроков
+  const lessons = await prisma.lesson.findMany({
+    where: {
+      courseId,
+      isPublished: true,
+    },
+    select: { duration: true },
+  });
+
+  const totalDurationMinutes = lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+  const totalHours = Math.round(totalDurationMinutes / 60);
+
+  return {
+    rating: Math.round(averageRating * 10) / 10, // Округляем до 1 знака
+    totalReviews: reviews.length,
+    enrolledStudents: enrollmentsCount,
+    totalHours,
+    lessonsCount: lessons.length,
+  };
+}
+
+// GET /api/courses - Public (returns only active courses unless admin)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const includeInactive = searchParams.get('includeInactive') === 'true';
+    const language = searchParams.get('language') || 'RU';
+    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
 
     const courses = await prisma.course.findMany({
       where: includeInactive ? undefined : { isActive: true },
       include: {
-        translations: true,
+        translations: {
+          where: { languageCode: language as any },
+        },
         teachers: {
           include: {
             employee: {
@@ -34,26 +79,45 @@ export async function GET(request: NextRequest) {
             },
           },
         },
+        _count: {
+          select: {
+            enrollments: true,
+            courseReviews: true,
+            lessons: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
+      take: limit,
     });
 
-    // Преобразуем в простой формат для админки
-    const simplifiedCourses = courses.map(course => {
-      const ruTranslation = course.translations.find(t => t.languageCode === 'RU') || course.translations[0];
-      return {
-        id: course.id,
-        title: ruTranslation?.title || '',
-        description: ruTranslation?.description || '',
-        duration: course.duration,
-        price: course.price,
-        level: (ruTranslation as any)?.level || 'BEGINNER',
-        image: null,
-        createdAt: course.createdAt.toISOString(),
-      };
-    });
+    // Рассчитываем реальную статистику для каждого курса
+    const coursesWithStats = await Promise.all(
+      courses.map(async (course) => {
+        const stats = await calculateCourseStats(course.id);
+        
+        return {
+          ...course,
+          // Переопределяем значения из БД реальными расчетными
+          rating: stats.rating,
+          totalReviews: stats.totalReviews,
+          enrolledStudents: stats.enrolledStudents,
+          totalHours: stats.totalHours,
+          // Для frontend удобнее один объект translation
+          translation: course.translations[0] || {
+            title: 'Untitled Course',
+            description: '',
+            level: 'BEGINNER',
+          },
+          _count: {
+            ...course._count,
+            lessons: stats.lessonsCount,
+          },
+        };
+      })
+    );
 
-    return successResponse(simplifiedCourses);
+    return successResponse(coursesWithStats);
   } catch (error) {
     console.error('Get courses error:', error);
     return serverErrorResponse();
@@ -63,19 +127,27 @@ export async function GET(request: NextRequest) {
 // POST /api/courses - Protected (admin only)
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
 
     const body = await request.json();
-    
-    // Простой формат для админки
-    const { title, description, duration, price, level, image } = body;
+    const validation = createCourseSchema.safeParse(body);
 
-    if (!title || !description) {
-      return errorResponse('Title and description are required', 400);
+    if (!validation.success) {
+      return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
 
-    // Создаём slug из title
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const {
+      slug,
+      price,
+      duration,
+      format,
+      coverImage,
+      coverGradient,
+      icon,
+      isActive,
+      translations,
+      teacherIds,
+    } = validation.data;
 
     // Проверка на дубликат slug
     const existingCourse = await prisma.course.findUnique({
@@ -83,33 +155,30 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingCourse) {
-      return errorResponse('Course with similar title already exists', 409);
+      return errorResponse('Course with this slug already exists', 409);
     }
 
-    // Преобразуем level из формы в enum
-    let courseLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' = 'BEGINNER';
-    if (level === 'INTERMEDIATE' || level === 'Средний') {
-      courseLevel = 'INTERMEDIATE';
-    } else if (level === 'ADVANCED' || level === 'Продвинутый') {
-      courseLevel = 'ADVANCED';
-    }
-
-    // Создаём курс с переводом
+    // Создаём курс
     const course = await prisma.course.create({
       data: {
         slug,
-        price: price || 0,
-        duration: duration || '0 weeks',
-        format: 'HYBRID',
-        isActive: true,
+        price,
+        duration,
+        format,
+        coverImage,
+        coverGradient,
+        icon,
+        isActive,
         translations: {
-          create: {
-            languageCode: 'RU',
-            title,
-            description,
-            level: courseLevel,
-          },
+          create: translations,
         },
+        ...(teacherIds && teacherIds.length > 0 && {
+          teachers: {
+            create: teacherIds.map((employeeId) => ({
+              employeeId,
+            })),
+          },
+        }),
       },
       include: {
         translations: true,
@@ -133,11 +202,11 @@ export async function POST(request: NextRequest) {
     return successResponse(course, 201);
   } catch (error: any) {
     console.error('Create course error:', error);
-    
+
     if (error.message === 'Forbidden: Admin access required') {
       return forbiddenResponse();
     }
-    
+
     return serverErrorResponse();
   }
 }

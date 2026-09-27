@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
@@ -13,37 +13,37 @@ export default function ActivitiesSection() {
       title: t('onugu'),
       icon: Sprout,
       gradient: 'from-green-500 to-emerald-500',
-      description: 'Өнүгүү сабактары',
+      description: 'УЁРЅТЇРіТЇТЇ СЃР°Р±Р°РєС‚Р°СЂС‹',
     },
     {
       title: t('oratory'),
       icon: Mic,
       gradient: 'from-purple-500 to-pink-500',
-      description: 'Развитие навыков публичных выступлений',
+      description: 'Р Р°Р·РІРёС‚РёРµ РЅР°РІС‹РєРѕРІ РїСѓР±Р»РёС‡РЅС‹С… РІС‹СЃС‚СѓРїР»РµРЅРёР№',
     },
     {
       title: t('literacy'),
       icon: Keyboard,
       gradient: 'from-blue-500 to-cyan-500',
-      description: 'Базовые навыки работы с компьютером',
+      description: 'Р‘Р°Р·РѕРІС‹Рµ РЅР°РІС‹РєРё СЂР°Р±РѕС‚С‹ СЃ РєРѕРјРїСЊСЋС‚РµСЂРѕРј',
     },
     {
       title: t('talking'),
       icon: MessageCircle,
       gradient: 'from-orange-500 to-red-500',
-      description: 'Разговорный клуб для практики языка',
+      description: 'Р Р°Р·РіРѕРІРѕСЂРЅС‹Р№ РєР»СѓР± РґР»СЏ РїСЂР°РєС‚РёРєРё СЏР·С‹РєР°',
     },
     {
       title: t('ai'),
       icon: Bot,
       gradient: 'from-indigo-500 to-purple-500',
-      description: 'Искусственный интеллект и современные технологии',
+      description: 'РСЃРєСѓСЃСЃС‚РІРµРЅРЅС‹Р№ РёРЅС‚РµР»Р»РµРєС‚ Рё СЃРѕРІСЂРµРјРµРЅРЅС‹Рµ С‚РµС…РЅРѕР»РѕРіРёРё',
     },
     {
       title: t('seminars'),
       icon: Target,
       gradient: 'from-yellow-500 to-amber-500',
-      description: 'Семинары от Гапыра Мадаминова',
+      description: 'РЎРµРјРёРЅР°СЂС‹ РѕС‚ Р“Р°РїС‹СЂР° РњР°РґР°РјРёРЅРѕРІР°',
     },
   ];
 
@@ -102,26 +102,26 @@ export default function ActivitiesSection() {
         {/* Bottom Info Section */}
         <div className="mt-16 bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-8 text-center">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Комплексное развитие
+            РљРѕРјРїР»РµРєСЃРЅРѕРµ СЂР°Р·РІРёС‚РёРµ
           </h3>
           <p className="text-gray-700 max-w-3xl mx-auto leading-relaxed">
-            ОКУРМЕН предлагает не только IT-образование, но и дополнительные
-            программы для всестороннего развития студентов. Мы создаём
-            образовательную экосистему, которая помогает развивать как
-            технические, так и личностные навыки.
+            РћРљРЈР РњР•Рќ РїСЂРµРґР»Р°РіР°РµС‚ РЅРµ С‚РѕР»СЊРєРѕ IT-РѕР±СЂР°Р·РѕРІР°РЅРёРµ, РЅРѕ Рё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ
+            РїСЂРѕРіСЂР°РјРјС‹ РґР»СЏ РІСЃРµСЃС‚РѕСЂРѕРЅРЅРµРіРѕ СЂР°Р·РІРёС‚РёСЏ СЃС‚СѓРґРµРЅС‚РѕРІ. РњС‹ СЃРѕР·РґР°С‘Рј
+            РѕР±СЂР°Р·РѕРІР°С‚РµР»СЊРЅСѓСЋ СЌРєРѕСЃРёСЃС‚РµРјСѓ, РєРѕС‚РѕСЂР°СЏ РїРѕРјРѕРіР°РµС‚ СЂР°Р·РІРёРІР°С‚СЊ РєР°Рє
+            С‚РµС…РЅРёС‡РµСЃРєРёРµ, С‚Р°Рє Рё Р»РёС‡РЅРѕСЃС‚РЅС‹Рµ РЅР°РІС‹РєРё.
           </p>
           <div className="mt-6 flex items-center justify-center space-x-4 flex-wrap gap-2">
             <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md flex items-center space-x-2">
               <GraduationCap className="w-4 h-4" />
-              <span>Образование</span>
+              <span>РћР±СЂР°Р·РѕРІР°РЅРёРµ</span>
             </span>
             <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md flex items-center space-x-2">
               <TrendingUp className="w-4 h-4" />
-              <span>Развитие</span>
+              <span>Р Р°Р·РІРёС‚РёРµ</span>
             </span>
             <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 shadow-md flex items-center space-x-2">
               <Users className="w-4 h-4" />
-              <span>Сообщество</span>
+              <span>РЎРѕРѕР±С‰РµСЃС‚РІРѕ</span>
             </span>
           </div>
         </div>
@@ -129,5 +129,6 @@ export default function ActivitiesSection() {
     </section>
   );
 }
+
 
 

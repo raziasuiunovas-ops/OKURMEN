@@ -85,7 +85,7 @@ export async function PATCH(
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
 
-    const { name, description, courseId, startDate, endDate, isActive } = validation.data;
+    const { name, description, courseId, mentorId, whatsappUrl, startDate, endDate, isActive } = validation.data;
 
     // Check if group exists
     const existingGroup = await prisma.group.findUnique({
@@ -113,6 +113,8 @@ export async function PATCH(
         ...(name && { name }),
         ...(description !== undefined && { description }),
         ...(courseId !== undefined && { courseId }),
+        ...(mentorId !== undefined && { mentorId }),
+        ...(whatsappUrl !== undefined && { whatsappUrl: whatsappUrl || null }),
         ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
         ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
         ...(isActive !== undefined && { isActive }),

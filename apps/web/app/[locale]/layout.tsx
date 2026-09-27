@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import ScrollToTop from '@/components/ScrollToTop';
 import '@/app/globals.css';
 
 export function generateStaticParams() {
@@ -101,6 +102,7 @@ export default async function LocaleLayout({
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
             {children}
+            <ScrollToTop />
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

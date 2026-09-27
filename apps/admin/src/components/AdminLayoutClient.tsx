@@ -22,8 +22,6 @@ import {
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-import { useTheme } from '@/contexts/ThemeContext';
-
 interface User {
   id: string;
   email: string;
@@ -168,14 +166,16 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               className="flex items-center space-x-3 group"
             >
               <img 
-                src={theme === 'dark' ? '/logo-dark.svg' : '/logo.svg'}
+                src={theme === 'dark' ? '/logo.svg' : '/logo.svg'}
                 alt="ОКУРМЕН" 
                 className="w-10 h-10 flex-shrink-0"
               />
               {sidebarOpen && (
                 <div>
-                  <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">
-                    Окурмэн
+                  <h1 className={`text-xl font-bold ${
+                    theme === 'dark' ? 'text-white' : 'text-[#FF6B00]'
+                  }`}>
+                    ОКУРМЕН
                   </h1>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Admin Panel

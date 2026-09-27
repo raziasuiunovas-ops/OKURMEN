@@ -13,8 +13,11 @@ import { z } from 'zod';
 // Валидатор для добавления ученика в группу
 const addStudentSchema = z.object({
   fullName: z.string().min(1),
+  username: z.string().min(1),
   email: z.string().email().optional(),
   phone: z.string().optional(),
+  age: z.number().int().min(5).max(100).optional(),
+  studyDuration: z.string().optional(),
   courseId: z.string().optional(),
   startDate: z.string().datetime().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'GRADUATED', 'DROPPED']).default('ACTIVE'),
@@ -36,7 +39,7 @@ export async function POST(
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
 
-    const { fullName, email, phone, courseId, startDate, status } = validation.data;
+    const { fullName, username, email, phone, age, studyDuration, courseId, startDate, status } = validation.data;
 
     // Check if group exists
     const group = await prisma.group.findUnique({
@@ -85,8 +88,11 @@ export async function POST(
     const user = await prisma.user.create({
       data: {
         fullName,
+        username,
         email,
         phone,
+        age,
+        studyDuration,
         role: UserRole.CLIENT,
         isActive: true,
         studentProfile: {

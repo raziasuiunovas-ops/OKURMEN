@@ -26,7 +26,7 @@ const translations = {
     'common.success': 'Успешно',
     
     // Навигация
-    'nav.dashboard': 'Дашборд',
+    'nav.dashboard': 'Панель управления',
     'nav.courses': 'Курсы',
     'nav.lessons': 'Уроки',
     'nav.students': 'Ученики',

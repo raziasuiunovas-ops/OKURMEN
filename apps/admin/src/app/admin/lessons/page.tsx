@@ -62,7 +62,14 @@ export default function LessonsPage() {
         credentials: 'include',
       });
       const data = await response.json();
-      setCourses(data.data || []);
+      
+      // Map courses with translations to get title
+      const coursesWithTitles = (data.data || []).map((course: any) => ({
+        id: course.id,
+        title: course.translations?.[0]?.title || course.slug || 'Без названия',
+      }));
+      
+      setCourses(coursesWithTitles);
     } catch (error) {
       console.error('Failed to fetch courses:', error);
     }

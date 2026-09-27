@@ -15,6 +15,7 @@ import {
   AlertCircle,
   X,
   GraduationCap,
+  Key,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -45,6 +46,7 @@ interface Group {
   name: string;
   description: string | null;
   courseId: string | null;
+  mentorId: string | null;
   startDate: string | null;
   endDate: string | null;
   isActive: boolean;
@@ -74,6 +76,7 @@ export default function StudentsPage() {
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [addingStudentToGroup, setAddingStudentToGroup] = useState<Group | null>(null);
+  const [grantingAccess, setGrantingAccess] = useState<{ type: 'student' | 'group'; target: Student | Group | null }>({ type: 'student', target: null });
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
@@ -298,6 +301,13 @@ export default function StudentsPage() {
 
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                       <button
+                        onClick={() => setGrantingAccess({ type: 'group', target: group })}
+                        className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl transition-colors"
+                        title="Открыть доступ к курсу для всей группы"
+                      >
+                        <Key className="w-5 h-5" />
+                      </button>
+                      <button
                         onClick={() => setAddingStudentToGroup(group)}
                         className="p-2 hover:bg-orange-100 dark:hover:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl transition-colors"
                         title="Добавить ученика"
@@ -344,15 +354,24 @@ export default function StudentsPage() {
                                 </h4>
                                 {getStatusBadge(student.status)}
                               </div>
-                              <button
-                                onClick={() =>
-                                  handleDeleteStudent(group.id, student.id, student.user.fullName)
-                                }
-                                className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg transition-colors"
-                                title="Удалить из группы"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => setGrantingAccess({ type: 'student', target: student })}
+                                  className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
+                                  title="Открыть доступ к курсу"
+                                >
+                                  <Key className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteStudent(group.id, student.id, student.user.fullName)
+                                  }
+                                  className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+                                  title="Удалить из группы"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </div>
 
                             {student.enrollments.length > 0 && (
@@ -420,6 +439,19 @@ export default function StudentsPage() {
           }}
         />
       )}
+
+      {/* Grant Course Access Modal */}
+      {grantingAccess.target && (
+        <GrantCourseAccessModal
+          type={grantingAccess.type}
+          target={grantingAccess.target}
+          onClose={() => setGrantingAccess({ type: 'student', target: null })}
+          onSuccess={(message) => {
+            fetchGroups();
+            showToast('success', message);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -437,13 +469,43 @@ function EditGroupModal({
   const isEditing = group && group.id;
   
   const [formData, setFormData] = useState({
-    name: group?.name || '',
+    name: group?.name || 'Frontend1',
     description: group?.description || '',
+    mentorId: group?.mentorId || '',
     startDate: group?.startDate ? new Date(group.startDate).toISOString().split('T')[0] : '',
     endDate: group?.endDate ? new Date(group.endDate).toISOString().split('T')[0] : '',
     isActive: group?.isActive ?? true,
   });
+  const [mentors, setMentors] = useState<Array<{ id: string; fullName: string }>>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchingMentors, setFetchingMentors] = useState(true);
+
+  useEffect(() => {
+    fetchMentors();
+  }, []);
+
+  const fetchMentors = async () => {
+    try {
+      const token = localStorage.getItem('auth-token');
+      const response = await fetch('http://localhost:3002/api/employees?position=MENTOR', {
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const mentorsList = data.data.map((emp: any) => ({
+          id: emp.id,
+          fullName: emp.user.fullName,
+        }));
+        setMentors(mentorsList);
+      }
+    } catch (error) {
+      console.error('Failed to fetch mentors:', error);
+    } finally {
+      setFetchingMentors(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -465,6 +527,7 @@ function EditGroupModal({
         body: JSON.stringify({
           name: formData.name,
           description: formData.description || null,
+          mentorId: formData.mentorId || null,
           startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
           endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null,
           isActive: formData.isActive,
@@ -518,6 +581,33 @@ function EditGroupModal({
               className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Ментор группы
+            </label>
+            {fetchingMentors ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+              </div>
+            ) : (
+              <select
+                value={formData.mentorId}
+                onChange={(e) => setFormData({ ...formData, mentorId: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">-- Без ментора --</option>
+                {mentors.map((mentor) => (
+                  <option key={mentor.id} value={mentor.id}>
+                    {mentor.fullName}
+                  </option>
+                ))}
+              </select>
+            )}
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Выберите ментора для группы (необязательно)
+            </p>
           </div>
 
           <div>
@@ -613,6 +703,10 @@ function AddStudentModal({
 }) {
   const [formData, setFormData] = useState({
     fullName: '',
+    username: '',
+    phone: '',
+    age: '',
+    studyDuration: '',
     status: 'ACTIVE',
   });
   const [loading, setLoading] = useState(false);
@@ -632,6 +726,10 @@ function AddStudentModal({
         },
         body: JSON.stringify({
           fullName: formData.fullName,
+          username: formData.username,
+          phone: formData.phone || undefined,
+          age: formData.age ? parseInt(formData.age) : undefined,
+          studyDuration: formData.studyDuration || undefined,
           status: formData.status,
           courseId: group.courseId || undefined,
           startDate: group.startDate || new Date().toISOString(),
@@ -687,6 +785,65 @@ function AddStudentModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Аккаунт (username) *
+            </label>
+            <input
+              type="text"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="username123"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Номер телефона
+            </label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="+996 555 123 456 (необязательно)"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Возраст *
+              </label>
+              <input
+                type="number"
+                value={formData.age}
+                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="16"
+                min="5"
+                max="100"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Срок обучения *
+              </label>
+              <input
+                type="text"
+                value={formData.studyDuration}
+                onChange={(e) => setFormData({ ...formData, studyDuration: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="6 месяцев"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Статус
             </label>
             <select
@@ -734,6 +891,204 @@ function AddStudentModal({
                 <>
                   <UserPlus className="w-4 h-4" />
                   Добавить
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Grant Course Access Modal
+interface Course {
+  id: string;
+  slug: string;
+  translations: Array<{ title: string; description: string }>;
+}
+
+function GrantCourseAccessModal({
+  type,
+  target,
+  onClose,
+  onSuccess,
+}: {
+  type: 'student' | 'group';
+  target: Student | Group;
+  onClose: () => void;
+  onSuccess: (message: string) => void;
+}) {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [fetchingCourses, setFetchingCourses] = useState(true);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const token = localStorage.getItem('auth-token');
+      const response = await fetch('http://localhost:3002/api/courses', {
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(data.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch courses:', error);
+    } finally {
+      setFetchingCourses(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedCourseId) {
+      alert('Выберите курс');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('auth-token');
+      const body =
+        type === 'student'
+          ? {
+              type: 'student',
+              studentId: target.id,
+              courseId: selectedCourseId,
+            }
+          : {
+              type: 'group',
+              groupId: target.id,
+              courseId: selectedCourseId,
+            };
+
+      const response = await fetch('http://localhost:3002/api/admin/course-access', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onSuccess(data.data.message || '✅ Доступ успешно открыт');
+        onClose();
+      } else {
+        const error = await response.json();
+        alert(`Ошибка: ${error.message || 'Не удалось открыть доступ'}`);
+      }
+    } catch (error) {
+      console.error('Failed to grant access:', error);
+      alert('Ошибка при открытии доступа');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const targetName = 'user' in target ? target.user.fullName : target.name;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Открыть доступ к курсу
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              {type === 'student' ? (
+                <>
+                  <strong>Студент:</strong> {targetName}
+                </>
+              ) : (
+                <>
+                  <strong>Группа:</strong> {targetName} ({(target as Group)._count?.students || 0}{' '}
+                  учеников)
+                </>
+              )}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Выберите курс *
+            </label>
+            {fetchingCourses ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <select
+                value={selectedCourseId}
+                onChange={(e) => setSelectedCourseId(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">-- Выберите курс --</option>
+                {courses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.translations[0]?.title || course.slug}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {type === 'group' && (
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                ⚠️ Доступ будет открыт для всех {(target as Group)._count?.students || 0} учеников
+                группы
+              </p>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              disabled={loading || fetchingCourses}
+              className="px-6 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Открытие доступа...
+                </>
+              ) : (
+                <>
+                  <Key className="w-4 h-4" />
+                  Открыть доступ
                 </>
               )}
             </button>

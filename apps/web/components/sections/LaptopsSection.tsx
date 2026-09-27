@@ -117,7 +117,7 @@ export default function LaptopsSection() {
         {/* Benefits Section */}
         <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-8 mb-12">
           <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">
-            Преимущества покупки через ОКУРМЕН
+            Преимущества покупки через ОКУРМЭН
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -134,7 +134,7 @@ export default function LaptopsSection() {
               {
                 icon: GraduationCap,
                 title: 'Для обучения',
-                description: 'Подходит для всех курсов ОКУРМЕН',
+                description: 'Подходит для всех курсов ОКУРМЭН',
               },
             ].map((benefit, index) => {
               const Icon = benefit.icon;
@@ -158,7 +158,7 @@ export default function LaptopsSection() {
           </div>
           <p className="text-gray-700 leading-relaxed mb-6">
             Точные модели ноутбуков, цены, характеристики и условия покупки
-            будут добавлены после согласования с командой ОКУРМЕН.
+            будут добавлены после согласования с командой ОКУРМЭН.
           </p>
           <Button
             variant="primary"
@@ -175,3 +175,4 @@ export default function LaptopsSection() {
     </section>
   );
 }
+

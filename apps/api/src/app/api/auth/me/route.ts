@@ -64,6 +64,13 @@ export async function GET(request: NextRequest) {
         role: true,
         preferredLanguage: true,
         isActive: true,
+        employeeProfile: {
+          select: {
+            id: true,
+            position: true,
+            photoUrl: true,
+          },
+        },
       },
     });
 
@@ -85,6 +92,8 @@ export async function GET(request: NextRequest) {
         name: user.fullName,
         email: user.email,
         role: user.role,
+        position: user.employeeProfile?.position,
+        photoUrl: user.employeeProfile?.photoUrl,
       },
     });
   } catch (error) {

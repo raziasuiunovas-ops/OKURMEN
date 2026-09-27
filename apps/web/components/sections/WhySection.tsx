@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
@@ -104,7 +104,7 @@ export default function WhySection() {
           <div className="inline-block bg-white rounded-2xl shadow-xl p-8 max-w-2xl">
             <p className="text-lg text-gray-700 leading-relaxed">
               <span className="font-bold text-primary-600">3000+</span>{' '}
-              студентов уже выбрали ОКУРМЕН для своего IT-образования
+              СЃС‚СѓРґРµРЅС‚РѕРІ СѓР¶Рµ РІС‹Р±СЂР°Р»Рё РћРљРЈР РњР•Рќ РґР»СЏ СЃРІРѕРµРіРѕ IT-РѕР±СЂР°Р·РѕРІР°РЅРёСЏ
             </p>
             <div className="mt-6 flex items-center justify-center space-x-2">
               {[...Array(5)].map((_, i) => (
@@ -117,3 +117,4 @@ export default function WhySection() {
     </section>
   );
 }
+

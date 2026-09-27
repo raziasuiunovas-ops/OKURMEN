@@ -132,7 +132,7 @@ export default function SignInPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
-                    placeholder="admin@okurmen.kg"
+                    placeholder="admin@email.com"
                     required
                     disabled={loading}
                   />

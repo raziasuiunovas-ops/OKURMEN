@@ -7,16 +7,18 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:student": "tsx prisma/seed-test-student.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^18.0.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "prisma": "^6.1.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
-    "@types/bcryptjs": "^2.4.6"
+    "typescript": "^5.7.2"
   }
 }

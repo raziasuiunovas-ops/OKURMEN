@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
@@ -33,7 +33,7 @@ export default function MentorsSection() {
           <Card className="bg-gradient-to-br from-purple-50 to-pink-50">
             <div className="text-center">
               <div className="inline-block bg-purple-100 text-purple-700 px-4 py-2 rounded-full font-medium mb-4">
-                Роль ментора
+                Р РѕР»СЊ РјРµРЅС‚РѕСЂР°
               </div>
               <p className="text-gray-700 text-lg leading-relaxed">
                 {t('role')}
@@ -47,26 +47,26 @@ export default function MentorsSection() {
           {[
             {
               icon: BookOpen,
-              title: 'Обучение',
-              description: 'Проведение очных занятий 2 раза в неделю',
+              title: 'РћР±СѓС‡РµРЅРёРµ',
+              description: 'РџСЂРѕРІРµРґРµРЅРёРµ РѕС‡РЅС‹С… Р·Р°РЅСЏС‚РёР№ 2 СЂР°Р·Р° РІ РЅРµРґРµР»СЋ',
               gradient: 'from-blue-500 to-cyan-500',
             },
             {
               icon: MessageCircle,
-              title: 'Поддержка',
-              description: 'Ответы на вопросы студентов',
+              title: 'РџРѕРґРґРµСЂР¶РєР°',
+              description: 'РћС‚РІРµС‚С‹ РЅР° РІРѕРїСЂРѕСЃС‹ СЃС‚СѓРґРµРЅС‚РѕРІ',
               gradient: 'from-green-500 to-emerald-500',
             },
             {
               icon: Target,
-              title: 'Контроль',
-              description: 'Отслеживание прогресса обучения',
+              title: 'РљРѕРЅС‚СЂРѕР»СЊ',
+              description: 'РћС‚СЃР»РµР¶РёРІР°РЅРёРµ РїСЂРѕРіСЂРµСЃСЃР° РѕР±СѓС‡РµРЅРёСЏ',
               gradient: 'from-purple-500 to-pink-500',
             },
             {
               icon: HandHeart,
-              title: 'Индивидуальный подход',
-              description: 'Персональное сопровождение каждого студента',
+              title: 'РРЅРґРёРІРёРґСѓР°Р»СЊРЅС‹Р№ РїРѕРґС…РѕРґ',
+              description: 'РџРµСЂСЃРѕРЅР°Р»СЊРЅРѕРµ СЃРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ РєР°Р¶РґРѕРіРѕ СЃС‚СѓРґРµРЅС‚Р°',
               gradient: 'from-orange-500 to-red-500',
             },
           ].map((item, index) => {
@@ -92,10 +92,10 @@ export default function MentorsSection() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold text-primary-600 mb-2">
-                2×
+                2Г—
               </div>
               <p className="text-gray-700 font-medium">
-                Очные занятия в неделю
+                РћС‡РЅС‹Рµ Р·Р°РЅСЏС‚РёСЏ РІ РЅРµРґРµР»СЋ
               </p>
             </div>
             <div>
@@ -103,7 +103,7 @@ export default function MentorsSection() {
                 24/7
               </div>
               <p className="text-gray-700 font-medium">
-                Доступ к онлайн-урокам
+                Р”РѕСЃС‚СѓРї Рє РѕРЅР»Р°Р№РЅ-СѓСЂРѕРєР°Рј
               </p>
             </div>
             <div>
@@ -111,7 +111,7 @@ export default function MentorsSection() {
                 1:1
               </div>
               <p className="text-gray-700 font-medium">
-                Индивидуальная поддержка
+                РРЅРґРёРІРёРґСѓР°Р»СЊРЅР°СЏ РїРѕРґРґРµСЂР¶РєР°
               </p>
             </div>
           </div>
@@ -120,3 +120,4 @@ export default function MentorsSection() {
     </section>
   );
 }
+

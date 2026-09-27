@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
@@ -14,31 +14,31 @@ export default function HybridLearningSection() {
       number: 1,
       title: t('step1'),
       icon: Monitor,
-      description: 'Айзада Акылбекова (США)',
+      description: 'РђР№Р·Р°РґР° РђРєС‹Р»Р±РµРєРѕРІР° (РЎРЁРђ)',
     },
     {
       number: 2,
       title: t('step2'),
       icon: Users,
-      description: 'До 50 учеников на ментора',
+      description: 'Р”Рѕ 50 СѓС‡РµРЅРёРєРѕРІ РЅР° РјРµРЅС‚РѕСЂР°',
     },
     {
       number: 3,
       title: t('step3'),
       icon: School,
-      description: 'ОРОЗБЕКОВА, 136',
+      description: 'РћР РћР—Р‘Р•РљРћР’Рђ, 136',
     },
     {
       number: 4,
       title: t('step4'),
       icon: MessageCircle,
-      description: 'Индивидуальная поддержка',
+      description: 'РРЅРґРёРІРёРґСѓР°Р»СЊРЅР°СЏ РїРѕРґРґРµСЂР¶РєР°',
     },
     {
       number: 5,
       title: t('step5'),
       icon: Smartphone,
-      description: 'Доступ 24/7',
+      description: 'Р”РѕСЃС‚СѓРї 24/7',
     },
   ];
 
@@ -96,7 +96,7 @@ export default function HybridLearningSection() {
                   {/* Connecting Arrow */}
                   {index < steps.length - 1 && (
                     <div className="absolute top-12 left-1/2 transform translate-x-12 text-primary-400 text-3xl animate-pulse">
-                      →
+                      в†’
                     </div>
                   )}
                 </div>
@@ -134,7 +134,7 @@ export default function HybridLearningSection() {
 
                 {/* Arrow */}
                 {index < steps.length - 1 && (
-                  <div className="text-primary-400 text-2xl">↓</div>
+                  <div className="text-primary-400 text-2xl">в†“</div>
                 )}
               </div>
             );
@@ -147,12 +147,12 @@ export default function HybridLearningSection() {
             <div className="flex items-center space-x-3 mb-3">
               <Globe className="w-8 h-8 text-blue-600" />
               <h4 className="font-bold text-xl text-gray-900">
-                Онлайн-обучение
+                РћРЅР»Р°Р№РЅ-РѕР±СѓС‡РµРЅРёРµ
               </h4>
             </div>
             <p className="text-gray-700">
-              Айзада Акылбекова проводит онлайн-уроки из США. Все уроки
-              доступны через приложение ОКУРМЕН.
+              РђР№Р·Р°РґР° РђРєС‹Р»Р±РµРєРѕРІР° РїСЂРѕРІРѕРґРёС‚ РѕРЅР»Р°Р№РЅ-СѓСЂРѕРєРё РёР· РЎРЁРђ. Р’СЃРµ СѓСЂРѕРєРё
+              РґРѕСЃС‚СѓРїРЅС‹ С‡РµСЂРµР· РїСЂРёР»РѕР¶РµРЅРёРµ РћРљРЈР РњР•Рќ.
             </p>
           </div>
 
@@ -160,12 +160,12 @@ export default function HybridLearningSection() {
             <div className="flex items-center space-x-3 mb-3">
               <Target className="w-8 h-8 text-purple-600" />
               <h4 className="font-bold text-xl text-gray-900">
-                АЭМ-методика
+                РђР­Рњ-РјРµС‚РѕРґРёРєР°
               </h4>
             </div>
             <p className="text-gray-700">
-              В обучении используется АЭМ-методика Гапыра Мадаминова для
-              максимальной эффективности.
+              Р’ РѕР±СѓС‡РµРЅРёРё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РђР­Рњ-РјРµС‚РѕРґРёРєР° Р“Р°РїС‹СЂР° РњР°РґР°РјРёРЅРѕРІР° РґР»СЏ
+              РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚Рё.
             </p>
           </div>
         </div>
@@ -186,3 +186,4 @@ export default function HybridLearningSection() {
     </section>
   );
 }
+

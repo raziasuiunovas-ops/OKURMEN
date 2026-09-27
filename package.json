@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
-    "dev:npm": "npm-run-all --parallel dev:web dev:api dev:admin",
+    "dev:npm": "npm-run-all --parallel dev:web dev:api dev:admin dev:employee",
     "dev:web": "cd apps/web && npm run dev",
     "dev:api": "cd apps/api && npm run dev",
     "dev:admin": "cd apps/admin && npm run dev",
+    "dev:employee": "cd apps/employee && npm run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",

@@ -481,9 +481,15 @@ function EmployeeModal({
 
       // Проверяем есть ли контент перед парсингом
       const text = await response.text();
-      console.log('Ответ сервера:', text.substring(0, 200));
+      const contentType = response.headers.get('content-type');
       
-      const result = text ? JSON.parse(text) : {};
+      // Проверяем что ответ это JSON
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Ответ не JSON:', text.substring(0, 200));
+        throw new Error('Сервер вернул некорректный ответ');
+      }
+      
+      const result = JSON.parse(text);
 
       if (response.ok) {
         const successMessage = employee 
@@ -565,7 +571,7 @@ function EmployeeModal({
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="email@okurmen.kg"
+                placeholder="email@email.com"
                 className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 dark:text-white"
                 disabled={!!employee}
               />

@@ -49,11 +49,14 @@ export async function POST(request: NextRequest) {
       return apiResponse.error('Неверный email или пароль', 401);
     }
 
-    // Проверяем роль (только для админов)
-    if (user.role !== 'ADMIN') {
-      console.log('ERROR: Not an admin');
-      return apiResponse.error('Доступ запрещен', 403);
+    // Проверяем что пользователь активен
+    if (!user.isActive) {
+      console.log('ERROR: User is not active');
+      return apiResponse.error('Аккаунт неактивен', 403);
     }
+
+    // 2FA доступна для всех ролей: ADMIN, EMPLOYEE, CLIENT
+    console.log('User role check passed:', user.role);
 
     // Генерируем и отправляем 2FA код
     console.log('Sending 2FA code...');

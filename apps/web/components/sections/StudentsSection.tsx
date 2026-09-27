@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
@@ -20,7 +20,7 @@ export default function StudentsSection() {
     },
     {
       icon: Landmark,
-      company: 'Мэрия Бишкека',
+      company: 'РњСЌСЂРёСЏ Р‘РёС€РєРµРєР°',
       description: t('mayor'),
       gradient: 'from-blue-500 to-cyan-500',
     },
@@ -32,13 +32,13 @@ export default function StudentsSection() {
     },
     {
       icon: Flag,
-      company: 'IT-компании Казахстана',
+      company: 'IT-РєРѕРјРїР°РЅРёРё РљР°Р·Р°С…СЃС‚Р°РЅР°',
       description: t('kazakhstan'),
       gradient: 'from-green-500 to-emerald-500',
     },
     {
       icon: Briefcase,
-      company: 'Фриланс',
+      company: 'Р¤СЂРёР»Р°РЅСЃ',
       description: t('freelance'),
       gradient: 'from-orange-500 to-red-500',
     },
@@ -141,28 +141,28 @@ export default function StudentsSection() {
         {/* Success Stories Section */}
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
           <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
-            Истории успеха
+            РСЃС‚РѕСЂРёРё СѓСЃРїРµС…Р°
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {[
               {
                 icon: Briefcase,
-                title: 'Трудоустройство',
+                title: 'РўСЂСѓРґРѕСѓСЃС‚СЂРѕР№СЃС‚РІРѕ',
                 description:
-                  'Выпускники работают в крупных компаниях и государственных учреждениях',
+                  'Р’С‹РїСѓСЃРєРЅРёРєРё СЂР°Р±РѕС‚Р°СЋС‚ РІ РєСЂСѓРїРЅС‹С… РєРѕРјРїР°РЅРёСЏС… Рё РіРѕСЃСѓРґР°СЂСЃС‚РІРµРЅРЅС‹С… СѓС‡СЂРµР¶РґРµРЅРёСЏС…',
               },
               {
                 icon: Globe,
-                title: 'Международный опыт',
+                title: 'РњРµР¶РґСѓРЅР°СЂРѕРґРЅС‹Р№ РѕРїС‹С‚',
                 description:
-                  'Студенты получают возможность работать в компаниях разных стран',
+                  'РЎС‚СѓРґРµРЅС‚С‹ РїРѕР»СѓС‡Р°СЋС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЂР°Р±РѕС‚Р°С‚СЊ РІ РєРѕРјРїР°РЅРёСЏС… СЂР°Р·РЅС‹С… СЃС‚СЂР°РЅ',
               },
               {
                 icon: Rocket,
-                title: 'Карьерный рост',
+                title: 'РљР°СЂСЊРµСЂРЅС‹Р№ СЂРѕСЃС‚',
                 description:
-                  'От студента до профессионала в IT-индустрии',
+                  'РћС‚ СЃС‚СѓРґРµРЅС‚Р° РґРѕ РїСЂРѕС„РµСЃСЃРёРѕРЅР°Р»Р° РІ IT-РёРЅРґСѓСЃС‚СЂРёРё',
               },
             ].map((story, index) => {
               const Icon = story.icon;
@@ -183,10 +183,10 @@ export default function StudentsSection() {
           <div className="text-center bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl p-6">
             <p className="text-gray-700 leading-relaxed">
               <span className="font-bold text-primary-600">
-                Каждая история успеха
+                РљР°Р¶РґР°СЏ РёСЃС‚РѕСЂРёСЏ СѓСЃРїРµС…Р°
               </span>{' '}
-              начинается с первого шага. Присоединяйтесь к ОКУРМЕН и станьте
-              частью нашего растущего сообщества профессионалов IT-индустрии.
+              РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ РїРµСЂРІРѕРіРѕ С€Р°РіР°. РџСЂРёСЃРѕРµРґРёРЅСЏР№С‚РµСЃСЊ Рє РћРљРЈР РњР•Рќ Рё СЃС‚Р°РЅСЊС‚Рµ
+              С‡Р°СЃС‚СЊСЋ РЅР°С€РµРіРѕ СЂР°СЃС‚СѓС‰РµРіРѕ СЃРѕРѕР±С‰РµСЃС‚РІР° РїСЂРѕС„РµСЃСЃРёРѕРЅР°Р»РѕРІ IT-РёРЅРґСѓСЃС‚СЂРёРё.
             </p>
           </div>
         </div>
@@ -203,3 +203,4 @@ export default function StudentsSection() {
     </section>
   );
 }
+

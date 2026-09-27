@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { MapPin, Phone, Mail, Clock, Smartphone, Shield } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Smartphone, Shield, MessageCircle, Send } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function ContactsSection() {
@@ -86,45 +86,71 @@ export default function ContactsSection() {
             <Card className="bg-white/10 backdrop-blur-md border border-white/20">
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <Phone className="w-6 h-6 text-white" />
-                  <div>
-                    <p className="text-sm text-white/70">Телефон</p>
-                    <div className="h-4 bg-white/20 rounded w-32 mt-1"></div>
+                  <Phone className="w-6 h-6 text-white flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-white/70 mb-1">{t('phone')}</p>
+                    <p className="text-white/60 text-sm">{t('curator')}: TBD</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Mail className="w-6 h-6 text-white" />
-                  <div>
-                    <p className="text-sm text-white/70">Email</p>
-                    <div className="h-4 bg-white/20 rounded w-48 mt-1"></div>
+                  <Mail className="w-6 h-6 text-white flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-white/70 mb-1">{t('email')}</p>
+                    <a href="mailto:info@okurmen.kg" className="text-white hover:text-white/80 transition-colors">
+                      info@okurmen.kg
+                    </a>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Clock className="w-6 h-6 text-white" />
-                  <div>
-                    <p className="text-sm text-white/70">Часы работы</p>
-                    <div className="h-4 bg-white/20 rounded w-40 mt-1"></div>
+                  <Clock className="w-6 h-6 text-white flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-white/70 mb-1">{t('workingHours')}</p>
+                    <p className="text-white">{t('workingHoursValue')}</p>
                   </div>
                 </div>
               </div>
             </Card>
 
-            {/* Social Media Placeholder */}
+            {/* Social Media */}
             <Card className="bg-white/10 backdrop-blur-md border border-white/20">
-              <h4 className="font-bold text-lg mb-4">Мы в соцсетях</h4>
-              <div className="flex flex-wrap gap-3">
-                {['Instagram', 'Facebook', 'Telegram', 'WhatsApp'].map(
-                  (social, index) => (
-                    <button
-                      key={index}
-                      className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors duration-200 text-sm font-medium"
-                    >
-                      {social}
-                    </button>
-                  )
-                )}
+              <h4 className="font-bold text-lg mb-4">{t('social')}</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <a
+                  href="#contacts"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-sm font-medium group"
+                  title={t('telegram')}
+                >
+                  <Send className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span>{t('telegram')}</span>
+                </a>
+                <a
+                  href="#contacts"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-sm font-medium group"
+                  title={t('whatsapp')}
+                >
+                  <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span>{t('whatsapp')}</span>
+                </a>
+                <a
+                  href="#contacts"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-sm font-medium group"
+                  title="Social"
+                >
+                  <Send className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span>Social</span>
+                </a>
+                <a
+                  href="#contacts"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-sm font-medium group"
+                  title="Messenger"
+                >
+                  <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span>Messenger</span>
+                </a>
               </div>
-              <p className="text-xs text-white/60 mt-4">TBD</p>
+              <p className="text-xs text-white/60 mt-4 text-center">
+                {t('curator')}: TBD
+              </p>
             </Card>
           </div>
 
@@ -136,7 +162,7 @@ export default function ContactsSection() {
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
                 Заполните форму, и мы свяжемся с вами для консультации о курсах
-                и процессе обучения в ОКУРМЕН IT.
+                и процессе обучения в ОКУРМЭН IT.
               </p>
 
               {/* Simple Form Structure */}
@@ -216,6 +242,7 @@ export default function ContactsSection() {
     </section>
   );
 }
+
 
 
 
