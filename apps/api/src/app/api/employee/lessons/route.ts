@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@repo/database';
+import { prisma } from '@okurmen/database';
 import { requireTeacher } from '@/lib/auth/employee-utils';
 
 export async function GET(request: NextRequest) {

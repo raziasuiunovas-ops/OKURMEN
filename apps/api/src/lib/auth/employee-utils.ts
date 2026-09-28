@@ -9,7 +9,11 @@ export async function requireEmployee(request?: NextRequest) {
     throw new Error('Forbidden: Employee access required');
   }
   
-  return session;
+  if (!session.user?.id) {
+    throw new Error('User ID not found');
+  }
+  
+  return session as typeof session & { user: { id: string } };
 }
 
 export async function getEmployeeProfile(userId: string) {

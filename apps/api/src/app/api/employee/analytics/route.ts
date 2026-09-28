@@ -11,6 +11,11 @@ export async function GET(request: NextRequest) {
     const period = searchParams.get('period') || '30'; // days
     
     const session = await requireEmployee(request);
+    
+    if (!session.user?.id) {
+      return errorResponse('User ID not found', 401);
+    }
+    
     const employee = await getEmployeeProfile(session.user.id);
 
     if (!employee) {

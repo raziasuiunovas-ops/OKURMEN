@@ -1,28 +1,20 @@
-﻿'use client';
+'use client';
 
-import { useTranslations, useLocale } from 'next-intl';
-import { Container } from '@/components/ui/Container';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { BookOpen, Clock, Users, ArrowRight, Star, GraduationCap, Code, Palette, Globe, Brain, Zap, TrendingUp, Sparkles } from 'lucide-react';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { BookOpen, Clock, Users, ArrowRight, TrendingUp } from 'lucide-react';
+import { useRouter } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 
 interface Course {
   id: string;
   slug: string;
   price: number;
-  duration: string;
-  totalHours: number;
-  format: string;
   coverGradient: { from: string; to: string } | null;
-  icon: string | null;
-  coverImage: string | null;
   isActive: boolean;
   rating: number;
   totalReviews: number;
   enrolledStudents: number;
+  totalHours: number;
   translation: {
     title: string;
     description: string;
@@ -33,203 +25,251 @@ interface Course {
   };
 }
 
-// Иконки курсов (вместо emoji используем lucide-react)
-const courseIcons: Record<string, any> = {
-  'computer-literacy': Code,
-  'ai-web-developer': Brain,
-  'english-course': Globe,
-  'aem-audio-video': Palette,
-  'ai-video-creation': Zap,
-  'frontend-development': Code,
-  'backend-python': Code,
-  'default': GraduationCap,
-};
-
 export default function CoursesSection() {
-  const t = useTranslations('courses');
+  const router = useRouter();
   const locale = useLocale();
-  const { ref, isVisible } = useScrollAnimation(0.2);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses?limit=4&language=${locale.toUpperCase()}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data) {
+    const fetchCourses = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+        const response = await fetch(
+          `${apiUrl}/api/courses?language=${locale.toUpperCase()}&limit=6`
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+
+        const data = await response.json();
+        
+        if (data.success && data.data) {
           setCourses(data.data);
         }
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+        // Показываем пустое состояние при ошибке
+        setCourses([]);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+
+    fetchCourses();
   }, [locale]);
 
-  return (
-    <section 
-      id="courses" 
-      ref={ref}
-      className={`py-20 bg-white dark:bg-slate-900 ${
-        isVisible ? 'section-transition visible' : 'section-transition'
-      }`}
-    >
-      <Container>
-        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : ''}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/30 border border-primary-200/50 dark:border-primary-800/50 mb-4">
-            <Sparkles className="w-4 h-4 text-primary-500" />
-            <span className="text-sm font-semibold text-primary-700 dark:text-primary-400">
-              Наши курсы
-            </span>
-          </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            {t('title')}
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-            {t('description')}
-          </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary-500 to-accent-500 mx-auto rounded-full"></div>
-        </div>
+  const getLevelLabel = (level: string) => {
+    const labels: Record<string, Record<string, string>> = {
+      BEGINNER: { ru: 'Начальный', ky: 'Баштапкы', en: 'Beginner' },
+      INTERMEDIATE: { ru: 'Средний', ky: 'Орточо', en: 'Intermediate' },
+      ADVANCED: { ru: 'Продвинутый', ky: 'Өнүккөн', en: 'Advanced' },
+    };
+    return labels[level]?.[locale] || level;
+  };
 
-        {/* Course Cards Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="h-96 animate-pulse bg-gray-200 dark:bg-gray-700">
-                <div></div>
-              </Card>
+  const getDefaultGradient = (index: number) => {
+    const gradients = [
+      'from-blue-500 to-cyan-500',
+      'from-green-500 to-emerald-500',
+      'from-pink-500 to-rose-500',
+      'from-purple-500 to-indigo-500',
+      'from-orange-500 to-amber-500',
+      'from-teal-500 to-cyan-500',
+    ];
+    return gradients[index % gradients.length];
+  };
+
+  if (loading) {
+    return (
+      <section id="courses" className="py-20 bg-white dark:bg-slate-900">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+              Популярные Курсы
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="bg-slate-100 dark:bg-slate-800 rounded-2xl h-[420px] animate-pulse"
+              />
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {courses.map((course, index) => {
-              const gradient = course.coverGradient || { from: '#3B82F6', to: '#06B6D4' };
-              const IconComponent = courseIcons[course.slug] || courseIcons.default;
-              
-              return (
-                <Card
-                  key={course.id}
-                  hover
-                  variant="glass"
-                  className={`group relative overflow-hidden border border-gray-200 dark:border-gray-700 ${
-                    isVisible ? 'stagger-item' : ''
-                  }`}
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                  }}
-                >
-                  {/* Course Icon with Premium Gradient */}
-                  {course.coverImage ? (
-                    <div className="w-full h-32 rounded-xl mb-4 overflow-hidden">
-                      <img
-                        src={course.coverImage}
-                        alt={course.translation.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="w-full h-32 rounded-xl mb-4 flex items-center justify-center group-hover:scale-105 transition-all duration-500 relative overflow-hidden shadow-lg"
-                      style={{
-                        background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`,
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/20"></div>
-                      <IconComponent className="w-16 h-16 text-white relative z-10" strokeWidth={1.5} />
-                    </div>
-                  )}
+        </div>
+      </section>
+    );
+  }
 
-                  {/* Course Content */}
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 min-h-[3.5rem]">
-                      {course.translation.title}
-                    </h3>
+  if (courses.length === 0) {
+    return (
+      <section id="courses" className="py-20 bg-white dark:bg-slate-900">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+              Популярные Курсы
+            </h2>
+            <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
+              В настоящее время курсы находятся в разработке. Следите за обновлениями!
+            </p>
+            <div className="p-12 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+              <BookOpen className="w-20 h-20 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-500 dark:text-slate-400">
+                Скоро здесь появятся новые курсы
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                      {course.translation.description}
-                    </p>
+  return (
+    <section id="courses" className="py-20 bg-white dark:bg-slate-900">
+      <div className="container">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+          <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+            Популярные Курсы
+          </h2>
+          <p className="text-lg text-slate-600 dark:text-slate-400">
+            Выберите курс который изменит вашу карьеру. Все курсы включают практические проекты и поддержку менторов.
+          </p>
+        </div>
 
-                    {/* Price */}
-                    <div className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
-                      {course.price.toLocaleString()} {locale === 'ru' ? 'сом' : locale === 'ky' ? 'сом' : 'KGS'}
-                    </div>
+        {/* Courses Grid - Улучшенные карточки */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          {courses.map((course, index) => {
+            const gradient = course.coverGradient
+              ? `from-[${course.coverGradient.from}] to-[${course.coverGradient.to}]`
+              : getDefaultGradient(index);
 
-                    {/* Stats */}
-                    <div className="space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                      {/* Rating */}
-                      {course.rating > 0 && (
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                            <span className="font-bold text-gray-900 dark:text-white">{course.rating.toFixed(1)}</span>
-                          </div>
-                          <span className="text-gray-500 dark:text-gray-400">
-                            ({course.totalReviews} {locale === 'ru' ? 'отзывов' : locale === 'ky' ? 'пикир' : 'reviews'})
-                          </span>
-                        </div>
-                      )}
-                      
-                      {/* Duration and lessons */}
-                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                        {course.totalHours > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{course.totalHours}ч</span>
-                          </div>
-                        )}
-                        {course._count.lessons > 0 && (
-                          <div className="flex items-center gap-1">
-                            <BookOpen className="w-3 h-3" />
-                            <span>{course._count.lessons} {locale === 'ru' ? 'уроков' : locale === 'ky' ? 'сабак' : 'lessons'}</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Students count */}
-                      {course.enrolledStudents > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                          <Users className="w-3 h-3" />
-                          <span>{course.enrolledStudents} {locale === 'ru' ? 'студентов' : locale === 'ky' ? 'студент' : 'students'}</span>
-                        </div>
-                      )}
+            return (
+              <div
+                key={course.id}
+                className="group bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-800 hover:-translate-y-2 animate-scale-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {/* Course Header with Gradient - Больше воздуха */}
+                <div className={`relative h-52 bg-gradient-to-br ${gradient} overflow-hidden`}>
+                  {/* Декоративные элементы */}
+                  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors"></div>
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute inset-0" style={{
+                      backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                      backgroundSize: '24px 24px'
+                    }}></div>
+                  </div>
+                  
+                  {/* Центральная иконка */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <BookOpen className="w-16 h-16 text-slate-700 dark:text-slate-300" />
                     </div>
                   </div>
 
-                  {/* Active Badge */}
-                  {course.isActive && (
-                    <div className="absolute top-3 right-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      Активен
+                  {/* Badges */}
+                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full ${
+                      course.translation.level === 'BEGINNER' 
+                        ? 'bg-green-500 text-white'
+                        : course.translation.level === 'INTERMEDIATE'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-purple-500 text-white'
+                    }`}>
+                      {getLevelLabel(course.translation.level)}
+                    </span>
+                  </div>
+
+                  {/* Rating badge */}
+                  {course.rating > 0 && (
+                    <div className="absolute top-4 right-4 px-3 py-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-full flex items-center gap-1.5 shadow-lg">
+                      <svg className="w-4 h-4 text-yellow-500 fill-yellow-500" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">
+                        {course.rating.toFixed(1)}
+                      </span>
                     </div>
                   )}
 
-                  {/* Popular Badge */}
-                  {course.rating >= 4.5 && course.totalReviews >= 5 && (
-                    <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                  {/* Popular badge */}
+                  {course.enrolledStudents > 50 && (
+                    <div className="absolute bottom-4 right-4 px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
                       <TrendingUp className="w-3 h-3" />
-                      {locale === 'ru' ? 'Популярный' : locale === 'ky' ? 'Популярдуу' : 'Popular'}
+                      Популярный
                     </div>
                   )}
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                </div>
 
-        {/* View All Button */}
-        <div className="text-center">
-          <Link href={`/${locale}/courses`}>
-            <Button
-              variant="primary"
-              size="lg"
-              className="group"
-            >
-              <span className="flex items-center gap-2">
-                {locale === 'ru' ? 'Смотреть все курсы' : locale === 'ky' ? 'Бардык курстарды көрүү' : 'View All Courses'}
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Button>
-          </Link>
+                {/* Course Content - Увеличены padding */}
+                <div className="p-7 space-y-5">
+                  <div>
+                    <h3 className="font-display text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
+                      {course.translation.title}
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      {course.translation.description}
+                    </p>
+                  </div>
+
+                  {/* Meta Info - Улучшенная типографика */}
+                  <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400 pb-4 border-b border-slate-200 dark:border-slate-700">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <BookOpen className="w-4 h-4 text-orange-500" />
+                      {course._count.lessons} {course._count.lessons === 1 ? 'урок' : course._count.lessons < 5 ? 'урока' : 'уроков'}
+                    </span>
+                    {course.totalHours > 0 && (
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <Clock className="w-4 h-4 text-blue-500" />
+                        {course.totalHours}ч
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Students count */}
+                  {course.enrolledStudents > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                      <Users className="w-4 h-4" />
+                      <span className="font-medium">{course.enrolledStudents} студентов</span>
+                    </div>
+                  )}
+
+                  {/* Price and CTA - Улучшенный стиль */}
+                  <div className="pt-2 flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-black text-orange-600 dark:text-orange-500">
+                        {course.price.toLocaleString()}
+                      </div>
+                      <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">сом</div>
+                    </div>
+                    <button 
+                      onClick={() => router.push('/courses')}
+                      className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-slate-900 dark:bg-white hover:bg-orange-600 dark:hover:bg-orange-500 text-white dark:text-slate-900 hover:dark:text-white font-bold text-sm rounded-xl transition-all group/btn shadow-lg hover:shadow-xl"
+                    >
+                      Подробнее
+                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </Container>
+
+        {/* View All CTA */}
+        <div className="text-center animate-fade-in">
+          <button 
+            onClick={() => router.push('/courses')}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+          >
+            Смотреть все курсы
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
     </section>
   );
 }

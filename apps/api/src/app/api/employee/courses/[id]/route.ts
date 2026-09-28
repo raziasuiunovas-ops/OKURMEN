@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@repo/database';
+import { prisma } from '@okurmen/database';
 import { requireTeacher, checkCourseTeaching } from '@/lib/auth/employee-utils';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const employee = await requireTeacher(request);
-    const courseId = params.id;
+    const { session, employee } = await requireTeacher(request);
+    const { id: courseId } = await params;
 
     // Check if teacher is teaching this course
     await checkCourseTeaching(employee.id, courseId);
@@ -18,15 +18,10 @@ export async function GET(
       where: { id: courseId },
       include: {
         translations: {
-          orderBy: { language: 'asc' },
+          orderBy: { languageCode: 'asc' },
         },
         lessons: {
-          include: {
-            translations: {
-              orderBy: { language: 'asc' },
-            },
-          },
-          orderBy: { order: 'asc' },
+          orderBy: { sortOrder: 'asc' },
         },
         groups: {
           include: {

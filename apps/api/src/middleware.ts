@@ -7,9 +7,11 @@ export function middleware(request: NextRequest) {
     // Get origin
     const origin = request.headers.get('origin');
     const allowedOrigins = [
-      'http://localhost:3003', // Admin Panel
+      'http://localhost:3001', // Admin Panel
       'http://localhost:3002', // API same origin
-      'http://localhost:3001', // Web Frontend
+      'http://localhost:3000', // Web Frontend
+      'http://localhost:3004', // Student Portal
+      'http://localhost:3005', // Employee Portal
     ];
 
     // Handle preflight OPTIONS requests

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Lock, Mail, Shield } from 'lucide-react';
+import { getApiUrl } from '@/config/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,7 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3002/api/auth/request-2fa', {
+      const response = await fetch(getApiUrl('api/auth/request-2fa'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +54,7 @@ export default function SignInPage() {
 
     try {
       console.log('Sending 2FA verification...');
-      const response = await fetch('http://localhost:3002/api/auth/verify-2fa', {
+      const response = await fetch(getApiUrl('api/auth/verify-2fa'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

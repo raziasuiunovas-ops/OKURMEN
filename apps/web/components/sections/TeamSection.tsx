@@ -1,165 +1,328 @@
-﻿'use client';
+'use client';
 
 import { useTranslations } from 'next-intl';
-import { Container } from '@/components/ui/Container';
-import { Card } from '@/components/ui/Card';
-import { Users, Laptop, GraduationCap, Briefcase } from 'lucide-react';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { User, ChevronLeft, ChevronRight, Linkedin, Mail } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useLocale } from 'next-intl';
+
+interface Teacher {
+  id: string;
+  fullName: string;
+  photo: string | null;
+  bio: string | null;
+  linkedinUrl: string | null;
+  email: string;
+  translation: {
+    bio: string;
+    specialization: string;
+  } | null;
+}
 
 export default function TeamSection() {
   const t = useTranslations('team');
-  const { ref, isVisible } = useScrollAnimation(0.2);
+  const locale = useLocale();
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(1);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const gradients = [
+    'from-blue-500 to-cyan-500',
+    'from-green-500 to-emerald-500',
+    'from-pink-500 to-rose-500',
+    'from-purple-500 to-indigo-500',
+    'from-orange-500 to-amber-500',
+    'from-teal-500 to-cyan-500',
+  ];
+
+  // Update itemsPerView on mount and resize
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (typeof window !== 'undefined') {
+        const width = window.innerWidth;
+        if (width >= 1024) {
+          setItemsPerView(4);
+        } else if (width >= 640) {
+          setItemsPerView(2);
+        } else {
+          setItemsPerView(1);
+        }
+      }
+    };
+
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
+
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+        const response = await fetch(`${apiUrl}/api/employees?position=TEACHER`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch teachers');
+        }
+
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setTeachers(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching teachers:', error);
+        setTeachers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeachers();
+  }, []);
+
+  // Carousel controls
+  const maxIndex = Math.max(0, Math.ceil(teachers.length / itemsPerView) - 1);
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      prevSlide();
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
+  if (loading) {
+    return (
+      <section id="team" className="py-20 bg-white dark:bg-slate-900">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+              Наша Команда
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-slate-100 dark:bg-slate-800 rounded-2xl h-80 animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (teachers.length === 0) {
+    return (
+      <section id="team" className="py-20 bg-white dark:bg-slate-900">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+              Наша Команда
+            </h2>
+            <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
+              Наши преподаватели скоро появятся здесь
+            </p>
+            <div className="p-12 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+              <User className="w-20 h-20 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-500 dark:text-slate-400">
+                Команда в процессе формирования
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section 
-      id="team" 
-      ref={ref}
-      className={`py-20 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 ${
-        isVisible ? 'section-transition visible' : 'section-transition'
-      }`}
-    >
-      <Container>
-        <div className={`text-center mb-16 ${isVisible ? 'fade-in-up' : ''}`}>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            {t('title')}
+    <section id="team" className="py-20 bg-white dark:bg-slate-900 relative overflow-hidden">
+      {/* Decorative Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 right-10 w-72 h-72 bg-blue-200/10 dark:bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-orange-200/10 dark:bg-orange-500/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container relative z-10">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+          <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+            Наша Команда
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-            {t('description')}
+          <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-blue-600 mx-auto rounded-full mb-6"></div>
+          <p className="text-lg text-slate-600 dark:text-slate-400">
+            Профессиональные преподаватели с реальным опытом работы в IT-индустрии
           </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary-500 to-accent-500 mx-auto rounded-full"></div>
         </div>
 
-        {/* Подтверждённая информация о команде */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {/* Основатели */}
-          <Card 
-            hover 
-            variant="gradient"
-            className={`${isVisible ? 'stagger-item' : ''}`}
+        {/* Carousel Container */}
+        <div className="relative">
+          {/* Navigation Buttons */}
+          {teachers.length > itemsPerView && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 p-3 bg-white dark:bg-slate-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 p-3 bg-white dark:bg-slate-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+              </button>
+            </>
+          )}
+
+          {/* Carousel Track */}
+          <div
+            ref={carouselRef}
+            className="overflow-hidden"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Основатели
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">Май 2022</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-                <p className="font-bold text-lg text-gray-900 dark:text-white">
-                  Санжарбек Мадумаров
-                </p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Сооснователь</p>
-              </div>
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-                <p className="font-bold text-lg text-gray-900 dark:text-white">
-                  Улукбек Бакыбек уулу
-                </p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Сооснователь</p>
-              </div>
-            </div>
-          </Card>
+            <div
+              className="flex transition-transform duration-500 ease-out"
+              style={{
+                transform: `translateX(-${currentIndex * 100}%)`,
+              }}
+            >
+              {Array.from({ length: Math.ceil(teachers.length / itemsPerView) }).map((_, slideIndex) => (
+                <div
+                  key={slideIndex}
+                  className="min-w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-2"
+                >
+                  {teachers
+                    .slice(slideIndex * itemsPerView, (slideIndex + 1) * itemsPerView)
+                    .map((teacher, index) => {
+                      const gradient = gradients[index % gradients.length];
+                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+                      const photoUrl = teacher.photo ? `${apiUrl}${teacher.photo}` : null;
 
-          {/* Онлайн-преподаватель */}
-          <Card 
-            hover 
-            variant="gradient"
-            className={`${isVisible ? 'stagger-item' : ''}`}
-          >
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Laptop className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Онлайн-уроки
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">USA</p>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-              <p className="font-bold text-lg text-gray-900 dark:text-white">
-                Айзада Акылбекова
-              </p>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-                Преподаватель онлайн-уроков
-              </p>
-              <p className="text-gray-700 dark:text-gray-300 text-sm">
-                Работает в США. Проводит онлайн-уроки для студентов ОКУРМЭН.
-              </p>
-            </div>
-          </Card>
-        </div>
+                      return (
+                        <div
+                          key={teacher.id}
+                          className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-transparent hover:-translate-y-2"
+                        >
+                          {/* Avatar */}
+                          <div className={`relative h-64 bg-gradient-to-br ${gradient} overflow-hidden`}>
+                            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+                            {photoUrl ? (
+                              <img
+                                src={photoUrl}
+                                alt={teacher.fullName}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="p-6 bg-white/90 dark:bg-slate-900/90 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                                  <User className="w-16 h-16 text-slate-700 dark:text-slate-300" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
 
-        {/* Структура команды */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <Card hover variant="glass" className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <GraduationCap className="w-10 h-10 text-white" />
-            </div>
-            <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
-              Преподаватели
-            </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Опытные специалисты IT-индустрии
-            </p>
-          </Card>
+                          {/* Info */}
+                          <div className="p-6 space-y-3">
+                            <h3 className="font-display text-xl font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                              {teacher.fullName}
+                            </h3>
+                            {teacher.translation?.specialization && (
+                              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                                {teacher.translation.specialization}
+                              </p>
+                            )}
+                            {teacher.translation?.bio && (
+                              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                                {teacher.translation.bio}
+                              </p>
+                            )}
 
-          <Card hover variant="glass" className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Users className="w-10 h-10 text-white" />
-            </div>
-            <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
-              Менторы
-            </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              До 50 студентов на одного ментора
-            </p>
-          </Card>
+                            {/* Social Links */}
+                            <div className="flex items-center gap-3 pt-2">
+                              {teacher.linkedinUrl && (
+                                <a
+                                  href={teacher.linkedinUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-500 hover:text-white rounded-lg transition-colors"
+                                  aria-label="LinkedIn"
+                                >
+                                  <Linkedin className="w-4 h-4" />
+                                </a>
+                              )}
+                              <a
+                                href={`mailto:${teacher.email}`}
+                                className="p-2 bg-slate-100 dark:bg-slate-700 hover:bg-orange-500 hover:text-white rounded-lg transition-colors"
+                                aria-label="Email"
+                              >
+                                <Mail className="w-4 h-4" />
+                              </a>
+                            </div>
+                          </div>
 
-          <Card hover variant="glass" className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Briefcase className="w-10 h-10 text-white" />
+                          {/* Hover Gradient Border */}
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl border-2 border-transparent bg-gradient-to-br ${gradient} bg-clip-border" style={{ padding: '2px' }}></div>
+                        </div>
+                      );
+                    })}
+                </div>
+              ))}
             </div>
-            <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
-              Управление
-            </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Администрация и координация
-            </p>
-          </Card>
-
-          <Card hover variant="glass" className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Laptop className="w-10 h-10 text-white" />
-            </div>
-            <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
-              Техподдержка
-            </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              IT-инфраструктура и поддержка
-            </p>
-          </Card>
-        </div>
-
-        {/* Info Message */}
-        <Card variant="glass" className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center space-x-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 px-4 py-2 rounded-full font-medium mb-4">
-            <Users className="w-5 h-5" />
-            <span>Информация о команде</span>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            Подробная информация о сотрудниках, преподавателях и менторах ОКУРМЭН находится в процессе сбора и будет добавлена после согласования с командой.
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Структура карточек сотрудников предусматривает: ФИО, должность, фото, описание, опыт, специализацию, образование и профессиональные навыки.
-          </p>
-        </Card>
-      </Container>
+
+          {/* Dots Indicator */}
+          {teachers.length > itemsPerView && (
+            <div className="flex justify-center gap-2 mt-8">
+              {Array.from({ length: maxIndex + 1 }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    currentIndex === index
+                      ? 'w-8 bg-orange-600'
+                      : 'w-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:3002';
+import { API_URL } from '@/config/api';
 
 export const api = axios.create({
   baseURL: `${API_URL}/api`,
@@ -10,6 +9,17 @@ export const api = axios.create({
   withCredentials: true, // Important: send cookies with requests
 });
 
+// Add token from localStorage to requests
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('auth-token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
@@ -17,6 +27,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Redirect to login if unauthorized
       if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth-token');
         window.location.href = '/auth/signin';
       }
     }

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getApiUrl } from '@/config/api';
 
 interface User {
   id: string;
@@ -54,7 +55,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         }
 
         console.log('Token found, checking with API...');
-        const response = await fetch('http://localhost:3002/api/auth/me', {
+        const response = await fetch(getApiUrl('api/auth/me'), {
           credentials: 'include',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -87,7 +88,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     try {
       const token = localStorage.getItem('auth-token');
       
-      await fetch('http://localhost:3002/api/auth/logout', {
+      await fetch(getApiUrl('api/auth/logout'), {
         method: 'POST',
         credentials: 'include',
         headers: token ? {

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import { Providers } from '@/components/Providers';
 
 export const metadata: Metadata = {
   title: 'ОКУРМЭН - Платформа студента',
@@ -16,11 +15,9 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body className="antialiased">
-        <ThemeProvider>
-          <LanguageProvider>
-            {children}
-          </LanguageProvider>
-        </ThemeProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
