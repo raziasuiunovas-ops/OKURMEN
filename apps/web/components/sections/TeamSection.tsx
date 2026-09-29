@@ -5,23 +5,25 @@ import { User, ChevronLeft, ChevronRight, Linkedin, Mail } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale } from 'next-intl';
 
-interface Teacher {
+interface Employee {
   id: string;
-  fullName: string;
-  photo: string | null;
+  position: string;
   bio: string | null;
-  linkedinUrl: string | null;
-  email: string;
-  translation: {
-    bio: string;
-    specialization: string;
-  } | null;
+  photoUrl: string | null;
+  experience: string | null;
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string | null;
+  };
 }
 
 export default function TeamSection() {
   const t = useTranslations('team');
   const locale = useLocale();
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [founders, setFounders] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
@@ -59,33 +61,47 @@ export default function TeamSection() {
   }, []);
 
   useEffect(() => {
-    const fetchTeachers = async () => {
+    const fetchEmployees = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-        const response = await fetch(`${apiUrl}/api/employees?position=TEACHER`);
+        console.log('[TeamSection] Fetching employees from:', `${apiUrl}/api/employees`);
+        const response = await fetch(`${apiUrl}/api/employees`);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch teachers');
+          throw new Error('Failed to fetch employees');
         }
 
         const data = await response.json();
+        console.log('[TeamSection] API Response:', { 
+          success: data.success, 
+          totalEmployees: data.data?.length,
+          employees: data.data 
+        });
         
         if (data.success && data.data) {
-          setTeachers(data.data);
+          // Разделяем на founders и остальных
+          const allEmployees = data.data;
+          const foundersData = allEmployees.filter((emp: Employee) => emp.position === 'FOUNDER');
+          const regularEmployees = allEmployees.filter((emp: Employee) => emp.position !== 'FOUNDER');
+          
+          console.log('[TeamSection] Founders:', foundersData.length, 'Regular:', regularEmployees.length);
+          setFounders(foundersData);
+          setEmployees(regularEmployees);
         }
       } catch (error) {
-        console.error('Error fetching teachers:', error);
-        setTeachers([]);
+        console.error('[TeamSection] Error fetching employees:', error);
+        setEmployees([]);
+        setFounders([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTeachers();
+    fetchEmployees();
   }, []);
 
   // Carousel controls
-  const maxIndex = Math.max(0, Math.ceil(teachers.length / itemsPerView) - 1);
+  const maxIndex = Math.max(0, Math.ceil(employees.length / itemsPerView) - 1);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
@@ -141,7 +157,7 @@ export default function TeamSection() {
     );
   }
 
-  if (teachers.length === 0) {
+  if (employees.length === 0 && founders.length === 0) {
     return (
       <section id="team" className="py-20 bg-white dark:bg-slate-900">
         <div className="container">
@@ -187,7 +203,7 @@ export default function TeamSection() {
         {/* Carousel Container */}
         <div className="relative">
           {/* Navigation Buttons */}
-          {teachers.length > itemsPerView && (
+          {employees.length > itemsPerView && (
             <>
               <button
                 onClick={prevSlide}
@@ -220,21 +236,21 @@ export default function TeamSection() {
                 transform: `translateX(-${currentIndex * 100}%)`,
               }}
             >
-              {Array.from({ length: Math.ceil(teachers.length / itemsPerView) }).map((_, slideIndex) => (
+              {Array.from({ length: Math.ceil(employees.length / itemsPerView) }).map((_, slideIndex) => (
                 <div
                   key={slideIndex}
                   className="min-w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-2"
                 >
-                  {teachers
+                  {employees
                     .slice(slideIndex * itemsPerView, (slideIndex + 1) * itemsPerView)
-                    .map((teacher, index) => {
+                    .map((employee, index) => {
                       const gradient = gradients[index % gradients.length];
                       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-                      const photoUrl = teacher.photo ? `${apiUrl}${teacher.photo}` : null;
+                      const photoUrl = employee.photoUrl ? `${apiUrl}${employee.photoUrl}` : null;
 
                       return (
                         <div
-                          key={teacher.id}
+                          key={employee.id}
                           className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-transparent hover:-translate-y-2"
                         >
                           {/* Avatar */}
@@ -243,7 +259,7 @@ export default function TeamSection() {
                             {photoUrl ? (
                               <img
                                 src={photoUrl}
-                                alt={teacher.fullName}
+                                alt={employee.user.fullName}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               />
                             ) : (
@@ -258,40 +274,20 @@ export default function TeamSection() {
                           {/* Info */}
                           <div className="p-6 space-y-3">
                             <h3 className="font-display text-xl font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                              {teacher.fullName}
+                              {employee.user.fullName}
                             </h3>
-                            {teacher.translation?.specialization && (
-                              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                                {teacher.translation.specialization}
+                            {employee.bio && (
+                              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">
+                                {employee.bio}
                               </p>
                             )}
-                            {teacher.translation?.bio && (
-                              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                                {teacher.translation.bio}
+                            {employee.experience && (
+                              <p className="text-xs text-slate-500 dark:text-slate-500">
+                                Опыт: {employee.experience}
                               </p>
                             )}
 
-                            {/* Social Links */}
-                            <div className="flex items-center gap-3 pt-2">
-                              {teacher.linkedinUrl && (
-                                <a
-                                  href={teacher.linkedinUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-2 bg-slate-100 dark:bg-slate-700 hover:bg-blue-500 hover:text-white rounded-lg transition-colors"
-                                  aria-label="LinkedIn"
-                                >
-                                  <Linkedin className="w-4 h-4" />
-                                </a>
-                              )}
-                              <a
-                                href={`mailto:${teacher.email}`}
-                                className="p-2 bg-slate-100 dark:bg-slate-700 hover:bg-orange-500 hover:text-white rounded-lg transition-colors"
-                                aria-label="Email"
-                              >
-                                <Mail className="w-4 h-4" />
-                              </a>
-                            </div>
+                            {/* Social Links - удалены пока нет данных */}
                           </div>
 
                           {/* Hover Gradient Border */}
@@ -305,7 +301,7 @@ export default function TeamSection() {
           </div>
 
           {/* Dots Indicator */}
-          {teachers.length > itemsPerView && (
+          {employees.length > itemsPerView && (
             <div className="flex justify-center gap-2 mt-8">
               {Array.from({ length: maxIndex + 1 }).map((_, index) => (
                 <button

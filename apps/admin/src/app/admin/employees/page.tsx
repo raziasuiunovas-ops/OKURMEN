@@ -89,7 +89,8 @@ export default function EmployeesPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/employees', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/employees`, {
         credentials: 'include',
         cache: 'no-store',
       });
@@ -136,8 +137,9 @@ export default function EmployeesPage() {
 
     try {
       const token = localStorage.getItem('auth-token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
       
-      const response = await fetch(`http://localhost:3002/api/employees/${id}`, {
+      const response = await fetch(`${apiUrl}/api/employees/${id}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: token ? {
@@ -458,14 +460,29 @@ function EmployeeModal({
 
     try {
       const token = localStorage.getItem('auth-token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
       
       const url = employee
-        ? `http://localhost:3002/api/employees/${employee.id}`
-        : 'http://localhost:3002/api/employees';
+        ? `${apiUrl}/api/employees/${employee.id}`
+        : `${apiUrl}/api/employees`;
 
-      console.log('Отправка на:', url);
-      console.log('Метод:', employee ? 'PATCH' : 'POST');
-      console.log('Данные:', { ...formData, photoUrl: formData.photoUrl ? `${formData.photoUrl.substring(0, 50)}...` : null });
+      // Очищаем пустые строки - отправляем null или не включаем поле
+      const cleanData = {
+        fullName: formData.fullName || undefined,
+        position: formData.position || undefined,
+        email: (formData.email && formData.email.trim()) || undefined,
+        phone: (formData.phone && formData.phone.trim()) || undefined,
+        bio: (formData.bio && formData.bio.trim()) || undefined,
+        education: (formData.education && formData.education.trim()) || undefined,
+        experience: (formData.experience && formData.experience.trim()) || undefined,
+        photoUrl: (formData.photoUrl && formData.photoUrl.trim()) || undefined,
+        sortOrder: formData.sortOrder,
+      };
+
+      // Для PATCH не отправляем email если он disabled
+      if (employee && cleanData.email === employee.user?.email) {
+        delete cleanData.email;
+      }
 
       const response = await fetch(url, {
         method: employee ? 'PATCH' : 'POST',
@@ -474,31 +491,40 @@ function EmployeeModal({
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanData),
       });
-
-      console.log('Статус ответа:', response.status);
 
       // Проверяем есть ли контент перед парсингом
       const text = await response.text();
-      const contentType = response.headers.get('content-type');
       
-      // Проверяем что ответ это JSON
-      if (!contentType || !contentType.includes('application/json')) {
-        console.error('Ответ не JSON:', text.substring(0, 200));
-        throw new Error('Сервер вернул некорректный ответ');
+      if (!response.ok) {
+        // Пытаемся распарсить JSON error
+        try {
+          const errorData = JSON.parse(text);
+          const errorMessage = errorData.error || errorData.message || response.statusText;
+          alert(`❌ Ошибка: ${errorMessage}`);
+        } catch {
+          // Если не JSON, показываем текст как есть
+          alert(`❌ Ошибка сервера: ${response.status} ${response.statusText}`);
+        }
+        return;
       }
       
-      const result = JSON.parse(text);
-
-      if (response.ok) {
+      // Успешный ответ
+      try {
+        const result = JSON.parse(text);
         const successMessage = employee 
           ? `✅ Сотрудник "${formData.fullName}" успешно обновлён!`
           : `✅ Сотрудник "${formData.fullName}" успешно добавлен!`;
         onSuccess(successMessage);
         onClose();
-      } else {
-        alert(`❌ Ошибка: ${result.error || result.message || response.statusText || 'Не удалось сохранить'}`);
+      } catch {
+        // Даже если парсинг не удался, но статус OK - считаем успехом
+        const successMessage = employee 
+          ? `✅ Сотрудник "${formData.fullName}" успешно обновлён!`
+          : `✅ Сотрудник "${formData.fullName}" успешно добавлен!`;
+        onSuccess(successMessage);
+        onClose();
       }
     } catch (error) {
       console.error('Ошибка сохранения:', error);

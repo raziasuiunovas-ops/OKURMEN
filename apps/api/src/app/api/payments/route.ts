@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     // TODO: Implement proper authentication in admin panel
     let isAuthenticated = false;
     try {
-      await requireAdmin();
+      await requireAdmin(request);
       isAuthenticated = true;
     } catch (error) {
       // Continue without auth for now - dashboard needs this data

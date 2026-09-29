@@ -36,7 +36,7 @@ export default function CoursesSection() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
         const response = await fetch(
-          `${apiUrl}/api/courses?language=${locale.toUpperCase()}&limit=6`
+          `${apiUrl}/api/courses?language=${locale.toUpperCase()}`
         );
         
         if (!response.ok) {

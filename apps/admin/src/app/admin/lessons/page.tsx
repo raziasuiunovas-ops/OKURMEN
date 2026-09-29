@@ -44,8 +44,11 @@ export default function LessonsPage() {
 
   const fetchLessons = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/lessons', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const token = localStorage.getItem('auth-token');
+      const response = await fetch(`${apiUrl}/api/lessons`, {
         credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await response.json();
       setLessons(data.data || []);
@@ -58,8 +61,11 @@ export default function LessonsPage() {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/courses', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const token = localStorage.getItem('auth-token');
+      const response = await fetch(`${apiUrl}/api/courses`, {
         credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await response.json();
       
@@ -91,9 +97,12 @@ export default function LessonsPage() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3002/api/lessons/${id}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const token = localStorage.getItem('auth-token');
+      const response = await fetch(`${apiUrl}/api/lessons/${id}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       if (response.ok) {
@@ -287,25 +296,44 @@ function LessonModal({
     setLoading(true);
 
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const token = localStorage.getItem('auth-token');
       const url = lesson
-        ? `http://localhost:3002/api/lessons/${lesson.id}`
-        : 'http://localhost:3002/api/lessons';
+        ? `${apiUrl}/api/lessons/${lesson.id}`
+        : `${apiUrl}/api/lessons`;
+      
+      // Очищаем пустые строки
+      const cleanedData = {
+        courseId: formData.courseId || undefined,
+        title: formData.title || undefined,
+        description: (formData.description && formData.description.trim()) || undefined,
+        content: (formData.content && formData.content.trim()) || undefined,
+        videoUrl: (formData.videoUrl && formData.videoUrl.trim()) || undefined,
+        duration: formData.duration || undefined,
+        order: formData.order,
+        isPublished: formData.isPublished,
+      };
       
       const response = await fetch(url, {
         method: lesson ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanedData),
       });
 
       if (response.ok) {
         onSuccess();
         onClose();
+      } else {
+        const error = await response.json();
+        alert(`Ошибка: ${error.error || error.message || 'Не удалось сохранить урок'}`);
       }
     } catch (error) {
       console.error('Failed to save lesson:', error);
+      alert('Ошибка при сохранении урока');
     } finally {
       setLoading(false);
     }

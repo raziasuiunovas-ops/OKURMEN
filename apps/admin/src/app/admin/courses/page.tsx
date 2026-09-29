@@ -24,6 +24,7 @@ import {
   LucideIcon,
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ImageUploader from '@/components/ImageUploader';
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -110,8 +111,9 @@ export default function CoursesPage() {
 
   const fetchCourses = async () => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
       const token = localStorage.getItem('auth-token');
-      const response = await fetch('http://localhost:3002/api/courses?includeInactive=true', {
+      const response = await fetch(`${apiUrl}/api/courses?includeInactive=true`, {
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -133,8 +135,9 @@ export default function CoursesPage() {
     if (!confirm('Вы уверены, что хотите удалить этот курс?')) return;
 
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
       const token = localStorage.getItem('auth-token');
-      const response = await fetch(`http://localhost:3002/api/courses/${id}`, {
+      const response = await fetch(`${apiUrl}/api/courses/${id}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -450,16 +453,38 @@ function CourseModal({
     setLoading(true);
 
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
       const token = localStorage.getItem('auth-token');
       const url = course
-        ? `http://localhost:3002/api/courses/${course.id}`
-        : 'http://localhost:3002/api/courses';
+        ? `${apiUrl}/api/courses/${course.id}`
+        : `${apiUrl}/api/courses`;
 
-      const payload = {
-        ...formData,
-        coverImage: coverType === 'image' ? formData.coverImage : null,
-        coverGradient: coverType === 'gradient' ? JSON.stringify(selectedGradient) : null,
+      // Формируем payload правильно для POST/PATCH
+      const payload: any = {
+        price: Number(formData.price),
+        duration: (formData.duration && formData.duration.trim()) || undefined,
+        format: formData.format,
+        coverImage: coverType === 'image' && formData.coverImage && formData.coverImage.trim() ? formData.coverImage : undefined,
+        coverGradient: coverType === 'gradient' ? JSON.stringify(selectedGradient) : undefined,
+        icon: (formData.icon && formData.icon.trim()) || undefined,
+        isActive: formData.isActive,
+        translations: formData.translations.map(t => ({
+          languageCode: t.languageCode,
+          title: t.title,
+          description: (t.description && t.description.trim()) || undefined,
+          level: t.level,
+        })),
       };
+
+      // Для POST (создание) добавляем slug
+      if (!course) {
+        payload.slug = formData.slug;
+      }
+
+      console.log('=== COURSE SAVE DEBUG ===');
+      console.log('Method:', course ? 'PATCH' : 'POST');
+      console.log('URL:', url);
+      console.log('Payload:', JSON.stringify(payload, null, 2));
 
       const response = await fetch(url, {
         method: course ? 'PATCH' : 'POST',
@@ -471,11 +496,22 @@ function CourseModal({
         body: JSON.stringify(payload),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (response.ok) {
+        console.log('✅ Save successful');
         onSuccess();
       } else {
-        const error = await response.json();
-        alert(`Ошибка: ${error.error || 'Не удалось сохранить курс'}`);
+        const text = await response.text();
+        console.error('❌ Save failed. Response body:', text);
+        
+        try {
+          const error = JSON.parse(text);
+          alert(`Ошибка: ${JSON.stringify(error.fieldErrors || error.error || error.message || 'Не удалось сохранить курс', null, 2)}`);
+        } catch {
+          alert(`Ошибка: ${response.status} ${response.statusText}\n${text.substring(0, 200)}`);
+        }
       }
     } catch (error) {
       console.error('Failed to save course:', error);
@@ -714,15 +750,11 @@ function CourseModal({
             {/* Image Upload */}
             {coverType === 'image' && (
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Загрузите изображение (пока недоступно - используйте URL)
-                </p>
-                <input
-                  type="url"
-                  value={formData.coverImage}
-                  onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 dark:text-white"
+                <ImageUploader
+                  currentImage={formData.coverImage}
+                  onImageSelect={(base64) => setFormData({ ...formData, coverImage: base64 })}
+                  label="Загрузить изображение курса"
+                  maxSizeMB={5}
                 />
               </div>
             )}

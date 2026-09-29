@@ -80,6 +80,7 @@ export async function requireAuth(request?: NextRequest) {
 export async function requireAdmin(request?: NextRequest) {
   const session = await requireAuth(request);
   
+  // Только пользователи с ролью ADMIN имеют административный доступ
   if (session.user.role !== UserRole.ADMIN) {
     throw new Error('Forbidden: Admin access required');
   }

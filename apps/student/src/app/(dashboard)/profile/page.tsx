@@ -39,16 +39,31 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1];
+      const token = localStorage.getItem('auth-token');
+      
+      if (!token) {
+        window.location.href = '/auth/signin?callbackUrl=/profile';
+        return;
+      }
 
-      const response = await fetch('http://localhost:3002/api/student/profile', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/student/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
       });
+
+      // Проверяем Content-Type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Profile: Received non-JSON response');
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('auth-token');
+          window.location.href = '/auth/signin?callbackUrl=/profile';
+        }
+        return;
+      }
 
       const result = await response.json();
       if (result.success) {
@@ -58,6 +73,9 @@ export default function ProfilePage() {
           phone: result.data.phone || '',
           preferredLanguage: result.data.preferredLanguage || 'ru',
         });
+      } else if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('auth-token');
+        window.location.href = '/auth/signin?callbackUrl=/profile';
       }
     } catch (error) {
       console.error('Profile fetch error:', error);
@@ -69,17 +87,16 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1];
+      const token = localStorage.getItem('auth-token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
-      const response = await fetch('http://localhost:3002/api/student/profile', {
+      const response = await fetch(`${apiUrl}/api/student/profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
@@ -87,9 +104,12 @@ export default function ProfilePage() {
       if (result.success) {
         setProfile(result.data);
         setEditing(false);
+      } else {
+        alert(result.error || 'Ошибка сохранения');
       }
     } catch (error) {
       console.error('Profile update error:', error);
+      alert('Ошибка сохранения профиля');
     } finally {
       setSaving(false);
     }
@@ -113,19 +133,18 @@ export default function ProfilePage() {
 
     setUploadingAvatar(true);
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth-token='))
-        ?.split('=')[1];
+      const token = localStorage.getItem('auth-token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await fetch('http://localhost:3002/api/student/profile/avatar', {
+      const response = await fetch(`${apiUrl}/api/student/profile/avatar`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: formData,
       });
 

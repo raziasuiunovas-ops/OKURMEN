@@ -121,7 +121,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
 
     const { id } = await params;
     const body = await request.json();
@@ -189,11 +189,21 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
+    
+    console.log('=== PATCH /api/courses/[id] DEBUG ===');
+    console.log('Course ID:', id);
+    console.log('Request body:', JSON.stringify(body, null, 2));
+    
     const validation = updateCourseSchema.safeParse(body);
 
     if (!validation.success) {
+      console.error('❌ Validation failed:');
+      console.error('Field errors:', JSON.stringify(validation.error.flatten().fieldErrors, null, 2));
+      console.error('Issues:', JSON.stringify(validation.error.issues, null, 2));
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
+    
+    console.log('✅ Validation passed');
 
     const {
       price,

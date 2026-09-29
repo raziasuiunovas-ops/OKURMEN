@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
     return successResponse({
       student: {
         id: studentProfile.id,
-        name: studentProfile.user.fullName,
+        fullName: studentProfile.user.fullName,
         email: studentProfile.user.email,
       },
       courses: coursesWithProgress,

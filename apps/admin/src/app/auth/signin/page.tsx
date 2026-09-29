@@ -23,7 +23,9 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(getApiUrl('api/auth/request-2fa'), {
+      const url = getApiUrl('api/auth/request-2fa');
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +55,6 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      console.log('Sending 2FA verification...');
       const response = await fetch(getApiUrl('api/auth/verify-2fa'), {
         method: 'POST',
         headers: {
@@ -64,38 +65,22 @@ export default function SignInPage() {
       });
 
       const result = await response.json();
-      console.log('2FA Response:', result);
-      console.log('Response status:', response.ok);
 
       if (!response.ok) {
         throw new Error(result.error || 'Неверный код');
       }
 
-      // Проверяем структуру ответа
-      console.log('result.data:', result.data);
-      console.log('result.data.token:', result.data?.token);
-      console.log('result.success:', result.success);
-
       // Сохраняем токен в localStorage
       if (result.success && result.data?.token) {
         localStorage.setItem('auth-token', result.data.token);
-        console.log('✅ Token saved to localStorage:', result.data.token.substring(0, 20) + '...');
-        
-        // Проверяем, что токен действительно сохранился
-        const savedToken = localStorage.getItem('auth-token');
-        console.log('✅ Token verified in localStorage:', !!savedToken);
       } else {
-        console.error('❌ Token not found in response!');
-        console.error('Full response:', JSON.stringify(result, null, 2));
         throw new Error('Токен не получен от сервера');
       }
 
       // Успешная авторизация
-      console.log('Redirecting to /admin...');
       router.push('/admin');
       router.refresh();
     } catch (err: any) {
-      console.error('2FA Error:', err);
       setError(err.message || 'Произошла ошибка');
     } finally {
       setLoading(false);

@@ -58,10 +58,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return translations[key]?.[language] || key;
   };
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
+  // Always provide the context, even before mounting
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}

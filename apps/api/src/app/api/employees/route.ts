@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // If includeInactive is requested, optionally check auth (but don't require it for dashboard)
     if (includeInactive) {
       try {
-        await requireAdmin();
+        await requireAdmin(request);
       } catch (error) {
         // Allow dashboard to fetch all employees even without auth temporarily
         console.warn('Employees GET with includeInactive: No admin auth');

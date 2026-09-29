@@ -46,23 +46,69 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('auth-token='))
-          ?.split('=')[1];
+        console.log('=== STUDENT DASHBOARD FETCH ===');
+        
+        // Получаем токен из localStorage (как в layout)
+        const token = localStorage.getItem('auth-token');
+        console.log('Token exists:', !!token);
+        console.log('Token value:', token ? `${token.substring(0, 20)}...` : 'null');
+        
+        if (!token) {
+          console.log('❌ No token - redirecting to signin');
+          window.location.href = '/auth/signin?callbackUrl=/dashboard';
+          return;
+        }
 
-        const response = await fetch('http://localhost:3002/api/student/dashboard', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+        const fullUrl = `${apiUrl}/api/student/dashboard`;
+        console.log('API URL:', apiUrl);
+        console.log('Full request URL:', fullUrl);
+        
+        const response = await fetch(fullUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          credentials: 'include',
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response statusText:', response.statusText);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+        // Проверяем что ответ - JSON, а не HTML
+        const contentType = response.headers.get('content-type');
+        console.log('Content-Type:', contentType);
+        
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error('❌ Received non-JSON response');
+          const text = await response.text();
+          console.error('Response body (first 500 chars):', text.substring(0, 500));
+          
+          if (response.status === 401 || response.status === 403) {
+            console.log('Unauthorized - clearing token and redirecting');
+            localStorage.removeItem('auth-token');
+            window.location.href = '/auth/signin?callbackUrl=/dashboard';
+          }
+          return;
+        }
+
         const result = await response.json();
+        console.log('Response JSON:', result);
+        
         if (result.success) {
+          console.log('✅ Dashboard loaded successfully');
           setData(result.data);
+        } else {
+          console.error('❌ Response not successful:', result);
+          // Если API вернул ошибку авторизации - редирект
+          if (response.status === 401 || response.status === 403) {
+            console.log('Unauthorized - clearing token and redirecting');
+            localStorage.removeItem('auth-token');
+            window.location.href = '/auth/signin?callbackUrl=/dashboard';
+          }
         }
       } catch (error) {
-        console.error('Dashboard fetch error:', error);
+        console.error('❌ Dashboard fetch error:', error);
       } finally {
         setLoading(false);
       }

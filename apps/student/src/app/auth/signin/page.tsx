@@ -24,7 +24,8 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3002/api/auth/request-2fa', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/auth/request-2fa`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +55,8 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3002/api/auth/verify-2fa', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/auth/verify-2fa`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,9 +71,14 @@ export default function SignInPage() {
         throw new Error(result.error || 'Неверный код');
       }
 
-      // Сохраняем токен в cookie
+      // Сохраняем токен в cookie И в localStorage
       if (result.success && result.data?.token) {
-        document.cookie = `auth-token=${result.data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+        const token = result.data.token;
+        // Cookie для SSR/API requests
+        document.cookie = `auth-token=${token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+        // localStorage для клиентского использования
+        localStorage.setItem('auth-token', token);
+        
         router.push(callbackUrl);
         router.refresh();
       } else {
