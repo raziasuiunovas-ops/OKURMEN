@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import SessionProvider from '@/components/SessionProvider';
 import ScrollToTop from '@/components/ScrollToTop';
+import AIChat from '@/components/AIChat';
 import { Montserrat, Open_Sans } from 'next/font/google';
 import '@/app/globals.css';
 
@@ -38,14 +39,14 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'hero' });
 
   const titles: Record<string, string> = {
-    ky: 'ОКУРМЕН IT — Заманбап IT билим берүү',
-    ru: 'ОКУРМЕН IT — Современное IT-образование',
+    ky: 'ОКУРМЭН IT — Заманбап IT билим берүү',
+    ru: 'ОКУРМЭН IT — Современное IT-образование',
     en: 'OKURMEN IT — Modern IT Education',
   };
 
   const descriptions: Record<string, string> = {
-    ky: 'Гибриддик формат, жеке ментор жана чыныгы натыйжалар. 3000+ студент ОКУРМЕН аркылуу билим алышты. Бишкек, Кыргызстан.',
-    ru: 'Гибридный формат, личный ментор и реальные результаты. Более 3000 студентов прошли обучение в ОКУРМЕН. Бишкек, Кыргызстан.',
+    ky: 'Гибриддик формат, жеке ментор жана чыныгы натыйжалар. 3000+ студент ОКУРМЭН аркылуу билим алышты. Бишкек, Кыргызстан.',
+    ru: 'Гибридный формат, личный ментор и реальные результаты. Более 3000 студентов прошли обучение в ОКУРМЭН. Бишкек, Кыргызстан.',
     en: 'Hybrid format, personal mentor, and real results. 3000+ students completed training at OKURMEN. Bishkek, Kyrgyzstan.',
   };
 
@@ -53,7 +54,7 @@ export async function generateMetadata({
     title: titles[locale] || titles.ru,
     description: descriptions[locale] || descriptions.ru,
     keywords: [
-      'ОКУРМЕН',
+      'ОКУРМЭН',
       'OKURMEN',
       'IT образование',
       'IT education',
@@ -76,7 +77,7 @@ export async function generateMetadata({
       title: titles[locale] || titles.ru,
       description: descriptions[locale] || descriptions.ru,
       url: 'https://okurmen.kg',
-      siteName: 'ОКУРМЕН IT',
+      siteName: 'ОКУРМЭН IT',
       locale: locale,
       type: 'website',
     },
@@ -126,6 +127,7 @@ export default async function LocaleLayout({
             <NextIntlClientProvider messages={messages}>
               {children}
               <ScrollToTop />
+              <AIChat />
             </NextIntlClientProvider>
           </ThemeProvider>
         </SessionProvider>

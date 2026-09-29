@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import RevealOnScroll from '@/components/RevealOnScroll';
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -79,122 +80,130 @@ export default function Footer() {
         {/* Main Footer Content */}
         <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Section */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/logo.svg" 
-                alt="OKURMEN" 
-                className="h-11 w-auto" 
-              />
-              <span className="font-display text-2xl font-extrabold bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent">
-                ОКУРМЭН
-              </span>
+          <RevealOnScroll delay={0}>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/logo.svg" 
+                  alt="OKURMEN" 
+                  className="h-11 w-auto" 
+                />
+                <span className="font-display text-2xl font-extrabold bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent">
+                  ОКУРМЭН
+                </span>
+              </div>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {t('about')}
+              </p>
+              {/* Social Links */}
+              <div className="flex gap-3">
+                {footerLinks.social.map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`group relative p-3 bg-slate-800 hover:bg-gradient-to-br ${social.gradient} rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-glow`}
+                    aria-label={social.name}
+                  >
+                    {social.icon}
+                  </a>
+                ))}
+              </div>
             </div>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              {t('about')}
-            </p>
-            {/* Social Links */}
-            <div className="flex gap-3">
-              {footerLinks.social.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`group relative p-3 bg-slate-800 hover:bg-gradient-to-br ${social.gradient} rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-glow`}
-                  aria-label={social.name}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-          </div>
+          </RevealOnScroll>
 
           {/* Navigation Links */}
-          <div>
-            <h3 className="font-display text-lg font-bold mb-6 relative inline-block">
-              Навигация
-              <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-blue-600"></span>
-            </h3>
-            <ul className="space-y-3">
-              {footerLinks.navigation.map((item) => (
-                <li key={item.key}>
-                  <button
-                    onClick={() => scrollToSection(item.href)}
-                    className="group inline-flex items-center gap-2 text-sm text-slate-400 hover:text-primary-400 transition-colors"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-primary-400 transition-colors"></span>
-                    {navT(item.key as any)}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <RevealOnScroll delay={100}>
+            <div>
+              <h3 className="font-display text-lg font-bold mb-6 relative inline-block">
+                {t('navigation')}
+                <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-blue-600"></span>
+              </h3>
+              <ul className="space-y-3">
+                {footerLinks.navigation.map((item) => (
+                  <li key={item.key}>
+                    <button
+                      onClick={() => scrollToSection(item.href)}
+                      className="group inline-flex items-center gap-2 text-sm text-slate-400 hover:text-primary-400 transition-colors"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-primary-400 transition-colors"></span>
+                      {navT(item.key as any)}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </RevealOnScroll>
 
           {/* Contact Info */}
-          <div>
-            <h3 className="font-display text-lg font-bold mb-6 relative inline-block">
-              {contactsT('title')}
-              <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-blue-600"></span>
-            </h3>
-            <ul className="space-y-4 text-sm text-slate-400">
-              <li className="flex items-start gap-3 group">
-                <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-slate-700 transition-colors">
-                  <MapPin className="w-4 h-4 text-orange-400" />
-                </div>
-                <span className="flex-1 leading-relaxed">{contactsT('address_value')}</span>
-              </li>
-              <li className="flex items-center gap-3 group">
-                <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-slate-700 transition-colors">
-                  <Phone className="w-4 h-4 text-orange-400" />
-                </div>
-                <a href="tel:+996990686889" className="hover:text-orange-400 transition-colors font-medium">
-                  +996 990 686 889
-                </a>
-              </li>
-              <li className="flex items-center gap-3 group">
-                <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-slate-700 transition-colors">
-                  <Mail className="w-4 h-4 text-orange-400" />
-                </div>
-                <a href="mailto:info@okurmen.kg" className="hover:text-orange-400 transition-colors font-medium">
-                  info@okurmen.kg
-                </a>
-              </li>
-            </ul>
-          </div>
+          <RevealOnScroll delay={200}>
+            <div>
+              <h3 className="font-display text-lg font-bold mb-6 relative inline-block">
+                {contactsT('title')}
+                <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-blue-600"></span>
+              </h3>
+              <ul className="space-y-4 text-sm text-slate-400">
+                <li className="flex items-start gap-3 group">
+                  <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-slate-700 transition-colors">
+                    <MapPin className="w-4 h-4 text-orange-400" />
+                  </div>
+                  <span className="flex-1 leading-relaxed">{contactsT('address_value')}</span>
+                </li>
+                <li className="flex items-center gap-3 group">
+                  <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-slate-700 transition-colors">
+                    <Phone className="w-4 h-4 text-orange-400" />
+                  </div>
+                  <a href="tel:+996990686889" className="hover:text-orange-400 transition-colors font-medium">
+                    +996 990 686 889
+                  </a>
+                </li>
+                <li className="flex items-center gap-3 group">
+                  <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-slate-700 transition-colors">
+                    <Mail className="w-4 h-4 text-orange-400" />
+                  </div>
+                  <a href="mailto:info@okurmen.kg" className="hover:text-orange-400 transition-colors font-medium">
+                    info@okurmen.kg
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </RevealOnScroll>
 
           {/* Working Hours */}
-          <div>
-            <h3 className="font-display text-lg font-bold mb-6 relative inline-block">
-              График работы
-              <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-blue-600"></span>
-            </h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                <span className="text-slate-400">Пн - Чт</span>
-                <span className="text-orange-400 font-semibold">09:00 - 21:00</span>
-              </li>
-              <li className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                <span className="text-slate-400">Пятница</span>
-                <span className="text-slate-600">Выходной</span>
-              </li>
-              <li className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                <span className="text-slate-400">Сб - Вс</span>
-                <span className="text-orange-400 font-semibold">09:00 - 21:00</span>
-              </li>
-            </ul>
-          </div>
+          <RevealOnScroll delay={300}>
+            <div>
+              <h3 className="font-display text-lg font-bold mb-6 relative inline-block">
+                {t('working_hours')}
+                <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-blue-600"></span>
+              </h3>
+              <ul className="space-y-3 text-sm">
+                <li className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                  <span className="text-slate-400">Дүй - Бей</span>
+                  <span className="text-orange-400 font-semibold">09:00 - 21:00</span>
+                </li>
+                <li className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                  <span className="text-slate-400">Жума</span>
+                  <span className="text-slate-600">Эс алуу</span>
+                </li>
+                <li className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                  <span className="text-slate-400">Иш - Жек</span>
+                  <span className="text-orange-400 font-semibold">09:00 - 21:00</span>
+                </li>
+              </ul>
+            </div>
+          </RevealOnScroll>
         </div>
 
         {/* Bottom Bar */}
         <div className="py-8 border-t border-slate-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-slate-500">
-              © 2024 <span className="text-orange-400 font-semibold">ОКУРМЭН</span>. Все права защищены.
+              © 2024 <span className="text-orange-400 font-semibold">ОКУРМЭН</span>. {t('rights')}
             </p>
             <div className="flex gap-6 text-sm text-slate-500">
-              <a href="#" className="hover:text-orange-400 transition-colors">Политика конфиденциальности</a>
-              <a href="#" className="hover:text-orange-400 transition-colors">Условия использования</a>
+              <a href="#" className="hover:text-orange-400 transition-colors">{t('privacy')}</a>
+              <a href="#" className="hover:text-orange-400 transition-colors">{t('terms')}</a>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Send, User, Phone, Mail, BookOpen, MessageSquare, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Course {
   id: string;
@@ -13,6 +13,8 @@ interface Course {
 
 export default function ApplicationFormSection() {
   const locale = useLocale();
+  const t = useTranslations('application');
+  const courseT = useTranslations('courses');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -63,25 +65,25 @@ export default function ApplicationFormSection() {
 
     // Валидация имени и фамилии (обязательно)
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Имя и фамилия обязательны';
+      newErrors.fullName = t('fullName_required');
       isValid = false;
     } else if (formData.fullName.trim().split(' ').length < 2) {
-      newErrors.fullName = 'Укажите имя и фамилию';
+      newErrors.fullName = t('fullName_error');
       isValid = false;
     }
 
     // Валидация телефона (обязательно)
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Телефон обязателен';
+      newErrors.phone = t('phone_required');
       isValid = false;
     } else if (!/^\+?[0-9\s\-()]{9,}$/.test(formData.phone.trim())) {
-      newErrors.phone = 'Некорректный формат телефона';
+      newErrors.phone = t('phone_error');
       isValid = false;
     }
 
     // Валидация email (необязательно, но если указан - должен быть корректным)
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = 'Некорректный формат email';
+      newErrors.email = t('email_error');
       isValid = false;
     }
 
@@ -133,11 +135,11 @@ export default function ApplicationFormSection() {
           email: '',
         });
       } else {
-        setError(data.message || 'Произошла ошибка при отправке заявки');
+        setError(t('error'));
       }
     } catch (err) {
       console.error('Error submitting application:', err);
-      setError('Произошла ошибка при отправке заявки. Попробуйте позже.');
+      setError(t('error'));
     } finally {
       setLoading(false);
     }
@@ -166,11 +168,11 @@ export default function ApplicationFormSection() {
           {/* Section Header */}
           <div className="text-center mb-12 animate-fade-in">
             <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-              Оставьте заявку
+              {t('title')}
             </h2>
             <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-blue-600 mx-auto rounded-full mb-6"></div>
             <p className="text-lg text-slate-600 dark:text-slate-400">
-              Заполните форму, и мы свяжемся с вами для консультации
+              {t('description')}
             </p>
           </div>
 
@@ -182,16 +184,16 @@ export default function ApplicationFormSection() {
                   <CheckCircle className="w-16 h-16 text-green-600 dark:text-green-400" />
                 </div>
                 <h3 className="font-display text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                  Заявка отправлена!
+                  {t('success_title')}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-8">
-                  Спасибо за интерес к нашим курсам. Мы свяжемся с вами в ближайшее время.
+                  {t('success_message')}
                 </p>
                 <button
                   onClick={() => setSuccess(false)}
                   className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-colors"
                 >
-                  Отправить еще одну заявку
+                  {t('send_another')}
                 </button>
               </div>
             ) : (
@@ -199,7 +201,7 @@ export default function ApplicationFormSection() {
                 {/* Full Name */}
                 <div>
                   <label htmlFor="fullName" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Имя и Фамилия <span className="text-red-500">*</span>
+                    {t('fullName')} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -214,7 +216,7 @@ export default function ApplicationFormSection() {
                       className={`w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border ${
                         errors.fullName ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
                       } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white placeholder-slate-400`}
-                      placeholder="Иван Иванов"
+                      placeholder={t('fullName_placeholder')}
                     />
                   </div>
                   {errors.fullName && (
@@ -228,7 +230,7 @@ export default function ApplicationFormSection() {
                 {/* Phone */}
                 <div>
                   <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Телефон <span className="text-red-500">*</span>
+                    {t('phone')} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -243,7 +245,7 @@ export default function ApplicationFormSection() {
                       className={`w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border ${
                         errors.phone ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
                       } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white placeholder-slate-400`}
-                      placeholder="+996 XXX XXX XXX"
+                      placeholder={t('phone_placeholder')}
                     />
                   </div>
                   {errors.phone && (
@@ -257,7 +259,7 @@ export default function ApplicationFormSection() {
                 {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Email <span className="text-slate-400 text-xs">(необязательно)</span>
+                    Email <span className="text-slate-400 text-xs">({t('optional')})</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -272,7 +274,7 @@ export default function ApplicationFormSection() {
                       className={`w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border ${
                         errors.email ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
                       } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white placeholder-slate-400`}
-                      placeholder="example@email.com"
+                      placeholder={t('email_placeholder')}
                     />
                   </div>
                   {errors.email && (
@@ -286,7 +288,7 @@ export default function ApplicationFormSection() {
                 {/* Course Selection */}
                 <div>
                   <label htmlFor="courseId" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Интересующий курс <span className="text-slate-400 text-xs">(необязательно)</span>
+                    {t('course')} <span className="text-slate-400 text-xs">({t('optional')})</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -299,10 +301,10 @@ export default function ApplicationFormSection() {
                       onChange={handleChange}
                       className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white appearance-none cursor-pointer"
                     >
-                      <option value="">Выберите курс</option>
+                      <option value="">{t('course_select')}</option>
                       {courses.map((course) => (
                         <option key={course.id} value={course.id}>
-                          {course.translation?.title || 'Без названия'}
+                          {course.translation?.title || courseT('course_untitled')}
                         </option>
                       ))}
                     </select>
@@ -312,7 +314,7 @@ export default function ApplicationFormSection() {
                 {/* Comment */}
                 <div>
                   <label htmlFor="comment" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Комментарий <span className="text-slate-400 text-xs">(необязательно)</span>
+                    {t('comment')} <span className="text-slate-400 text-xs">({t('optional')})</span>
                   </label>
                   <div className="relative">
                     <div className="absolute top-3 left-4 pointer-events-none">
@@ -325,7 +327,7 @@ export default function ApplicationFormSection() {
                       onChange={handleChange}
                       rows={4}
                       className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white placeholder-slate-400 resize-none"
-                      placeholder="Расскажите о ваших целях и вопросах..."
+                      placeholder={t('comment_placeholder')}
                     />
                   </div>
                 </div>
@@ -347,18 +349,18 @@ export default function ApplicationFormSection() {
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Отправка...
+                      {t('submitting')}
                     </>
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      Отправить заявку
+                      {t('submit')}
                     </>
                   )}
                 </button>
 
                 <p className="text-xs text-center text-slate-500 dark:text-slate-400">
-                  Нажимая кнопку, вы соглашаетесь с обработкой персональных данных
+                  {t('consent')}
                 </p>
               </form>
             )}

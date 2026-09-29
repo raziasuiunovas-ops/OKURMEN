@@ -96,6 +96,18 @@ export async function GET(request: NextRequest) {
       courses.map(async (course) => {
         const stats = await calculateCourseStats(course.id);
         
+        // Parse coverGradient если это JSON string
+        let parsedGradient = null;
+        if (course.coverGradient) {
+          try {
+            parsedGradient = typeof course.coverGradient === 'string' 
+              ? JSON.parse(course.coverGradient) 
+              : course.coverGradient;
+          } catch (e) {
+            console.error('Failed to parse coverGradient:', e);
+          }
+        }
+        
         return {
           ...course,
           // Переопределяем значения из БД реальными расчетными
@@ -103,6 +115,7 @@ export async function GET(request: NextRequest) {
           totalReviews: stats.totalReviews,
           enrolledStudents: stats.enrolledStudents,
           totalHours: stats.totalHours,
+          coverGradient: parsedGradient,
           // Для frontend удобнее один объект translation
           translation: course.translations[0] || {
             title: 'Untitled Course',

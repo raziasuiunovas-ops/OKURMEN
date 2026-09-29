@@ -2,7 +2,7 @@
 
 import { Star, User, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Review {
   id: string;
@@ -25,6 +25,7 @@ interface Review {
 
 export default function ReviewsSection() {
   const locale = useLocale();
+  const t = useTranslations('reviews');
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -134,7 +135,7 @@ export default function ReviewsSection() {
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-              Отзывы
+              {t('title')}
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -153,15 +154,15 @@ export default function ReviewsSection() {
         <div className="container">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-              Отзывы
+              {t('title')}
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-              Отзывы студентов появятся здесь
+              {t('student_reviews')}
             </p>
             <div className="p-12 bg-white dark:bg-slate-900 rounded-2xl">
               <Quote className="w-20 h-20 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
               <p className="text-slate-500 dark:text-slate-400">
-                Пока отзывов нет
+                {t('no_reviews')}
               </p>
             </div>
           </div>
@@ -182,11 +183,11 @@ export default function ReviewsSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
           <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-            Отзывы
+            {t('title')}
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-blue-600 mx-auto rounded-full mb-6"></div>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Что говорят наши студенты, выпускники и их родители
+            {t('description')}
           </p>
         </div>
 
@@ -237,7 +238,7 @@ export default function ReviewsSection() {
                       const gradient = gradients[index % gradients.length];
                       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
                       const photoUrl = review.student?.photo ? `${apiUrl}${review.student.photo}` : null;
-                      const studentName = review.student?.fullName || 'Студент';
+                      const studentName = review.student?.fullName || t('anonymous');
                       const courseTitle = review.course?.translation?.title || '';
 
                       return (
@@ -289,7 +290,7 @@ export default function ReviewsSection() {
                             {/* Review Text */}
                             <div className="flex-1">
                               <p className="text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-6">
-                                {review.translation?.comment || 'Отличный курс!'}
+                                {review.translation?.comment || t('excellent_course')}
                               </p>
                             </div>
 

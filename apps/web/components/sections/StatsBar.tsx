@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Users, GraduationCap, BookOpen, Award } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Stats {
   students: number;
@@ -13,6 +13,7 @@ interface Stats {
 
 export default function StatsBar() {
   const locale = useLocale();
+  const t = useTranslations('stats');
   const [stats, setStats] = useState<Stats>({
     students: 0,
     alumni: 0,
@@ -81,22 +82,22 @@ export default function StatsBar() {
     { 
       icon: Users, 
       number: loading ? '...' : formatNumber(stats.students),
-      label: 'Студентов',
+      label: t('students'),
     },
     { 
       icon: GraduationCap, 
       number: loading ? '...' : formatNumber(stats.alumni),
-      label: 'Выпускников',
+      label: t('alumni'),
     },
     { 
       icon: BookOpen, 
       number: loading ? '...' : formatNumber(stats.courses),
-      label: 'Курсов',
+      label: t('courses'),
     },
     { 
       icon: Award, 
       number: loading ? '...' : stats.employmentRate > 0 ? `${stats.employmentRate}%` : '0',
-      label: 'Трудоустроено',
+      label: t('employed'),
     },
   ];
 

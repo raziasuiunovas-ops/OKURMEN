@@ -124,5 +124,26 @@
   "footer": {
     "about": "OKURMEN is a modern IT education project founded in May 2022",
     "rights": "All rights reserved"
+  },
+  "ai": {
+    "title": "OKURMEN AI Assistant",
+    "subtitle": "Ask questions about courses and learning",
+    "placeholder": "Ask a question...",
+    "send": "Send",
+    "loading": "Thinking...",
+    "error": "Could not get a response. Please try again.",
+    "empty": "Hello! I'm the OKURMEN AI assistant. How can I help?",
+    "abbr": "AI",
+    "quick_questions": {
+      "title": "Popular questions:",
+      "q1": "How to register?",
+      "q2": "What courses are available?",
+      "q3": "How much do courses cost?",
+      "q4": "How does learning work?",
+      "q5": "Is there a mentor?",
+      "q6": "How to apply?",
+      "q7": "Where is OKURMEN located?",
+      "q8": "How to contact OKURMEN?"
+    }
   }
 }

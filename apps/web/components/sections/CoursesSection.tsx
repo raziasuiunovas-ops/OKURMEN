@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Clock, Users, ArrowRight, TrendingUp } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Course {
   id: string;
   slug: string;
   price: number;
+  coverImage: string | null;
   coverGradient: { from: string; to: string } | null;
+  icon: string | null;
   isActive: boolean;
   rating: number;
   totalReviews: number;
@@ -28,6 +30,8 @@ interface Course {
 export default function CoursesSection() {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('courses');
+  const levelT = useTranslations('levels');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,15 +64,6 @@ export default function CoursesSection() {
     fetchCourses();
   }, [locale]);
 
-  const getLevelLabel = (level: string) => {
-    const labels: Record<string, Record<string, string>> = {
-      BEGINNER: { ru: 'Начальный', ky: 'Баштапкы', en: 'Beginner' },
-      INTERMEDIATE: { ru: 'Средний', ky: 'Орточо', en: 'Intermediate' },
-      ADVANCED: { ru: 'Продвинутый', ky: 'Өнүккөн', en: 'Advanced' },
-    };
-    return labels[level]?.[locale] || level;
-  };
-
   const getDefaultGradient = (index: number) => {
     const gradients = [
       'from-blue-500 to-cyan-500',
@@ -87,7 +82,7 @@ export default function CoursesSection() {
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-              Популярные Курсы
+              {t('popular')}
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -109,15 +104,15 @@ export default function CoursesSection() {
         <div className="container">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-              Популярные Курсы
+              {t('popular')}
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-              В настоящее время курсы находятся в разработке. Следите за обновлениями!
+              {t('in_development')}
             </p>
             <div className="p-12 bg-slate-50 dark:bg-slate-800 rounded-2xl">
               <BookOpen className="w-20 h-20 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
               <p className="text-slate-500 dark:text-slate-400">
-                Скоро здесь появятся новые курсы
+                {t('coming_soon')}
               </p>
             </div>
           </div>
@@ -132,19 +127,19 @@ export default function CoursesSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
           <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-            Популярные Курсы
+            {t('popular')}
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Выберите курс который изменит вашу карьеру. Все курсы включают практические проекты и поддержку менторов.
+            {t('choose_course')}
           </p>
         </div>
 
         {/* Courses Grid - Улучшенные карточки */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {courses.map((course, index) => {
-            const gradient = course.coverGradient
-              ? `from-[${course.coverGradient.from}] to-[${course.coverGradient.to}]`
-              : getDefaultGradient(index);
+            // Используем coverGradient из БД или дефолтный
+            const hasCustomGradient = course.coverGradient?.from && course.coverGradient?.to;
+            const defaultGradient = getDefaultGradient(index);
 
             return (
               <div
@@ -153,22 +148,44 @@ export default function CoursesSection() {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {/* Course Header with Gradient - Больше воздуха */}
-                <div className={`relative h-52 bg-gradient-to-br ${gradient} overflow-hidden`}>
+                <div 
+                  className={`relative h-52 overflow-hidden ${!hasCustomGradient ? `bg-gradient-to-br ${defaultGradient}` : ''}`}
+                  style={hasCustomGradient ? {
+                    background: `linear-gradient(to bottom right, ${course.coverGradient.from}, ${course.coverGradient.to})`
+                  } : undefined}
+                >
                   {/* Декоративные элементы */}
                   <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors"></div>
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute inset-0" style={{
-                      backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                      backgroundSize: '24px 24px'
-                    }}></div>
-                  </div>
-                  
-                  {/* Центральная иконка */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      <BookOpen className="w-16 h-16 text-slate-700 dark:text-slate-300" />
+                  {!course.coverImage && (
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute inset-0" style={{
+                        backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                        backgroundSize: '24px 24px'
+                      }}></div>
                     </div>
-                  </div>
+                  )}
+                  
+                  {/* Изображение курса или иконка */}
+                  {course.coverImage ? (
+                    <div className="absolute inset-0">
+                      <img 
+                        src={course.coverImage} 
+                        alt={course.translation.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        {course.icon ? (
+                          <div className="text-6xl">{course.icon}</div>
+                        ) : (
+                          <BookOpen className="w-16 h-16 text-slate-700 dark:text-slate-300" />
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Badges */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -179,7 +196,7 @@ export default function CoursesSection() {
                         ? 'bg-blue-500 text-white'
                         : 'bg-purple-500 text-white'
                     }`}>
-                      {getLevelLabel(course.translation.level)}
+                      {levelT(course.translation.level)}
                     </span>
                   </div>
 
@@ -199,7 +216,7 @@ export default function CoursesSection() {
                   {course.enrolledStudents > 50 && (
                     <div className="absolute bottom-4 right-4 px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
                       <TrendingUp className="w-3 h-3" />
-                      Популярный
+                      {t('popular_badge')}
                     </div>
                   )}
                 </div>
@@ -219,12 +236,12 @@ export default function CoursesSection() {
                   <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400 pb-4 border-b border-slate-200 dark:border-slate-700">
                     <span className="flex items-center gap-1.5 font-medium">
                       <BookOpen className="w-4 h-4 text-orange-500" />
-                      {course._count.lessons} {course._count.lessons === 1 ? 'урок' : course._count.lessons < 5 ? 'урока' : 'уроков'}
+                      {course._count.lessons} {t('lesson_many')}
                     </span>
                     {course.totalHours > 0 && (
                       <span className="flex items-center gap-1.5 font-medium">
                         <Clock className="w-4 h-4 text-blue-500" />
-                        {course.totalHours}ч
+                        {course.totalHours}{t('hours')}
                       </span>
                     )}
                   </div>
@@ -233,7 +250,7 @@ export default function CoursesSection() {
                   {course.enrolledStudents > 0 && (
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <Users className="w-4 h-4" />
-                      <span className="font-medium">{course.enrolledStudents} студентов</span>
+                      <span className="font-medium">{course.enrolledStudents} {t('students_enrolled')}</span>
                     </div>
                   )}
 
@@ -249,7 +266,7 @@ export default function CoursesSection() {
                       onClick={() => router.push('/courses')}
                       className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-slate-900 dark:bg-white hover:bg-orange-600 dark:hover:bg-orange-500 text-white dark:text-slate-900 hover:dark:text-white font-bold text-sm rounded-xl transition-all group/btn shadow-lg hover:shadow-xl"
                     >
-                      Подробнее
+                      {t('details')}
                       <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                   </div>
@@ -265,7 +282,7 @@ export default function CoursesSection() {
             onClick={() => router.push('/courses')}
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
           >
-            Смотреть все курсы
+            {t('view_all')}
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>

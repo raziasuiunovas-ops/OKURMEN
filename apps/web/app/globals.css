@@ -33,24 +33,6 @@
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-slate-100 dark:bg-slate-800;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-gradient-to-b from-primary-500 to-primary-600 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply from-primary-600 to-primary-700;
-}
-
 /* Floating animation for hero cards */
 @keyframes float {
   0%, 100% {
@@ -63,4 +45,101 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Gradient shift animation for text */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Custom Scrollbar Styles for AI Chat */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-track-slate-200::-webkit-scrollbar-track {
+  background: rgb(226 232 240);
+  border-radius: 4px;
+}
+
+.dark .scrollbar-track-slate-800::-webkit-scrollbar-track {
+  background: rgb(30 41 59);
+  border-radius: 4px;
+}
+
+.scrollbar-thumb-slate-400::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184);
+  border-radius: 4px;
+}
+
+.dark .scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
+  background: rgb(71 85 105);
+  border-radius: 4px;
+}
+
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background: rgb(100 116 139);
+}
+
+.dark .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background: rgb(100 116 139);
+}
+
+.scrollbar-thumb-slate-400::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139);
+}
+
+.dark .scrollbar-thumb-slate-600::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139);
+}
+
+/* Scroll Reveal Animations */
+.reveal-element {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-element {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  
+  .reveal-visible {
+    opacity: 1;
+    transform: none;
+  }
 }

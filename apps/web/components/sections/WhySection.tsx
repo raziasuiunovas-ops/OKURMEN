@@ -108,7 +108,7 @@ export default function WhySection() {
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-blue-600 mx-auto rounded-full mb-6"></div>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Мы предлагаем уникальный подход к IT-образованию
+            {t('description')}
           </p>
         </div>
 

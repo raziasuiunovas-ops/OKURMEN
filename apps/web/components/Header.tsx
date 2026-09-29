@@ -16,6 +16,7 @@ export default function Header() {
   const { data: session } = useSession();
   const { theme, toggleTheme } = useTheme();
   const t = useTranslations('nav');
+  const authT = useTranslations('auth');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -56,26 +57,38 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-primary-500 dark:bg-dark-800 shadow-md transition-colors duration-200">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 shadow-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo with Image */}
             <button
               onClick={() => scrollToSection('#')}
-              className="flex items-center gap-2 hover:opacity-90 transition-opacity duration-200"
+              className="flex items-center gap-3 hover:opacity-90 transition-opacity duration-200"
               aria-label="OKURMEN"
             >
               <div className="relative w-10 h-10">
                 <Image
-                  src="/img/logo.okurmen.jpg"
+                  src="/logo.svg"
                   alt="OKURMEN Logo"
+<<<<<<< ours
                   width={40}
                   height={40}
                   className="object-contain rounded-lg"
+=======
+                  fill
+                  className="object-contain dark:hidden"
+                  priority
+                />
+                <Image
+                  src="/logo-dark.svg"
+                  alt="OKURMEN Logo"
+                  fill
+                  className="object-contain hidden dark:block"
+>>>>>>> theirs
                   priority
                 />
               </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-primary-400 via-primary-300 to-blue-400 bg-clip-text text-transparent">
+              <span className="text-xl font-display font-extrabold bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
                 ОКУРМЭН
               </span>
             </button>
@@ -86,16 +99,21 @@ export default function Header() {
                 <button
                   key={item.key}
                   onClick={() => scrollToSection(item.href)}
-                  className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200"
                 >
                   {t(item.key as any)}
                 </button>
               ))}
               <button
+<<<<<<< ours
                 onClick={() => scrollToSection('#contacts')}
                 className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
+=======
+                onClick={() => scrollToSection('#application')}
+                className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200"
+>>>>>>> theirs
               >
-                Заявка
+                {t('application')}
               </button>
             </nav>
 
@@ -104,22 +122,34 @@ export default function Header() {
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 text-white/80 hover:text-white transition-colors rounded-lg hover:bg-white/10"
-                aria-label={theme === 'light' ? 'Темная тема' : 'Светлая тема'}
+                className="p-2 text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label={theme === 'light' ? 'Караңгы тема' : 'Жарык тема'}
               >
                 {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
               </button>
 
+<<<<<<< ours
               {/* Language Switcher - Buttons */}
               <div className="flex items-center gap-2">
+=======
+              {/* Language Switcher as Buttons */}
+              <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+>>>>>>> theirs
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageChange(lang.code)}
+<<<<<<< ours
                     className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                       locale === lang.code
                         ? 'bg-white text-primary-600 shadow-sm'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
+=======
+                    className={`px-3 py-1.5 text-xs font-semibold rounded transition-all duration-200 ${
+                      locale === lang.code
+                        ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+>>>>>>> theirs
                     }`}
                   >
                     {lang.label}
@@ -131,35 +161,35 @@ export default function Header() {
               {session?.user ? (
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-blue-600 flex items-center justify-center">
                       <span className="text-sm font-semibold text-white">
                         {session.user.name?.charAt(0) || session.user.email?.charAt(0)}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-white">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       {session.user.name || session.user.email}
                     </span>
                   </div>
                   <button
                     onClick={() => signOut()}
-                    className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                    className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                   >
-                    Выйти
+                    {authT('logout')}
                   </button>
                 </div>
               ) : (
                 <>
                   <button
                     onClick={() => openAuthModal('login')}
-                    className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                    className="px-5 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all duration-200"
                   >
-                    Войти
+                    {authT('login')}
                   </button>
                   <button
                     onClick={() => openAuthModal('register')}
-                    className="px-5 py-2 bg-white text-primary-600 text-sm font-semibold rounded-lg hover:bg-white/95 transition-all duration-200 shadow-md"
+                    className="px-5 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
                   >
-                    Регистрация
+                    {authT('register')}
                   </button>
                 </>
               )}
@@ -168,7 +198,7 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-white"
+              className="lg:hidden p-2 text-slate-700 dark:text-slate-300"
               aria-label="Menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -183,29 +213,29 @@ export default function Header() {
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="lg:hidden border-t border-white/20 py-4">
+            <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 py-4">
               <nav className="flex flex-col space-y-1">
                 {navItems.map((item) => (
                   <button
                     key={item.key}
                     onClick={() => scrollToSection(item.href)}
-                    className="text-left px-3 py-2 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded"
+                    className="text-left px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
                   >
                     {t(item.key as any)}
                   </button>
                 ))}
                 <button
                   onClick={() => {
-                    openAuthModal('register');
+                    scrollToSection('#application');
                     setIsMobileMenuOpen(false);
                   }}
-                  className="text-left px-3 py-2 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded"
+                  className="text-left px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
                 >
-                  Заявка
+                  {t('application')}
                 </button>
               </nav>
               
-              <div className="mt-4 pt-4 border-t border-white/20 space-y-3">
+              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
                 {/* Language Switcher Mobile */}
                 <div className="flex gap-2">
                   {languages.map((lang) => (
@@ -215,8 +245,10 @@ export default function Header() {
                         handleLanguageChange(lang.code);
                         setIsMobileMenuOpen(false);
                       }}
-                      className={`px-3 py-1.5 text-sm font-medium rounded ${
-                        locale === lang.code ? 'bg-white text-primary-600' : 'bg-white/20 text-white'
+                      className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-all ${
+                        locale === lang.code 
+                          ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-sm' 
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       {lang.label}
@@ -228,20 +260,20 @@ export default function Header() {
                 {session?.user ? (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 px-3 py-2">
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-blue-600 flex items-center justify-center">
                         <span className="text-sm font-semibold text-white">
                           {session.user.name?.charAt(0) || session.user.email?.charAt(0)}
                         </span>
                       </div>
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                         {session.user.name || session.user.email}
                       </span>
                     </div>
                     <button
                       onClick={() => signOut()}
-                      className="w-full px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-lg"
+                      className="w-full px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700"
                     >
-                      Выйти
+                      {authT('logout')}
                     </button>
                   </div>
                 ) : (
@@ -251,18 +283,18 @@ export default function Header() {
                         openAuthModal('login');
                         setIsMobileMenuOpen(false);
                       }}
-                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-lg"
+                      className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700"
                     >
-                      Войти
+                      {authT('login')}
                     </button>
                     <button
                       onClick={() => {
                         openAuthModal('register');
                         setIsMobileMenuOpen(false);
                       }}
-                      className="flex-1 px-4 py-2 bg-white text-primary-600 text-sm font-semibold rounded-lg"
+                      className="flex-1 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-lg shadow-md"
                     >
-                      Регистрация
+                      {authT('register')}
                     </button>
                   </div>
                 )}

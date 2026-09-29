@@ -5,6 +5,7 @@ import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 export default function ContactsSection() {
   const t = useTranslations('contacts');
+  const scheduleT = useTranslations('schedule');
 
   const contactInfo = [
     {
@@ -37,9 +38,9 @@ export default function ContactsSection() {
   ];
 
   const schedule = [
-    { days: 'Понедельник - Четверг', time: '09:00 - 21:00', active: true },
-    { days: 'Пятница', time: 'Выходной', active: false },
-    { days: 'Суббота - Воскресенье', time: '09:00 - 21:00', active: true },
+    { days: scheduleT('monday_thursday'), time: '09:00 - 21:00', active: true },
+    { days: scheduleT('friday_label'), time: scheduleT('closed'), active: false },
+    { days: scheduleT('saturday_sunday'), time: '09:00 - 21:00', active: true },
   ];
 
   return (
@@ -58,7 +59,7 @@ export default function ContactsSection() {
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-blue-600 mx-auto rounded-full mb-6"></div>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Свяжитесь с нами любым удобным способом. Мы всегда рады помочь!
+            {t('description')}
           </p>
         </div>
 
@@ -139,7 +140,7 @@ export default function ContactsSection() {
                 <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
                   <Clock className="w-7 h-7" />
                 </div>
-                <h3 className="font-display text-2xl font-bold">График работы</h3>
+                <h3 className="font-display text-2xl font-bold">{scheduleT('title')}</h3>
               </div>
 
               <div className="space-y-3">
@@ -161,7 +162,7 @@ export default function ContactsSection() {
               {/* Additional Info */}
               <div className="mt-6 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
                 <p className="text-sm text-white/90 text-center">
-                  📞 Звоните в рабочее время или оставьте заявку
+                  📞 {scheduleT('call_or_apply')}
                 </p>
               </div>
             </div>
@@ -173,10 +174,10 @@ export default function ContactsSection() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
               <h3 className="font-display text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                Следите за нами в соцсетях
+                {t('follow_us')}
               </h3>
               <p className="text-slate-600 dark:text-slate-400">
-                Актуальные новости, полезные материалы и события
+                {t('social_description')}
               </p>
             </div>
             <div className="flex items-center gap-4">

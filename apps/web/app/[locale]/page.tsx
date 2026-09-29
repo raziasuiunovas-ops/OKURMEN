@@ -9,6 +9,7 @@ import TeamSection from '@/components/sections/TeamSection';
 import ReviewsSection from '@/components/sections/ReviewsSection';
 import ContactsSection from '@/components/sections/ContactsSection';
 import ApplicationFormSection from '@/components/sections/ApplicationFormSection';
+import RevealOnScroll from '@/components/RevealOnScroll';
 
 export default async function HomePage({
   params,
@@ -22,13 +23,27 @@ export default async function HomePage({
     <main className="min-h-screen">
       <Header />
       <HeroSection />
-      <CoursesSection />
-      <WhySection />
-      <StatsBar />
-      <TeamSection />
-      <ReviewsSection />
-      <ContactsSection />
-      <ApplicationFormSection />
+      <RevealOnScroll delay={0}>
+        <CoursesSection />
+      </RevealOnScroll>
+      <RevealOnScroll delay={100}>
+        <WhySection />
+      </RevealOnScroll>
+      <RevealOnScroll delay={0}>
+        <StatsBar />
+      </RevealOnScroll>
+      <RevealOnScroll delay={100}>
+        <TeamSection />
+      </RevealOnScroll>
+      <RevealOnScroll delay={100}>
+        <ReviewsSection />
+      </RevealOnScroll>
+      <RevealOnScroll delay={100}>
+        <ContactsSection />
+      </RevealOnScroll>
+      <RevealOnScroll delay={100}>
+        <ApplicationFormSection />
+      </RevealOnScroll>
       <Footer />
     </main>
   );
