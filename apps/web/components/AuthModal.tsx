@@ -53,7 +53,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-dark-400 hover:text-dark-900 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
           aria-label="Close"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,10 +62,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
         </button>
 
         {/* Title */}
-        <h2 className="text-3xl font-bold text-dark-900 mb-2">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">
           {mode === 'login' ? 'Войти' : 'Регистрация'}
         </h2>
-        <p className="text-dark-600 mb-8">
+        <p className="text-gray-600 mb-8">
           {mode === 'login' ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт'}
         </p>
 
@@ -129,7 +129,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-dark-900 text-white font-semibold rounded-lg hover:bg-dark-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Загрузка...' : mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
           </button>
@@ -138,7 +138,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
         {/* Divider */}
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-gray-200"></div>
-          <span className="text-sm text-dark-500">или</span>
+          <span className="text-sm text-gray-500">или</span>
           <div className="flex-1 h-px bg-gray-200"></div>
         </div>
 
@@ -146,7 +146,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
         <button
           onClick={handleGoogleSignIn}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 border-2 border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 border-2 border-gray-200 rounded-lg hover:border-accent-300 hover:bg-accent-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -173,13 +173,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
 
         {/* Toggle Mode */}
         <div className="text-center mt-6">
-          <span className="text-sm text-dark-600">
+          <span className="text-sm text-gray-600">
             {mode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
           </span>
           {' '}
           <button
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-            className="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+            className="text-sm font-semibold text-accent-600 hover:text-accent-700 transition-colors"
           >
             {mode === 'login' ? 'Зарегистрироваться' : 'Войти'}
           </button>

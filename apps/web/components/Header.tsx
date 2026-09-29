@@ -55,7 +55,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary-500 to-accent-500 shadow-md">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-accent-500 shadow-md">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo with Icon and Gradient Text */}
@@ -67,7 +67,7 @@ export default function Header() {
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                 <span className="text-xl">🎓</span>
               </div>
-              <span className="bg-gradient-to-r from-accent-400 to-secondary-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-accent-400 via-accent-300 to-primary-400 bg-clip-text text-transparent">
                 ОКУРМЭН
               </span>
             </button>
@@ -147,13 +147,13 @@ export default function Header() {
                 <>
                   <button
                     onClick={() => openAuthModal('login')}
-                    className="px-4 py-2 text-sm font-medium text-white/90 hover:text-white transition-colors"
+                    className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition-all duration-200"
                   >
                     Войти
                   </button>
                   <button
                     onClick={() => openAuthModal('register')}
-                    className="px-5 py-2 bg-white text-primary-600 text-sm font-semibold rounded-lg hover:bg-white/95 transition-all duration-200 shadow-md"
+                    className="px-5 py-2 bg-white text-accent-600 text-sm font-semibold rounded-lg hover:bg-white/95 transition-all duration-200 shadow-md"
                   >
                     Регистрация
                   </button>
