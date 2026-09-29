@@ -129,7 +129,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Загрузка...' : mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
           </button>
@@ -146,7 +146,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
         <button
           onClick={handleGoogleSignIn}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 border-2 border-gray-200 rounded-lg hover:border-accent-300 hover:bg-accent-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 border-2 border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -179,7 +179,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
           {' '}
           <button
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-            className="text-sm font-semibold text-accent-600 hover:text-accent-700 transition-colors"
+            className="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors"
           >
             {mode === 'login' ? 'Зарегистрироваться' : 'Войти'}
           </button>
