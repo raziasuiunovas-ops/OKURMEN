@@ -8,7 +8,6 @@ export default function ScrollToTop() {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      // РџРѕРєР°Р·С‹РІР°РµРј РєРЅРѕРїРєСѓ РєРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїСЂРѕРєСЂСѓС‚РёР» РІРЅРёР· РЅР° 300px
       if (window.scrollY > 300) {
         setIsVisible(true);
       } else {
@@ -17,10 +16,7 @@ export default function ScrollToTop() {
     };
 
     window.addEventListener('scroll', toggleVisibility);
-
-    return () => {
-      window.removeEventListener('scroll', toggleVisibility);
-    };
+    return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   const scrollToTop = () => {
@@ -30,14 +26,15 @@ export default function ScrollToTop() {
     });
   };
 
+  if (!isVisible) return null;
+
   return (
     <button
       onClick={scrollToTop}
-      className={`scroll-to-top ${isVisible ? 'visible' : ''}`}
-      aria-label="РџСЂРѕРєСЂСѓС‚РёС‚СЊ РЅР°РІРµСЂС…"
+      className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-accent-500 text-white rounded-full shadow-lg hover:bg-accent-600 transition-all duration-300 flex items-center justify-center hover:scale-110"
+      aria-label="Прокрутить наверх"
     >
-      <ArrowUp size={24} />
+      <ArrowUp size={24} strokeWidth={2.5} />
     </button>
   );
 }
-

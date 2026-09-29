@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useSession, signOut } from 'next-auth/react';
+import { Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 import AuthModal from './AuthModal';
 
 export default function Header() {
@@ -11,6 +13,7 @@ export default function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const { data: session } = useSession();
+  const { theme, toggleTheme } = useTheme();
   const t = useTranslations('nav');
   const locale = useLocale();
   const router = useRouter();
@@ -55,16 +58,18 @@ export default function Header() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary-500 to-accent-500 shadow-md">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo with Icon */}
+            {/* Logo with Icon and Gradient Text */}
             <button
               onClick={() => scrollToSection('#')}
-              className="flex items-center gap-2 text-lg font-bold text-white hover:text-white/90 transition-colors duration-200"
+              className="flex items-center gap-2 text-lg font-bold hover:opacity-90 transition-opacity duration-200"
               aria-label="OKURMEN"
             >
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                 <span className="text-xl">🎓</span>
               </div>
-              <span>ОКУРМЭН</span>
+              <span className="bg-gradient-to-r from-accent-400 to-secondary-400 bg-clip-text text-transparent">
+                ОКУРМЭН
+              </span>
             </button>
 
             {/* Desktop Navigation */}
@@ -88,6 +93,15 @@ export default function Header() {
 
             {/* Desktop Actions */}
             <div className="hidden lg:flex items-center space-x-3">
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-white/80 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+                aria-label={theme === 'light' ? 'Темная тема' : 'Светлая тема'}
+              >
+                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+              </button>
+
               {/* Language Switcher */}
               <div className="flex items-center gap-1 text-sm font-medium text-white/80">
                 {languages.map((lang, index) => (

@@ -3,6 +3,7 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import type { Metadata } from 'next';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import SessionProvider from '@/components/SessionProvider';
 import ScrollToTop from '@/components/ScrollToTop';
 import { Montserrat, Open_Sans } from 'next/font/google';
@@ -121,10 +122,12 @@ export default async function LocaleLayout({
       </head>
       <body className="antialiased font-sans">
         <SessionProvider>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-            <ScrollToTop />
-          </NextIntlClientProvider>
+          <ThemeProvider>
+            <NextIntlClientProvider messages={messages}>
+              {children}
+              <ScrollToTop />
+            </NextIntlClientProvider>
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>
