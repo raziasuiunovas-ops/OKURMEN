@@ -69,8 +69,9 @@ export default function Header() {
                 <Image
                   src="/img/logo.okurmen.jpg"
                   alt="OKURMEN Logo"
-                  fill
-                  className="object-contain"
+                  width={40}
+                  height={40}
+                  className="object-contain rounded-lg"
                   priority
                 />
               </div>
@@ -91,7 +92,7 @@ export default function Header() {
                 </button>
               ))}
               <button
-                onClick={() => openAuthModal('register')}
+                onClick={() => scrollToSection('#contacts')}
                 className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
               >
                 Заявка
@@ -109,24 +110,20 @@ export default function Header() {
                 {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
               </button>
 
-              {/* Language Switcher */}
-              <div className="flex items-center gap-1 text-sm font-medium text-white/80">
-                {languages.map((lang, index) => (
-                  <span key={lang.code} className="flex items-center">
-                    <button
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`transition-colors duration-200 ${
-                        locale === lang.code
-                          ? 'text-white font-semibold'
-                          : 'text-white/60 hover:text-white/90'
-                      }`}
-                    >
-                      {lang.label}
-                    </button>
-                    {index < languages.length - 1 && (
-                      <span className="mx-2 text-white/40">/</span>
-                    )}
-                  </span>
+              {/* Language Switcher - Buttons */}
+              <div className="flex items-center gap-2">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => handleLanguageChange(lang.code)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      locale === lang.code
+                        ? 'bg-white text-primary-600 shadow-sm'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {lang.label}
+                  </button>
                 ))}
               </div>
 
