@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useSession, signOut } from 'next-auth/react';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import Image from 'next/image';
 import AuthModal from './AuthModal';
 
 export default function Header() {
@@ -58,16 +59,22 @@ export default function Header() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-primary-500 dark:bg-dark-800 shadow-md transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo with Icon and Gradient Text */}
+            {/* Logo with Image */}
             <button
               onClick={() => scrollToSection('#')}
-              className="flex items-center gap-2 text-lg font-bold hover:opacity-90 transition-opacity duration-200"
+              className="flex items-center gap-2 hover:opacity-90 transition-opacity duration-200"
               aria-label="OKURMEN"
             >
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <span className="text-xl">🎓</span>
+              <div className="relative w-10 h-10">
+                <Image
+                  src="/img/logo.okurmen.jpg"
+                  alt="OKURMEN Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
-              <span className="bg-gradient-to-r from-primary-400 via-primary-300 to-blue-400 bg-clip-text text-transparent">
+              <span className="text-lg font-bold bg-gradient-to-r from-primary-400 via-primary-300 to-blue-400 bg-clip-text text-transparent">
                 ОКУРМЭН
               </span>
             </button>
