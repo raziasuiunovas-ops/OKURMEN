@@ -366,6 +366,7 @@ model Alumni {
   position   String?
   story      String?  @db.Text
   photoUrl   String?  @map("photo_url")
+  projects   Json?    @default("[]")
   isFeatured Boolean  @default(false) @map("is_featured")
   createdAt  DateTime @default(now()) @map("created_at")
 
