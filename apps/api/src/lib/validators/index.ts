@@ -54,6 +54,8 @@ export const createReviewSchema = z.object({
   photoUrl: z.string().optional(), // Разрешаем любую строку (включая base64)
   videoUrl: z.string().url().optional(),
   status: z.enum(['PENDING', 'PUBLISHED', 'REJECTED']).default('PENDING'),
+  courseId: z.string().optional(),
+  userId: z.string().optional(),
 });
 
 export const updateReviewSchema = createReviewSchema.partial();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { Eye, EyeOff } from 'lucide-react';
@@ -19,6 +19,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations('auth');
+
+  // Обновляем mode при изменении initialMode
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
 
   if (!isOpen) return null;
 

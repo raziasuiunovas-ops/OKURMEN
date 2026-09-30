@@ -22,7 +22,7 @@ export default function ApplicationFormSection() {
   
   const [formData, setFormData] = useState({
     fullName: '',
-    phone: '',
+    phone: '+996 ',
     email: '',
     courseId: '',
     comment: '',
@@ -63,28 +63,29 @@ export default function ApplicationFormSection() {
 
     let isValid = true;
 
-    // Валидация имени и фамилии (обязательно)
+    // Валидация имени (обязательно, фамилия не обязательна)
     if (!formData.fullName.trim()) {
       newErrors.fullName = t('fullName_required');
-      isValid = false;
-    } else if (formData.fullName.trim().split(' ').length < 2) {
-      newErrors.fullName = t('fullName_error');
       isValid = false;
     }
 
     // Валидация телефона (обязательно)
-    if (!formData.phone.trim()) {
+    if (!formData.phone.trim() || formData.phone.trim() === '+996') {
       newErrors.phone = t('phone_required');
       isValid = false;
-    } else if (!/^\+?[0-9\s\-()]{9,}$/.test(formData.phone.trim())) {
+    } else if (!/^\+996\s?\d{9}$/.test(formData.phone.trim().replace(/\s/g, ''))) {
       newErrors.phone = t('phone_error');
       isValid = false;
     }
 
     // Валидация email (необязательно, но если указан - должен быть корректным)
-    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = t('email_error');
-      isValid = false;
+    const emailValue = formData.email.trim();
+    if (emailValue) {
+      const fullEmail = emailValue.includes('@') ? emailValue : `${emailValue}@gmail.com`;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fullEmail)) {
+        newErrors.email = t('email_error');
+        isValid = false;
+      }
     }
 
     setErrors(newErrors);
@@ -104,6 +105,13 @@ export default function ApplicationFormSection() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      
+      // Подготавливаем email
+      const emailValue = formData.email.trim();
+      const finalEmail = emailValue && !emailValue.includes('@') 
+        ? `${emailValue}@gmail.com` 
+        : emailValue;
+      
       const response = await fetch(`${apiUrl}/api/applications`, {
         method: 'POST',
         headers: {
@@ -112,7 +120,7 @@ export default function ApplicationFormSection() {
         body: JSON.stringify({
           fullName: formData.fullName.trim(),
           phone: formData.phone.trim(),
-          email: formData.email.trim() || undefined,
+          email: finalEmail || undefined,
           courseId: formData.courseId || undefined,
           comment: formData.comment.trim() || undefined,
         }),
@@ -124,7 +132,7 @@ export default function ApplicationFormSection() {
         setSuccess(true);
         setFormData({
           fullName: '',
-          phone: '',
+          phone: '+996 ',
           email: '',
           courseId: '',
           comment: '',
@@ -147,7 +155,21 @@ export default function ApplicationFormSection() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Специальная обработка телефона
+    if (name === 'phone') {
+      // Если пользователь пытается удалить +996
+      if (!value.startsWith('+996')) {
+        setFormData(prev => ({ ...prev, phone: '+996 ' }));
+        return;
+      }
+      // Ограничиваем длину
+      if (value.length <= 16) { // +996 + 9 цифр + пробелы
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
     
     // Очищаем ошибку при изменении поля
     if (errors[name as keyof typeof errors]) {
@@ -266,16 +288,19 @@ export default function ApplicationFormSection() {
                       <Mail className="w-5 h-5 text-slate-400" />
                     </div>
                     <input
-                      type="email"
+                      type="text"
                       id="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border ${
+                      className={`w-full pl-12 pr-28 py-3 bg-slate-50 dark:bg-slate-800 border ${
                         errors.email ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
                       } rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white placeholder-slate-400`}
-                      placeholder={t('email_placeholder')}
+                      placeholder=""
                     />
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <span className="text-slate-500 dark:text-slate-400">@gmail.com</span>
+                    </div>
                   </div>
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
@@ -291,7 +316,7 @@ export default function ApplicationFormSection() {
                     {t('course')} <span className="text-slate-400 text-xs">({t('optional')})</span>
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                       <BookOpen className="w-5 h-5 text-slate-400" />
                     </div>
                     <select
@@ -299,7 +324,13 @@ export default function ApplicationFormSection() {
                       name="courseId"
                       value={formData.courseId}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white appearance-none cursor-pointer"
+                      className="w-full pl-12 pr-10 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-slate-900 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                        backgroundPosition: 'right 0.5rem center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '1.5em 1.5em',
+                      }}
                     >
                       <option value="">{t('course_select')}</option>
                       {courses.map((course) => (

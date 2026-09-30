@@ -62,9 +62,7 @@ export async function GET(request: NextRequest) {
     const courses = await prisma.course.findMany({
       where: includeInactive ? undefined : { isActive: true },
       include: {
-        translations: {
-          where: { languageCode: language as any },
-        },
+        translations: true, // Получаем ВСЕ переводы для fallback логики
         teachers: {
           include: {
             employee: {
@@ -108,6 +106,22 @@ export async function GET(request: NextRequest) {
           }
         }
         
+        // Находим перевод для запрошенного языка или fallback
+        let translation = course.translations.find(t => t.languageCode === language);
+        
+        // Если перевода нет, ищем fallback (RU -> EN -> KY)
+        if (!translation) {
+          const fallbackOrder = language === 'RU' ? ['EN', 'KY'] : language === 'EN' ? ['RU', 'KY'] : ['RU', 'EN'];
+          for (const fallbackLang of fallbackOrder) {
+            translation = course.translations.find(t => t.languageCode === fallbackLang);
+            if (translation) break;
+          }
+          // Если все еще нет, берем первый доступный
+          if (!translation) {
+            translation = course.translations[0];
+          }
+        }
+        
         return {
           ...course,
           // Переопределяем значения из БД реальными расчетными
@@ -117,8 +131,8 @@ export async function GET(request: NextRequest) {
           totalHours: stats.totalHours,
           coverGradient: parsedGradient,
           // Для frontend удобнее один объект translation
-          translation: course.translations[0] || {
-            title: 'Untitled Course',
+          translation: translation || {
+            title: course.slug, // Используем slug как последний fallback
             description: '',
             level: 'BEGINNER',
           },

@@ -6,6 +6,7 @@ import WhySection from '@/components/sections/WhySection';
 import CoursesSection from '@/components/sections/CoursesSection';
 import StatsBar from '@/components/sections/StatsBar';
 import TeamSection from '@/components/sections/TeamSection';
+import AlumniSection from '@/components/sections/AlumniSection';
 import ReviewsSection from '@/components/sections/ReviewsSection';
 import ContactsSection from '@/components/sections/ContactsSection';
 import ApplicationFormSection from '@/components/sections/ApplicationFormSection';
@@ -34,6 +35,9 @@ export default async function HomePage({
       </RevealOnScroll>
       <RevealOnScroll delay={100}>
         <TeamSection />
+      </RevealOnScroll>
+      <RevealOnScroll delay={100}>
+        <AlumniSection />
       </RevealOnScroll>
       <RevealOnScroll delay={100}>
         <ReviewsSection />

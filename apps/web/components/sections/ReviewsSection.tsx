@@ -3,35 +3,43 @@
 import { Star, User, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useSession } from 'next-auth/react';
+import ReviewModal from '@/components/ReviewModal';
+import AuthModal from '@/components/AuthModal';
 
 interface Review {
   id: string;
   rating: number;
-  isApproved: boolean;
+  status: 'PENDING' | 'PUBLISHED' | 'REJECTED';
   createdAt: string;
-  student: {
+  authorName: string;
+  text: string;
+  user: {
+    id: string;
     fullName: string;
-    photo: string | null;
   } | null;
   course: {
-    translation: {
+    id: string;
+    slug: string;
+    translations: {
+      languageCode: string;
       title: string;
-    } | null;
-  } | null;
-  translation: {
-    comment: string;
+    }[];
   } | null;
 }
 
 export default function ReviewsSection() {
   const locale = useLocale();
   const t = useTranslations('reviews');
+  const { data: session } = useSession();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const gradients = [
@@ -63,33 +71,47 @@ export default function ReviewsSection() {
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-        const response = await fetch(`${apiUrl}/api/reviews`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch reviews');
-        }
-
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          // Фильтруем только одобренные отзывы
-          const approvedReviews = data.data.filter((review: Review) => review.isApproved);
-          setReviews(approvedReviews);
-        }
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-        setReviews([]);
-      } finally {
-        setLoading(false);
+  const fetchReviews = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/reviews`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch reviews');
       }
-    };
 
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        // Фильтруем только опубликованные отзывы (API уже возвращает только PUBLISHED)
+        const publishedReviews = data.data.filter((review: Review) => review.status === 'PUBLISHED');
+        setReviews(publishedReviews);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchReviews();
   }, []);
+
+  const handleWriteReview = () => {
+    // Проверяем авторизацию
+    if (!session) {
+      setIsAuthModalOpen(true);
+    } else {
+      setIsReviewModalOpen(true);
+    }
+  };
+
+  const handleReviewSuccess = () => {
+    // Перезагрузить отзывы после успешной отправки
+    fetchReviews();
+  };
 
   // Carousel controls
   const maxIndex = Math.max(0, Math.ceil(reviews.length / itemsPerView) - 1);
@@ -160,13 +182,44 @@ export default function ReviewsSection() {
               {t('student_reviews')}
             </p>
             <div className="p-12 bg-white dark:bg-slate-900 rounded-2xl">
-              <Quote className="w-20 h-20 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-500 dark:text-slate-400">
-                {t('no_reviews')}
+              <Quote className="w-20 h-20 text-slate-300 dark:text-slate-600 mx-auto mb-6" />
+              <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-white mb-2">
+                {t('no_reviews_yet')}
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-8">
+                {t('be_first_to_share')}
               </p>
+              
+              {/* Кнопка "Написать отзыв" с анимацией */}
+              <button
+                onClick={handleWriteReview}
+                className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 text-white font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105"
+              >
+                {/* Анимированный градиент фон */}
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-shift"></div>
+                
+                {/* Glow эффект */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-50 blur-xl bg-gradient-to-r from-orange-400 via-pink-400 to-blue-500 transition-opacity duration-300"></div>
+                
+                {/* Текст кнопки */}
+                <span className="relative z-10">{t('write_review')}</span>
+                <Star className="relative z-10 w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Модалки */}
+        <ReviewModal 
+          isOpen={isReviewModalOpen} 
+          onClose={() => setIsReviewModalOpen(false)}
+          onSuccess={handleReviewSuccess}
+        />
+        <AuthModal 
+          isOpen={isAuthModalOpen} 
+          onClose={() => setIsAuthModalOpen(false)}
+          initialMode="login"
+        />
       </section>
     );
   }
@@ -236,10 +289,13 @@ export default function ReviewsSection() {
                     .slice(slideIndex * itemsPerView, (slideIndex + 1) * itemsPerView)
                     .map((review, index) => {
                       const gradient = gradients[index % gradients.length];
-                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-                      const photoUrl = review.student?.photo ? `${apiUrl}${review.student.photo}` : null;
-                      const studentName = review.student?.fullName || t('anonymous');
-                      const courseTitle = review.course?.translation?.title || '';
+                      const studentName = review.user?.fullName || review.authorName || t('anonymous');
+                      
+                      // Найти перевод курса для текущей локали
+                      const courseTranslation = review.course?.translations?.find(
+                        (tr) => tr.languageCode === locale.toUpperCase()
+                      ) || review.course?.translations?.[0];
+                      const courseTitle = courseTranslation?.title || '';
 
                       return (
                         <div
@@ -254,12 +310,8 @@ export default function ReviewsSection() {
                           <div className="space-y-5 flex-1 flex flex-col">
                             {/* Avatar and Info */}
                             <div className="flex items-start gap-4">
-                              <div className={`flex-shrink-0 ${photoUrl ? 'w-14 h-14' : 'p-3'} bg-gradient-to-br ${gradient} rounded-full overflow-hidden`}>
-                                {photoUrl ? (
-                                  <img src={photoUrl} alt={studentName} className="w-full h-full object-cover" />
-                                ) : (
-                                  <User className="w-8 h-8 text-white" />
-                                )}
+                              <div className={`flex-shrink-0 p-3 bg-gradient-to-br ${gradient} rounded-full`}>
+                                <User className="w-8 h-8 text-white" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <h4 className="font-display font-bold text-lg text-slate-900 dark:text-white truncate">
@@ -290,7 +342,7 @@ export default function ReviewsSection() {
                             {/* Review Text */}
                             <div className="flex-1">
                               <p className="text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-6">
-                                {review.translation?.comment || t('excellent_course')}
+                                {review.text}
                               </p>
                             </div>
 
@@ -334,8 +386,38 @@ export default function ReviewsSection() {
               ))}
             </div>
           )}
+
+          {/* Кнопка "Написать отзыв" */}
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={handleWriteReview}
+              className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 text-white font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105"
+            >
+              {/* Анимированный градиент фон */}
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-shift"></div>
+              
+              {/* Glow эффект */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-50 blur-xl bg-gradient-to-r from-orange-400 via-pink-400 to-blue-500 transition-opacity duration-300"></div>
+              
+              {/* Текст кнопки */}
+              <span className="relative z-10">{t('write_review')}</span>
+              <Star className="relative z-10 w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Модалки */}
+      <ReviewModal 
+        isOpen={isReviewModalOpen} 
+        onClose={() => setIsReviewModalOpen(false)}
+        onSuccess={handleReviewSuccess}
+      />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode="login"
+      />
     </section>
   );
 }

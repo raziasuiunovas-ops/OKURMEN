@@ -5,27 +5,9 @@ import {
   Users,
   BookOpen,
   FileText,
-  CreditCard,
   TrendingUp,
-  Eye,
   DollarSign,
-  Award,
 } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Disable SSR for this page
@@ -55,55 +37,39 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      // Загружаем данные для дашборда
-      const [coursesRes, applicationsRes, paymentsRes] = await Promise.all([
+      // Загружаем реальные данные из API
+      const [coursesRes, studentsRes, applicationsRes] = await Promise.all([
         fetch('http://localhost:3002/api/courses', { credentials: 'include' }),
+        fetch('http://localhost:3002/api/admin/students', { credentials: 'include' }),
         fetch('http://localhost:3002/api/applications', { credentials: 'include' }),
-        fetch('http://localhost:3002/api/payments', { credentials: 'include' }),
       ]);
 
       const courses = await coursesRes.json();
+      const students = await studentsRes.json();
       const applications = await applicationsRes.json();
-      const payments = await paymentsRes.json();
 
+      // Реальные данные из БД
       setStats({
         totalCourses: courses.data?.length || 0,
-        totalStudents: applications.data?.length || 0,
-        totalRevenue: payments.data?.reduce((sum: number, p: any) => sum + (p.amount || 0), 0) || 0,
+        totalStudents: students.data?.length || 0,
+        totalRevenue: 0, // Пока нет платежей, доход = 0
         pendingApplications: applications.data?.filter((a: any) => a.status === 'PENDING').length || 0,
       });
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      // При ошибке показываем 0
+      setStats({
+        totalCourses: 0,
+        totalStudents: 0,
+        totalRevenue: 0,
+        pendingApplications: 0,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Данные для графиков (примеры)
-  const viewsData = [
-    { month: 'Янв', views: 4200 },
-    { month: 'Фев', views: 3800 },
-    { month: 'Мар', views: 5100 },
-    { month: 'Апр', views: 4600 },
-    { month: 'Май', views: 6200 },
-    { month: 'Июн', views: 7500 },
-  ];
-
-  const revenueData = [
-    { month: 'Янв', revenue: 125000 },
-    { month: 'Фев', revenue: 142000 },
-    { month: 'Мар', revenue: 168000 },
-    { month: 'Апр', revenue: 156000 },
-    { month: 'Май', revenue: 189000 },
-    { month: 'Июн', revenue: 215000 },
-  ];
-
-  const coursesData = [
-    { name: 'Frontend', students: 45, color: '#FF6B35' },
-    { name: 'Backend', students: 38, color: '#F7931E' },
-    { name: 'Mobile', students: 28, color: '#FDB827' },
-    { name: 'DevOps', students: 22, color: '#C69C6D' },
-  ];
+  // Графики временно убраны - будут добавлены с реальными данными позже
 
   const statCards = [
     {
@@ -151,11 +117,17 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-8 text-white shadow-xl">
-        <h1 className="text-3xl font-bold mb-2">{t('dashboard.title')}</h1>
-        <p className="text-orange-100">
-          Добро пожаловать в систему управления Окурмэн
-        </p>
+      <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+        {/* Декоративные элементы */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+        
+        <div className="relative z-10">
+          <h1 className="text-4xl font-black mb-2">{t('dashboard.title')}</h1>
+          <p className="text-orange-50 text-lg">
+            Добро пожаловать в систему управления ОКУРМЭН
+          </p>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -165,144 +137,59 @@ export default function DashboardPage() {
           return (
             <div
               key={index}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
+              className="group relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 dark:border-slate-700/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl ${card.bgColor}`}>
-                  <Icon className={`w-6 h-6 ${card.textColor}`} />
+              {/* Gradient background on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-2xl ${card.bgColor} shadow-lg group-hover:scale-110 transition-transform`}>
+                    <Icon className={`w-6 h-6 ${card.textColor}`} />
+                  </div>
+                  <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <TrendingUp className="w-5 h-5 text-green-500" />
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-1">
+                  {card.value}
+                </h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  {card.title}
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {card.value}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {card.title}
-              </p>
             </div>
           );
         })}
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Views Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center mb-6">
-            <Eye className="w-5 h-5 text-orange-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Просмотры курсов
-            </h3>
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={viewsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
-              <XAxis dataKey="month" stroke="#6B7280" />
-              <YAxis stroke="#6B7280" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1F2937',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#fff',
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="views"
-                stroke="#F97316"
-                strokeWidth={3}
-                dot={{ fill: '#F97316', r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+      {/* Charts Section - будет добавлено позже с реальными данными */}
 
-        {/* Revenue Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center mb-6">
-            <DollarSign className="w-5 h-5 text-green-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Доход по месяцам
-            </h3>
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
-              <XAxis dataKey="month" stroke="#6B7280" />
-              <YAxis stroke="#6B7280" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1F2937',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#fff',
-                }}
-              />
-              <Bar dataKey="revenue" fill="#10B981" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Courses Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center mb-6">
-            <Award className="w-5 h-5 text-orange-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Распределение студентов по курсам
-            </h3>
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={coursesData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={(entry: any) => `${entry.name}: ${entry.students}`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="students"
-              >
-                {coursesData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Быстрые действия
-          </h3>
-          <div className="space-y-3">
-            <button 
-              onClick={() => window.location.href = '/admin/courses'}
-              className="w-full px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center justify-center space-x-2"
-            >
-              <BookOpen className="w-5 h-5" />
-              <span>Добавить курс</span>
-            </button>
-            <button 
-              onClick={() => window.location.href = '/admin/employees'}
-              className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center space-x-2"
-            >
-              <Users className="w-5 h-5" />
-              <span>Добавить сотрудника</span>
-            </button>
-            <button 
-              onClick={() => window.location.href = '/admin/applications'}
-              className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center space-x-2"
-            >
-              <FileText className="w-5 h-5" />
-              <span>Просмотреть заявки</span>
-            </button>
-          </div>
+      {/* Quick Actions */}
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+          Быстрые действия
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button 
+            onClick={() => window.location.href = '/admin/courses'}
+            className="group px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold"
+          >
+            <BookOpen className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            <span>Добавить курс</span>
+          </button>
+          <button 
+            onClick={() => window.location.href = '/admin/employees'}
+            className="px-6 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-600 hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold"
+          >
+            <Users className="w-5 h-5" />
+            <span>Добавить сотрудника</span>
+          </button>
+          <button 
+            onClick={() => window.location.href = '/admin/applications'}
+            className="px-6 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-600 hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold"
+          >
+            <FileText className="w-5 h-5" />
+            <span>Просмотреть заявки</span>
+          </button>
         </div>
       </div>
     </div>

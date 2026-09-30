@@ -10,7 +10,6 @@ import {
   Phone,
   User,
   Users,
-  GraduationCap,
   Code,
   TrendingUp,
   UserCheck,
@@ -55,10 +54,9 @@ interface Toast {
 const DEPARTMENTS = [
   { key: 'ALL', label: 'Все сотрудники', color: 'gray', icon: Users },
   { key: 'FOUNDER', label: 'Руководство', color: 'orange', icon: UserCheck },
-  { key: 'TEACHER', label: 'Образование', color: 'blue', icon: GraduationCap },
   { key: 'MENTOR', label: 'Менторинг', color: 'green', icon: Code },
   { key: 'MANAGER', label: 'Продажи и Управление', color: 'purple', icon: TrendingUp },
-  { key: 'DEVELOPER', label: 'Окурмэн Студия', color: 'pink', icon: Code },
+  { key: 'DEVELOPER', label: 'ОКУРМЭН Студия', color: 'pink', icon: Code },
 ];
 
 export default function EmployeesPage() {
@@ -161,7 +159,6 @@ export default function EmployeesPage() {
 
   const getColorClass = (position: string) => {
     if (position === 'FOUNDER') return 'from-orange-500 to-orange-600';
-    if (position === 'TEACHER') return 'from-blue-500 to-blue-600';
     if (position === 'MENTOR') return 'from-green-500 to-green-600';
     if (position === 'MANAGER') return 'from-purple-500 to-purple-600';
     if (position === 'DEVELOPER') return 'from-pink-500 to-pink-600';
@@ -171,10 +168,9 @@ export default function EmployeesPage() {
   const getPositionLabel = (position: string) => {
     const labels: Record<string, string> = {
       FOUNDER: 'Основатель',
-      TEACHER: 'Преподаватель',
       MENTOR: 'Ментор',
       MANAGER: 'Менеджер/Управление',
-      DEVELOPER: 'Окурмэн Студия',
+      DEVELOPER: 'ОКУРМЭН Студия',
     };
     return labels[position] || position;
   };
@@ -220,7 +216,7 @@ export default function EmployeesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Сотрудники Окурмэн
+            Сотрудники ОКУРМЭН
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Всего: {employees.length} сотрудников
@@ -361,7 +357,7 @@ export default function EmployeesPage() {
                 {employee.experience && (
                   <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-700/30 rounded-xl p-3 group-hover:shadow-sm transition-shadow duration-200">
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Опыт в Окурмэн
+                      Опыт в ОКУРМЭН
                     </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
                       {employee.experience}
@@ -450,7 +446,6 @@ function EmployeeModal({
     education: employee?.education || '',
     experience: employee?.experience || '',
     photoUrl: employee?.photoUrl || '',
-    sortOrder: employee?.sortOrder || 99,
   });
   const [loading, setLoading] = useState(false);
 
@@ -476,7 +471,6 @@ function EmployeeModal({
         education: (formData.education && formData.education.trim()) || undefined,
         experience: (formData.experience && formData.experience.trim()) || undefined,
         photoUrl: (formData.photoUrl && formData.photoUrl.trim()) || undefined,
-        sortOrder: formData.sortOrder,
       };
 
       // Для PATCH не отправляем email если он disabled
@@ -570,23 +564,10 @@ function EmployeeModal({
                 required
               >
                 <option value="FOUNDER">Основатель</option>
-                <option value="TEACHER">Преподаватель</option>
                 <option value="MENTOR">Ментор</option>
                 <option value="MANAGER">Менеджер/Управление</option>
-                <option value="DEVELOPER">Окурмэн Студия (Разработчик)</option>
+                <option value="DEVELOPER">ОКУРМЭН Студия (Разработчик)</option>
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Порядок отображения
-              </label>
-              <input
-                type="number"
-                value={formData.sortOrder}
-                onChange={(e) => setFormData({ ...formData, sortOrder: Number(e.target.value) })}
-                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 dark:text-white"
-              />
             </div>
 
             <div>
@@ -618,7 +599,7 @@ function EmployeeModal({
 
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Опыт в Окурмэн
+                Опыт в ОКУРМЭН
               </label>
               <input
                 type="text"
@@ -659,12 +640,12 @@ function EmployeeModal({
               <ImageUploader
                 currentImage={formData.photoUrl}
                 onImageSelect={(base64) => setFormData({ ...formData, photoUrl: base64 })}
-                aspectRatio="square"
+                aspectRatio="3:4"
                 label="Фото сотрудника"
                 maxSizeMB={5}
               />
               <p className="text-xs text-gray-500 mt-2">
-                Квадратное фото 1:1. Изображение будет автоматически обрезано и оптимизировано.
+                Портретное фото 3:4. Изображение будет автоматически обрезано и оптимизировано для карточек сотрудников.
               </p>
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { User, ChevronLeft, ChevronRight, Linkedin, Mail } from 'lucide-react';
+import { User, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useLocale } from 'next-intl';
 
@@ -19,17 +19,24 @@ interface Employee {
   };
 }
 
+// Иерархия должностей для сортировки
+const POSITION_HIERARCHY: Record<string, number> = {
+  FOUNDER: 1,
+  MANAGER: 2,
+  MENTOR: 3,
+  TEACHER: 4,
+};
+
 export default function TeamSection() {
   const t = useTranslations('team');
   const locale = useLocale();
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [founders, setFounders] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const [itemsPerView, setItemsPerView] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [itemsPerView, setItemsPerView] = useState(1);
 
   const gradients = [
     'from-blue-500 to-cyan-500',
@@ -64,7 +71,6 @@ export default function TeamSection() {
     const fetchEmployees = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-        console.log('[TeamSection] Fetching employees from:', `${apiUrl}/api/employees`);
         const response = await fetch(`${apiUrl}/api/employees`);
         
         if (!response.ok) {
@@ -72,26 +78,20 @@ export default function TeamSection() {
         }
 
         const data = await response.json();
-        console.log('[TeamSection] API Response:', { 
-          success: data.success, 
-          totalEmployees: data.data?.length,
-          employees: data.data 
-        });
         
         if (data.success && data.data) {
-          // Разделяем на founders и остальных
-          const allEmployees = data.data;
-          const foundersData = allEmployees.filter((emp: Employee) => emp.position === 'FOUNDER');
-          const regularEmployees = allEmployees.filter((emp: Employee) => emp.position !== 'FOUNDER');
+          // Сортировка по иерархии: FOUNDER → MANAGER → MENTOR → TEACHER
+          const sortedEmployees = [...data.data].sort((a, b) => {
+            const orderA = POSITION_HIERARCHY[a.position] || 999;
+            const orderB = POSITION_HIERARCHY[b.position] || 999;
+            return orderA - orderB;
+          });
           
-          console.log('[TeamSection] Founders:', foundersData.length, 'Regular:', regularEmployees.length);
-          setFounders(foundersData);
-          setEmployees(regularEmployees);
+          setEmployees(sortedEmployees);
         }
       } catch (error) {
         console.error('[TeamSection] Error fetching employees:', error);
         setEmployees([]);
-        setFounders([]);
       } finally {
         setLoading(false);
       }
@@ -100,42 +100,68 @@ export default function TeamSection() {
     fetchEmployees();
   }, []);
 
-  // Carousel controls
-  const maxIndex = Math.max(0, Math.ceil(employees.length / itemsPerView) - 1);
+  // Баштапкы позицияга scroll кылуу (биринчиден башталсын)
+  useEffect(() => {
+    if (carouselRef.current && employees.length > 0) {
+      carouselRef.current.scrollLeft = 0;
+    }
+  }, [employees.length]);
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  // Mouse drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!carouselRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
+    carouselRef.current.style.cursor = 'grabbing';
   };
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    carouselRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  // Touch handlers for swipe
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (carouselRef.current) {
+      carouselRef.current.style.cursor = 'grab';
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      if (carouselRef.current) {
+        carouselRef.current.style.cursor = 'grab';
+      }
+    }
+  };
+
+  // Touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    if (!carouselRef.current) return;
+    setStartX(e.touches[0].pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    if (!carouselRef.current) return;
+    const x = e.touches[0].pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    carouselRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      nextSlide();
-    }
-    if (isRightSwipe) {
-      prevSlide();
-    }
-
-    setTouchStart(0);
-    setTouchEnd(0);
+  // Navigation buttons
+  const scroll = (direction: 'left' | 'right') => {
+    if (!carouselRef.current) return;
+    const scrollAmount = carouselRef.current.clientWidth * 0.8;
+    carouselRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
   };
 
   if (loading) {
@@ -144,7 +170,7 @@ export default function TeamSection() {
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-              Наша Команда
+              {t('title')}
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -157,13 +183,13 @@ export default function TeamSection() {
     );
   }
 
-  if (employees.length === 0 && founders.length === 0) {
+  if (employees.length === 0) {
     return (
       <section id="team" className="py-20 bg-white dark:bg-slate-900">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-              Наша Команда
+              {t('title')}
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
               Наши преподаватели скоро появятся здесь
@@ -192,133 +218,190 @@ export default function TeamSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
           <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-            Наша Команда
+            {t('title')}
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-blue-600 mx-auto rounded-full mb-6"></div>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Профессиональные преподаватели с реальным опытом работы в IT-индустрии
+            {t('description')}
           </p>
         </div>
 
         {/* Carousel Container */}
         <div className="relative">
           {/* Navigation Buttons */}
-          {employees.length > itemsPerView && (
-            <>
-              <button
-                onClick={prevSlide}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 p-3 bg-white dark:bg-slate-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="w-6 h-6 text-slate-700 dark:text-slate-300" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 p-3 bg-white dark:bg-slate-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Next"
-              >
-                <ChevronRight className="w-6 h-6 text-slate-700 dark:text-slate-300" />
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 p-3 bg-white dark:bg-slate-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:scale-110"
+            aria-label="Previous"
+          >
+            <ChevronLeft className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 p-3 bg-white dark:bg-slate-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:scale-110"
+            aria-label="Next"
+          >
+            <ChevronRight className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+          </button>
 
-          {/* Carousel Track */}
+          {/* Infinite Carousel Track */}
           <div
             ref={carouselRef}
-            className="overflow-hidden"
+            className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
           >
-            <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{
-                transform: `translateX(-${currentIndex * 100}%)`,
-              }}
-            >
-              {Array.from({ length: Math.ceil(employees.length / itemsPerView) }).map((_, slideIndex) => (
-                <div
-                  key={slideIndex}
-                  className="min-w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-2"
-                >
-                  {employees
-                    .slice(slideIndex * itemsPerView, (slideIndex + 1) * itemsPerView)
-                    .map((employee, index) => {
-                      const gradient = gradients[index % gradients.length];
-                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-                      const photoUrl = employee.photoUrl ? `${apiUrl}${employee.photoUrl}` : null;
+            <div className="flex gap-8 px-2 py-2" style={{ width: 'fit-content' }}>
+              {employees.map((employee, index) => {
+                const gradient = gradients[index % gradients.length];
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+                // Base64 болсо туура колдон, file path болсо API URL кош
+                const photoUrl = employee.photoUrl 
+                  ? (employee.photoUrl.startsWith('data:') ? employee.photoUrl : `${apiUrl}${employee.photoUrl}`)
+                  : null;
 
-                      return (
-                        <div
-                          key={employee.id}
-                          className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-transparent hover:-translate-y-2"
-                        >
-                          {/* Avatar */}
-                          <div className={`relative h-64 bg-gradient-to-br ${gradient} overflow-hidden`}>
-                            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
-                            {photoUrl ? (
-                              <img
-                                src={photoUrl}
-                                alt={employee.user.fullName}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="p-6 bg-white/90 dark:bg-slate-900/90 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                                  <User className="w-16 h-16 text-slate-700 dark:text-slate-300" />
-                                </div>
-                              </div>
-                            )}
+                // Position enum'ду котормо
+                const getPositionLabel = (pos: string) => {
+                  const positions: Record<string, Record<string, string>> = {
+                    FOUNDER: { ru: 'Основатель', ky: 'Негиздөөчү', en: 'Founder' },
+                    MANAGER: { ru: 'Менеджер', ky: 'Менеджер', en: 'Manager' },
+                    MENTOR: { ru: 'Ментор', ky: 'Ментор', en: 'Mentor' },
+                    TEACHER: { ru: 'Преподаватель', ky: 'Мугалим', en: 'Teacher' },
+                  };
+                  return positions[pos]?.[locale] || pos;
+                };
+
+                // Bio жана experience толук англисче котормо
+                const translateText = (text: string | null): string | null => {
+                  if (!text || locale !== 'en') return text;
+                  
+                  // Толук сүйлөмдөр жана фразалар (эң узундарынан баштап)
+                  const translations: Record<string, string> = {
+                    // Толук кызмат орду аталыштары
+                    'Руководитель учебного отдела, завуч; Директор ОКУРМЭН Студии': 'Head of Education Department, Academic Supervisor; Director of OKURMEN Studio',
+                    'Руководитель учебного отдела, завуч': 'Head of Education Department, Academic Supervisor',
+                    'Старший менеджер отдела продаж, сектор «Сота»': 'Senior Sales Manager, Sota Sector',
+                    'РО / Руководитель отдела продаж': 'SO / Head of Sales Department',
+                    'Руководитель отдела продаж': 'Head of Sales Department',
+                    'Директор отдела продаж': 'Sales Director',
+                    'Старший менеджер отдела продаж': 'Senior Sales Manager',
+                    'Менеджер отдела продаж': 'Sales Manager',
+                    'Коммерческий директор': 'Commercial Director',
+                    'Топ-менеджер': 'Top Manager',
+                    'HR жетекчи': 'HR Manager',
+                    'Основатель': 'Founder',
+                    'Куратор': 'Curator',
+                    'Ментор': 'Mentor',
+                    
+                    // Experience котормолору
+                    'с 01.06.2026': 'since June 1, 2026',
+                    '2023–2026': '2023–2026',
+                    
+                    // Убакыт бирдиктери
+                    'месяцев': 'months',
+                    'месяца': 'months',
+                    'месяц': 'month',
+                    'года': 'years',
+                    'год': 'year',
+                    'лет': 'years',
+                    
+                    // Бөлүктөр
+                    'отдела': 'Department',
+                    'отдел': 'Department',
+                    'продаж': 'Sales',
+                    'сектор': 'sector',
+                    
+                    // Жалпы сөздөр
+                    'Руководитель': 'Head',
+                    'Директор': 'Director',
+                    'Старший': 'Senior',
+                    'Менеджер': 'Manager',
+                    'завуч': 'Academic Supervisor',
+                  };
+                  
+                  let translated = text;
+                  // Эң узун фразалардан баштап которобуз (толук туура келиш үчүн)
+                  const sortedEntries = Object.entries(translations).sort((a, b) => b[0].length - a[0].length);
+                  sortedEntries.forEach(([ru, en]) => {
+                    // Global, case-insensitive replace
+                    const regex = new RegExp(ru.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                    translated = translated.replace(regex, en);
+                  });
+                  
+                  return translated;
+                };
+
+                return (
+                  <div
+                    key={employee.id}
+                    className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-transparent hover:-translate-y-2 flex-shrink-0"
+                    style={{ 
+                      width: itemsPerView === 1 ? 'calc(100vw - 80px)' : 
+                             itemsPerView === 2 ? 'calc(50vw - 60px)' : 
+                             'calc(25vw - 50px)',
+                      maxWidth: '320px'
+                    }}
+                  >
+                    {/* Avatar - 3:4 Aspect Ratio */}
+                    <div className={`relative aspect-[3/4] bg-gradient-to-br ${gradient} overflow-hidden`}>
+                      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+                      {photoUrl ? (
+                        <img
+                          src={photoUrl}
+                          alt={employee.user.fullName}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          draggable="false"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="p-6 bg-white/90 dark:bg-slate-900/90 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                            <User className="w-16 h-16 text-slate-700 dark:text-slate-300" />
                           </div>
-
-                          {/* Info */}
-                          <div className="p-6 space-y-3">
-                            <h3 className="font-display text-xl font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                              {employee.user.fullName}
-                            </h3>
-                            {employee.bio && (
-                              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">
-                                {employee.bio}
-                              </p>
-                            )}
-                            {employee.experience && (
-                              <p className="text-xs text-slate-500 dark:text-slate-500">
-                                Опыт: {employee.experience}
-                              </p>
-                            )}
-
-                            {/* Social Links - удалены пока нет данных */}
-                          </div>
-
-                          {/* Hover Gradient Border */}
-                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl border-2 border-transparent bg-gradient-to-br ${gradient} bg-clip-border" style={{ padding: '2px' }}></div>
                         </div>
-                      );
-                    })}
-                </div>
-              ))}
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="p-5 space-y-2">
+                      <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight">
+                        {employee.user.fullName}
+                      </h3>
+                      {/* Position */}
+                      <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">
+                        {getPositionLabel(employee.position)}
+                      </p>
+                      {employee.bio && (
+                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          {translateText(employee.bio)}
+                        </p>
+                      )}
+                      {employee.experience && (
+                        <p className="text-xs text-slate-500 dark:text-slate-500 font-medium pt-1">
+                          {t('experience')}: {translateText(employee.experience)}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Hover Gradient Border */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl border-2 border-transparent bg-gradient-to-br ${gradient} bg-clip-border" style={{ padding: '2px' }}></div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-
-          {/* Dots Indicator */}
-          {employees.length > itemsPerView && (
-            <div className="flex justify-center gap-2 mt-8">
-              {Array.from({ length: maxIndex + 1 }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentIndex === index
-                      ? 'w-8 bg-orange-600'
-                      : 'w-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </section>
   );
 }

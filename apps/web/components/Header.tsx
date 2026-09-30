@@ -4,17 +4,15 @@ import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useSession, signOut } from 'next-auth/react';
-import { Sun, Moon } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import AuthModal from './AuthModal';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const { data: session } = useSession();
-  const { theme, toggleTheme } = useTheme();
   const t = useTranslations('nav');
   const authT = useTranslations('auth');
   const locale = useLocale();
@@ -25,6 +23,8 @@ export default function Header() {
     { key: 'courses', href: '#courses' },
     { key: 'about', href: '#about' },
     { key: 'team', href: '#team' },
+    { key: 'alumni', href: '#alumni' },
+    { key: 'reviews', href: '#reviews' },
     { key: 'contacts', href: '#contacts' },
   ];
 
@@ -57,99 +57,75 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 shadow-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6">
+          <div className="flex items-center justify-between h-16 gap-6">
             {/* Logo with Image */}
             <button
               onClick={() => scrollToSection('#')}
-              className="flex items-center gap-3 hover:opacity-90 transition-opacity duration-200"
+              className="flex items-center gap-2.5 hover:opacity-90 transition-opacity duration-200 flex-shrink-0"
               aria-label="OKURMEN"
             >
-              <div className="relative w-10 h-10">
+              <div className="relative w-9 h-9">
                 <Image
                   src="/logo.svg"
                   alt="OKURMEN Logo"
-<<<<<<< ours
-                  width={40}
-                  height={40}
-                  className="object-contain rounded-lg"
-=======
-                  fill
+                  width={36}
+                  height={36}
                   className="object-contain dark:hidden"
                   priority
                 />
                 <Image
                   src="/logo-dark.svg"
                   alt="OKURMEN Logo"
-                  fill
+                  width={36}
+                  height={36}
                   className="object-contain hidden dark:block"
->>>>>>> theirs
                   priority
                 />
               </div>
-              <span className="text-xl font-display font-extrabold bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
-                ОКУРМЭН
+              <span className="text-lg font-display font-extrabold bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
+                {t('brand_name')}
               </span>
             </button>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
+
+            {/* Desktop Navigation - Compact */}
+            <nav className="hidden lg:flex items-center gap-6 flex-1 justify-center">
               {navItems.map((item) => (
                 <button
                   key={item.key}
                   onClick={() => scrollToSection(item.href)}
-                  className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200"
+                  className="group relative text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 whitespace-nowrap"
                 >
                   {t(item.key as any)}
+                  <span className="absolute left-0 right-0 bottom-0 h-0.5 bg-gradient-to-r from-orange-500 to-orange-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full"></span>
                 </button>
               ))}
               <button
-<<<<<<< ours
-                onClick={() => scrollToSection('#contacts')}
-                className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
-=======
                 onClick={() => scrollToSection('#application')}
-                className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200"
->>>>>>> theirs
+                className="group relative text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 whitespace-nowrap"
               >
                 {t('application')}
+                <span className="absolute left-0 right-0 bottom-0 h-0.5 bg-gradient-to-r from-orange-500 to-orange-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full"></span>
               </button>
             </nav>
 
             {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center space-x-3">
+            <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
               {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-                aria-label={theme === 'light' ? 'Караңгы тема' : 'Жарык тема'}
-              >
-                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-              </button>
+              <ThemeToggle />
 
-<<<<<<< ours
-              {/* Language Switcher - Buttons */}
-              <div className="flex items-center gap-2">
-=======
-              {/* Language Switcher as Buttons */}
-              <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
->>>>>>> theirs
+              {/* Compact Language Switcher */}
+              <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageChange(lang.code)}
-<<<<<<< ours
-                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      locale === lang.code
-                        ? 'bg-white text-primary-600 shadow-sm'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-=======
-                    className={`px-3 py-1.5 text-xs font-semibold rounded transition-all duration-200 ${
+                    className={`px-2 py-1 text-xs font-semibold rounded transition-all duration-200 ${
                       locale === lang.code
                         ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-sm'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
->>>>>>> theirs
                     }`}
                   >
                     {lang.label}
@@ -159,35 +135,47 @@ export default function Header() {
 
               {/* Auth Buttons or User Menu */}
               {session?.user ? (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-blue-600 flex items-center justify-center">
-                      <span className="text-sm font-semibold text-white">
-                        {session.user.name?.charAt(0) || session.user.email?.charAt(0)}
-                      </span>
-                    </div>
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {session.user.name || session.user.email}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => signOut()}
-                    className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
-                  >
-                    {authT('logout')}
+                <div className="relative group">
+                  {/* Profile Icon - 50x50 with orange border */}
+                  <button className="w-[50px] h-[50px] rounded-full border-2 border-orange-500 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:border-orange-600 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
                   </button>
+
+                  {/* Dropdown Menu */}
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="py-2">
+                      <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                          {session.user.name || session.user.email}
+                        </p>
+                        {session.user.email && session.user.name && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                            {session.user.email}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => signOut()}
+                        className="w-full text-left px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-2 border-orange-500 rounded-lg m-2 w-[calc(100%-16px)]"
+                      >
+                        {authT('logout')}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>
                   <button
                     onClick={() => openAuthModal('login')}
-                    className="px-5 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all duration-200"
+                    className="px-4 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all duration-200"
                   >
                     {authT('login')}
                   </button>
                   <button
                     onClick={() => openAuthModal('register')}
-                    className="px-5 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                    className="px-4 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     {authT('register')}
                   </button>
@@ -236,6 +224,11 @@ export default function Header() {
               </nav>
               
               <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                {/* Theme Toggle Mobile */}
+                <div className="flex justify-center">
+                  <ThemeToggle />
+                </div>
+
                 {/* Language Switcher Mobile */}
                 <div className="flex gap-2">
                   {languages.map((lang) => (
@@ -259,19 +252,26 @@ export default function Header() {
                 {/* Auth Buttons Mobile */}
                 {session?.user ? (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 px-3 py-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-blue-600 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-white">
-                          {session.user.name?.charAt(0) || session.user.email?.charAt(0)}
-                        </span>
+                    <div className="flex items-center justify-center">
+                      <div className="w-[50px] h-[50px] rounded-full border-2 border-orange-500 flex items-center justify-center text-slate-700 dark:text-slate-300">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                       </div>
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    </div>
+                    <div className="text-center px-3 py-2">
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                         {session.user.name || session.user.email}
-                      </span>
+                      </p>
+                      {session.user.email && session.user.name && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {session.user.email}
+                        </p>
+                      )}
                     </div>
                     <button
                       onClick={() => signOut()}
-                      className="w-full px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700"
+                      className="w-full px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 border-2 border-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
                     >
                       {authT('logout')}
                     </button>

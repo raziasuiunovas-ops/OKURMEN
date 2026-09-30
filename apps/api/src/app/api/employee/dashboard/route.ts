@@ -76,6 +76,7 @@ async function getMentorStats(employeeId: string) {
       course: {
         include: {
           lessons: true,
+          translations: true,
         },
       },
     },

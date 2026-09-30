@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch all enrollments
     const enrollments = await prisma.enrollment.findMany({
-      orderBy: { enrolledAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       include: {
         student: {
           include: {
@@ -21,15 +21,10 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        group: {
+        course: {
           include: {
-            course: {
-              include: {
-                translations: {
-                  select: { title: true, language: true },
-                  orderBy: { language: 'asc' },
-                },
-              },
+            translations: {
+              select: { title: true },
             },
           },
         },

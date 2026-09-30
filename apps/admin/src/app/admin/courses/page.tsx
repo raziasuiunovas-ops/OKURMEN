@@ -53,17 +53,14 @@ interface Course {
   };
 }
 
-// Предустановленные градиенты
-const GRADIENTS = [
-  { id: 1, name: 'Sunset', from: '#FF6B6B', to: '#FFE66D', preview: 'from-red-400 to-yellow-400' },
-  { id: 2, name: 'Ocean', from: '#667eea', to: '#764ba2', preview: 'from-indigo-500 to-purple-600' },
-  { id: 3, name: 'Forest', from: '#56ab2f', to: '#a8e063', preview: 'from-green-600 to-green-400' },
-  { id: 4, name: 'Fire', from: '#f12711', to: '#f5af19', preview: 'from-red-600 to-orange-400' },
-  { id: 5, name: 'Sky', from: '#2196F3', to: '#21CBF3', preview: 'from-blue-600 to-cyan-400' },
-  { id: 6, name: 'Rose', from: '#eb3349', to: '#f45c43', preview: 'from-rose-600 to-orange-500' },
-  { id: 7, name: 'Purple', from: '#8e2de2', to: '#4a00e0', preview: 'from-purple-600 to-indigo-700' },
-  { id: 8, name: 'Teal', from: '#00d2ff', to: '#3a7bd5', preview: 'from-cyan-400 to-blue-600' },
-];
+// Единый градиент для всех курсов (в стиле бренда OKURMEN)
+const DEFAULT_GRADIENT = {
+  id: 1,
+  name: 'OKURMEN Orange',
+  from: '#FF6B35',
+  to: '#F7931E',
+  preview: 'from-orange-500 to-orange-600'
+};
 
 // Lucide-иконки для курсов
 const COURSE_ICONS: { name: string; icon: LucideIcon }[] = [
@@ -253,24 +250,10 @@ function CourseCard({
   // Получаем компонент иконки из маппинга
   const IconComponent = course.icon ? ICON_MAP[course.icon] || BookOpen : BookOpen;
 
-  // Парсим градиент или используем дефолтный
-  let gradientStyle = {};
-  if (course.coverGradient) {
-    try {
-      const gradient = JSON.parse(course.coverGradient);
-      gradientStyle = {
-        background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`,
-      };
-    } catch (e) {
-      gradientStyle = {
-        background: 'linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%)',
-      };
-    }
-  } else {
-    gradientStyle = {
-      background: 'linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%)',
-    };
-  }
+  // Используем единый градиент для всех курсов
+  const gradientStyle = {
+    background: `linear-gradient(135deg, ${DEFAULT_GRADIENT.from} 0%, ${DEFAULT_GRADIENT.to} 100%)`,
+  };
 
   return (
     <div className="group relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-gray-200 dark:border-gray-700">
@@ -432,7 +415,7 @@ function CourseModal({
     duration: course?.duration || '',
     format: course?.format || 'HYBRID',
     coverImage: course?.coverImage || '',
-    coverGradient: course?.coverGradient || JSON.stringify(GRADIENTS[0]),
+    coverGradient: JSON.stringify(DEFAULT_GRADIENT), // Всегда используем единый градиент
     icon: course?.icon || 'Code',
     isActive: course?.isActive ?? true,
     translations: [
@@ -446,7 +429,6 @@ function CourseModal({
   });
   
   const [loading, setLoading] = useState(false);
-  const [selectedGradient, setSelectedGradient] = useState(GRADIENTS[0]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -465,7 +447,7 @@ function CourseModal({
         duration: (formData.duration && formData.duration.trim()) || undefined,
         format: formData.format,
         coverImage: coverType === 'image' && formData.coverImage && formData.coverImage.trim() ? formData.coverImage : undefined,
-        coverGradient: coverType === 'gradient' ? JSON.stringify(selectedGradient) : undefined,
+        coverGradient: coverType === 'gradient' ? JSON.stringify(DEFAULT_GRADIENT) : undefined, // Всегда единый градиент
         icon: (formData.icon && formData.icon.trim()) || undefined,
         isActive: formData.isActive,
         translations: formData.translations.map(t => ({
@@ -697,29 +679,12 @@ function CourseModal({
             {/* Gradient Picker */}
             {coverType === 'gradient' && (
               <div className="space-y-4">
+                {/* Показываем единый градиент бренда OKURMEN */}
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Выберите градиент:</p>
-                  <div className="grid grid-cols-4 gap-3">
-                    {GRADIENTS.map((gradient) => (
-                      <button
-                        key={gradient.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedGradient(gradient);
-                          setFormData({
-                            ...formData,
-                            coverGradient: JSON.stringify(gradient),
-                          });
-                        }}
-                        className={`h-20 rounded-xl transition-all hover:scale-105 ${
-                          selectedGradient.id === gradient.id ? 'ring-4 ring-orange-500' : ''
-                        }`}
-                        style={{
-                          background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`,
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Градиент курса (единый для всех курсов):</p>
+                  <div className="h-20 rounded-xl" style={{
+                    background: `linear-gradient(135deg, ${DEFAULT_GRADIENT.from} 0%, ${DEFAULT_GRADIENT.to} 100%)`,
+                  }}></div>
                 </div>
 
                 <div>

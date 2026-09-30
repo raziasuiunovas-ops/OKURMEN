@@ -9,7 +9,6 @@ import {
   GraduationCap,
   Users,
   FileText,
-  CreditCard,
   Star,
   Award,
   LogOut,
@@ -18,6 +17,7 @@ import {
   Sun,
   Moon,
   Globe,
+  BarChart3,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -115,8 +115,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     { name: t('nav.lessons'), href: '/admin/lessons', icon: GraduationCap },
     { name: t('nav.students'), href: '/admin/students', icon: GraduationCap },
     { name: t('nav.employees'), href: '/admin/employees', icon: Users },
+    { name: 'Статистика', href: '/admin/site-stats', icon: BarChart3 },
     { name: t('nav.applications'), href: '/admin/applications', icon: FileText },
-    { name: t('nav.payments'), href: '/admin/payments', icon: CreditCard },
     { name: t('nav.reviews'), href: '/admin/reviews', icon: Star },
     { name: t('nav.alumni'), href: '/admin/alumni', icon: Award },
   ];
@@ -136,49 +136,49 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50/30 to-blue-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 transition-colors">
       {/* Mobile menu button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700"
+          className="p-2.5 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-all"
         >
           {mobileMenuOpen ? (
-            <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <X className="w-6 h-6 text-slate-700 dark:text-slate-300" />
           ) : (
-            <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <Menu className="w-6 h-6 text-slate-700 dark:text-slate-300" />
           )}
         </button>
       </div>
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen transition-transform ${
+        className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 ${
           sidebarOpen ? 'w-64' : 'w-20'
-        } bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}
+        } bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-r border-slate-200/50 dark:border-slate-700/50 shadow-xl`}
       >
         <div className="h-full flex flex-col">
           {/* Logo */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
             <Link
               href="/admin"
               className="flex items-center space-x-3 group"
             >
-              <img 
-                src={theme === 'dark' ? '/logo.svg' : '/logo.svg'}
-                alt="ОКУРМЕН" 
-                className="w-10 h-10 flex-shrink-0"
-              />
+              <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform">
+                <img 
+                  src={theme === 'dark' ? '/logo.svg' : '/logo.svg'}
+                  alt="ОКУРМЭН" 
+                  className="w-6 h-6 flex-shrink-0 brightness-0 invert"
+                />
+              </div>
               {sidebarOpen && (
                 <div>
-                  <h1 className={`text-xl font-bold ${
-                    theme === 'dark' ? 'text-white' : 'text-[#FF6B00]'
-                  }`}>
-                    ОКУРМЕН
+                  <h1 className="text-xl font-black bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+                    ОКУРМЭН
                   </h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                     Admin Panel
                   </p>
                 </div>
@@ -187,7 +187,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -195,15 +195,15 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/30 scale-[1.02]'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:scale-[1.01]'
                   }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {sidebarOpen && (
-                    <span className="font-medium">{item.name}</span>
+                    <span>{item.name}</span>
                   )}
                 </Link>
               );
@@ -211,13 +211,13 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           </nav>
 
           {/* User & Settings */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+          <div className="p-4 border-t border-slate-200/50 dark:border-slate-700/50 space-y-2">
             {user && sidebarOpen && (
-              <div className="px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 mb-2">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-700/50 dark:to-slate-800/50 mb-2 border border-slate-200/50 dark:border-slate-600/50">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
                   {user.name || user.email}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   {user.email}
                 </p>
               </div>
@@ -225,10 +225,10 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
             
             <button
               onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-all hover:scale-[1.01]"
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
-              {sidebarOpen && <span className="font-medium">{t('nav.logout')}</span>}
+              {sidebarOpen && <span>{t('nav.logout')}</span>}
             </button>
           </div>
         </div>
@@ -236,21 +236,21 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
       {/* Main content */}
       <div
-        className={`transition-all ${
+        className={`transition-all duration-300 ${
           sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
         }`}
       >
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="hidden lg:block p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="hidden lg:block p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105"
               >
-                <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <Menu className="w-5 h-5 text-slate-700 dark:text-slate-300" />
               </button>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 {navigation.find((item) => item.href === pathname)?.name || t('nav.dashboard')}
               </h2>
             </div>
@@ -260,9 +260,9 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               <div className="relative">
                 <button
                   onClick={() => setLangMenuOpen(!langMenuOpen)}
-                  className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105"
                 >
-                  <Globe className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <Globe className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 </button>
                 
                 {langMenuOpen && (
@@ -271,7 +271,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                       className="fixed inset-0 z-40"
                       onClick={() => setLangMenuOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
+                    <div className="absolute right-0 mt-2 w-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 py-2 z-50">
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
@@ -279,10 +279,10 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                             setLanguage(lang.code as any);
                             setLangMenuOpen(false);
                           }}
-                          className={`w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                          className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-all ${
                             language === lang.code
-                              ? 'text-orange-600 dark:text-orange-400 font-medium'
-                              : 'text-gray-700 dark:text-gray-300'
+                              ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
                           }`}
                         >
                           {lang.name}
@@ -296,12 +296,12 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105"
               >
                 {theme === 'light' ? (
-                  <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <Moon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 ) : (
-                  <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <Sun className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 )}
               </button>
             </div>
@@ -317,7 +317,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       {/* Mobile overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden transition-opacity"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}

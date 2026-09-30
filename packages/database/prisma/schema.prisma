@@ -218,6 +218,7 @@ model Course {
   payments       Payment[]
   groups         Group[]
   courseReviews  CourseReview[]
+  reviews        Review[]
   lessons        Lesson[]
   lessonProgress LessonProgress[]
   bookings       Booking[]
@@ -338,6 +339,7 @@ model TelegramNotification {
 model Review {
   id         String       @id @default(cuid())
   userId     String?      @map("user_id")
+  courseId   String?      @map("course_id")
   authorName String       @map("author_name")
   reviewType ReviewType   @map("review_type")
   text       String       @db.Text
@@ -347,10 +349,12 @@ model Review {
   status     ReviewStatus @default(PENDING)
   createdAt  DateTime     @default(now()) @map("created_at")
 
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  course Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([createdAt])
+  @@index([courseId])
   @@map("reviews")
 }
 
@@ -676,4 +680,13 @@ model Booking {
   @@index([date])
   @@index([status])
   @@map("bookings")
+}
+
+model SiteStats {
+  id                String   @id @default(cuid())
+  totalStudents     Int      @default(0) @map("total_students") // Общее количество студентов за всё время
+  employmentRate    Int      @default(0) @map("employment_rate") // Процент трудоустройства
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("site_stats")
 }

@@ -5,8 +5,8 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import AuthGuard from '@/components/AuthGuard';
 
 export const metadata: Metadata = {
-  title: 'Окурмэн - Панель администратора',
-  description: 'Панель управления образовательной платформы Окурмэн',
+  title: 'ОКУРМЭН - Панель администратора',
+  description: 'Панель управления образовательной платформы ОКУРМЭН',
 };
 
 // Отключаем SSR полностью

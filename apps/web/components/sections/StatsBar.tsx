@@ -15,10 +15,10 @@ export default function StatsBar() {
   const locale = useLocale();
   const t = useTranslations('stats');
   const [stats, setStats] = useState<Stats>({
-    students: 0,
-    alumni: 0,
+    students: 1500, // Статик маалымат
+    alumni: 6000,   // Статик маалымат
     courses: 0,
-    employmentRate: 0,
+    employmentRate: 1000, // Статик маалымат (трудоустройство)
   });
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +27,7 @@ export default function StatsBar() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
         
-        // Fetch courses count
+        // Fetch courses count - ТОЛЬКО курстар автоматтык
         const coursesResponse = await fetch(`${apiUrl}/api/courses?language=${locale.toUpperCase()}`);
         let coursesCount = 0;
         if (coursesResponse.ok) {
@@ -35,35 +35,12 @@ export default function StatsBar() {
           coursesCount = coursesData.success && coursesData.data ? coursesData.data.length : 0;
         }
 
-        // Fetch students count (from enrolled students in courses)
-        let studentsCount = 0;
-        if (coursesResponse.ok) {
-          const coursesResponse2 = await fetch(`${apiUrl}/api/courses?language=${locale.toUpperCase()}`);
-          const coursesData = await coursesResponse2.json();
-          if (coursesData.success && coursesData.data) {
-            studentsCount = coursesData.data.reduce((acc: number, course: any) => 
-              acc + (course.enrolledStudents || 0), 0
-            );
-          }
-        }
-
-        // Fetch alumni count
-        const alumniResponse = await fetch(`${apiUrl}/api/alumni`);
-        let alumniCount = 0;
-        if (alumniResponse.ok) {
-          const alumniData = await alumniResponse.json();
-          alumniCount = alumniData.success && alumniData.data ? alumniData.data.length : 0;
-        }
-
-        setStats({
-          students: studentsCount,
-          alumni: alumniCount,
+        setStats(prev => ({
+          ...prev,
           courses: coursesCount,
-          employmentRate: 0, // Нет API для этих данных, показываем 0
-        });
+        }));
       } catch (error) {
         console.error('Error fetching stats:', error);
-        // При ошибке показываем 0
       } finally {
         setLoading(false);
       }
@@ -81,12 +58,12 @@ export default function StatsBar() {
   const statsData = [
     { 
       icon: Users, 
-      number: loading ? '...' : formatNumber(stats.students),
+      number: loading ? '...' : `${stats.students}+`,
       label: t('students'),
     },
     { 
       icon: GraduationCap, 
-      number: loading ? '...' : formatNumber(stats.alumni),
+      number: loading ? '...' : `${stats.alumni}+`,
       label: t('alumni'),
     },
     { 
@@ -96,7 +73,7 @@ export default function StatsBar() {
     },
     { 
       icon: Award, 
-      number: loading ? '...' : stats.employmentRate > 0 ? `${stats.employmentRate}%` : '0',
+      number: loading ? '...' : `${stats.employmentRate}+`,
       label: t('employed'),
     },
   ];

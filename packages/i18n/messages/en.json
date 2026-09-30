@@ -5,16 +5,40 @@
     "courses": "Courses",
     "learning": "Learning",
     "team": "Team",
+    "alumni": "Alumni",
     "students": "Students",
     "reviews": "Reviews",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "application": "Apply",
+    "brand_name": "OKURMEN"
   },
   "hero": {
     "title": "OKURMEN IT",
     "subtitle": "Modern IT Education Project",
     "description": "Hybrid format, personal mentor, and real results",
+    "badge": "The Best IT Education in Kyrgyzstan",
+    "main_title_1": "Build Your",
+    "main_title_2": "Future",
+    "main_title_3": "OKURMEN",
+    "main_title_with": "with",
+    "description_full": "Master in-demand IT professions with a practical approach.",
+    "description_hybrid": "Hybrid learning format",
+    "description_mentor": "personal mentor",
+    "description_support": "at every step.",
+    "description_and": "and",
     "cta_primary": "View Courses",
-    "cta_secondary": "About Us"
+    "cta_secondary": "Learn More",
+    "format_label": "Format",
+    "format_value": "Hybrid",
+    "result_label": "Result",
+    "result_value": "Certificate",
+    "students_count": "Students",
+    "students_value": "3K+",
+    "success_label": "Success",
+    "success_value": "95%",
+    "feature_1": "IT Education",
+    "feature_2": "Personal Mentor",
+    "feature_3": "3000+ Students"
   },
   "about": {
     "title": "About OKURMEN",
@@ -25,6 +49,7 @@
   },
   "why": {
     "title": "Why OKURMEN?",
+    "description": "We offer a unique approach to IT education",
     "hybrid": {
       "title": "Hybrid Learning",
       "description": "Online lessons and in-person classes twice a week"
@@ -34,7 +59,7 @@
       "description": "Each student is assigned a personal mentor"
     },
     "access": {
-      "title": "Online Lesson Access",
+      "title": "Online Lessons",
       "description": "Access to all lessons through the app"
     },
     "methodology": {
@@ -58,13 +83,42 @@
     "step4": "Questions and Support",
     "step5": "Learning Through the App"
   },
+  "stats": {
+    "students": "Students",
+    "alumni": "Graduates",
+    "courses": "Courses",
+    "employed": "Employed",
+    "alumni_empty": "Our graduates will be featured here soon",
+    "alumni_description": "Success stories of OKURMEN graduates"
+  },
   "courses": {
     "title": "Our Courses",
-    "description": "Professional IT education programs"
+    "description": "Professional IT education programs",
+    "popular": "Popular Courses",
+    "choose_course": "Choose a course that will transform your career. All courses include practical projects and mentor support.",
+    "in_development": "Courses are currently being developed. Stay tuned for updates!",
+    "coming_soon": "New courses coming soon",
+    "details": "Learn More",
+    "view_all": "View All Courses",
+    "lesson_one": "lesson",
+    "lesson_few": "lessons",
+    "lesson_many": "lessons",
+    "students_enrolled": "students",
+    "popular_badge": "Popular",
+    "course_untitled": "Course",
+    "hours": "hours",
+    "empty_title": "No courses yet",
+    "empty_message": "Courses will appear here soon",
+    "currency": "som"
+  },
+  "levels": {
+    "BEGINNER": "Beginner",
+    "INTERMEDIATE": "Intermediate",
+    "ADVANCED": "Advanced"
   },
   "activities": {
     "title": "Additional Programs",
-    "onugu": "Önügüü Lessons",
+    "onugu": "Development Classes",
     "oratory": "Public Speaking",
     "literacy": "Computer Literacy",
     "talking": "Talking Club",
@@ -73,7 +127,8 @@
   },
   "team": {
     "title": "Our Team",
-    "description": "Team of professionals"
+    "description": "Professional instructors with real IT industry experience",
+    "experience": "Experience"
   },
   "mentors": {
     "title": "Mentors",
@@ -96,8 +151,31 @@
   },
   "reviews": {
     "title": "Reviews",
+    "description": "What our students, graduates, and their parents say",
     "students": "Student Reviews",
-    "parents": "Parent Reviews"
+    "parents": "Parent Reviews",
+    "student_reviews": "Student and graduate reviews will be published here",
+    "no_reviews": "No reviews yet",
+    "no_reviews_yet": "No reviews yet",
+    "be_first_to_share": "Be the first to share your opinion",
+    "write_review": "Write a Review",
+    "excellent_course": "Excellent course!",
+    "anonymous": "Student",
+    "form_title": "Leave a Review",
+    "form_name": "Name",
+    "form_course": "Course",
+    "form_rating": "Rating",
+    "form_text": "Review Text",
+    "form_submit": "Submit Review",
+    "form_cancel": "Cancel",
+    "form_select_course": "Select a course",
+    "form_required": "Required field",
+    "form_success": "Thank you! Your review has been submitted for moderation",
+    "form_error": "Error submitting review",
+    "auth_required_title": "Authorization Required",
+    "auth_required_text": "To leave a review, please log in or register",
+    "auth_login": "Login",
+    "auth_register": "Register"
   },
   "laptops": {
     "title": "Laptops",
@@ -107,8 +185,25 @@
     "bag": "Bag",
     "charger": "Charger"
   },
+  "schedule": {
+    "title": "Work Schedule",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "call_or_apply": "Call during working hours or submit an application",
+    "workingHours": "Working Hours",
+    "monday_thursday": "Mon - Thu",
+    "friday_label": "Friday",
+    "saturday_sunday": "Sat - Sun",
+    "closed": "Day Off"
+  },
   "contacts": {
     "title": "Contacts",
+    "description": "Contact us in a convenient way. We're always ready to help.",
     "address": "Address",
     "address_value": "OROZBEKOVA, 136",
     "phone": "Phone",
@@ -116,6 +211,8 @@
     "workingHours": "Working Hours",
     "workingHoursValue": "Mon-Fri: 9:00 AM - 6:00 PM",
     "social": "Social Media",
+    "social_description": "Latest news, useful materials, and events",
+    "follow_us": "Follow us on social media",
     "cta": "Submit Application",
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
@@ -123,7 +220,37 @@
   },
   "footer": {
     "about": "OKURMEN is a modern IT education project founded in May 2022",
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "navigation": "Navigation",
+    "working_hours": "Work Schedule"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "login_title": "Login",
+    "register_title": "Register",
+    "login_description": "Login to your account",
+    "register_description": "Create a new account",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name_placeholder": "Your name",
+    "email_placeholder": "",
+    "password_placeholder": "Your password",
+    "confirmPassword_placeholder": "Repeat password",
+    "submit_login": "Login",
+    "submit_register": "Register",
+    "google_signin": "Sign in with Google",
+    "or": "or",
+    "have_account": "Have an account?",
+    "no_account": "Don't have an account?",
+    "switch_to_login": "Login",
+    "switch_to_register": "Register",
+    "close": "Close"
   },
   "ai": {
     "title": "OKURMEN AI Assistant",
@@ -136,14 +263,63 @@
     "abbr": "AI",
     "quick_questions": {
       "title": "Popular questions:",
-      "q1": "How to register?",
-      "q2": "What courses are available?",
-      "q3": "How much do courses cost?",
-      "q4": "How does learning work?",
-      "q5": "Is there a mentor?",
-      "q6": "How to apply?",
-      "q7": "Where is OKURMEN located?",
-      "q8": "How to contact OKURMEN?"
+      "q1": "How does learning work at OKURMEN?",
+      "q2": "How long does the mentor support?",
+      "q3": "How often are IT classes held?",
+      "q4": "Is there a Talking Club?",
+      "q5": "Are scholarships provided?",
+      "q6": "Are hackathons held?",
+      "q7": "What gifts are given?",
+      "q8": "Is a diploma provided?"
     }
+  },
+  "application": {
+    "title": "Submit Application",
+    "description": "Fill out the form and we'll contact you for consultation",
+    "fullName": "Name",
+    "fullName_placeholder": "Your name",
+    "fullName_required": "Please enter your name",
+    "fullName_error": "Please enter full name",
+    "phone": "Phone",
+    "phone_placeholder": "+996 XXX XXX XXX",
+    "phone_required": "Please enter phone number",
+    "phone_error": "Invalid phone number format",
+    "email": "Email",
+    "email_placeholder": "example@mail.com",
+    "email_error": "Invalid email format",
+    "course": "Course of interest",
+    "course_select": "Select a course",
+    "comment": "Comment",
+    "comment_placeholder": "Tell us about your goals and questions...",
+    "submit": "Submit Application",
+    "submitting": "Submitting...",
+    "success_title": "Application Submitted!",
+    "success_message": "We will contact you within 24 hours.",
+    "send_another": "Submit Another Application",
+    "error": "Error submitting application. Please try again later.",
+    "required": "required",
+    "optional": "optional",
+    "consent": "By clicking the button, you consent to the processing of personal data"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "all": "All",
+    "more": "More",
+    "less": "Less"
   }
 }

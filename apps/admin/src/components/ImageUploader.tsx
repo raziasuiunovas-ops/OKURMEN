@@ -6,7 +6,7 @@ import { Upload, X, ZoomIn, ZoomOut, RotateCw, Check, Image as ImageIcon } from 
 interface ImageUploaderProps {
   currentImage?: string | null;
   onImageSelect: (base64: string) => void;
-  aspectRatio?: 'square' | '16:9' | '4:3';
+  aspectRatio?: 'square' | '16:9' | '4:3' | '3:4';
   label?: string;
   maxSizeMB?: number;
 }
@@ -43,6 +43,8 @@ export default function ImageUploader({
         return 16 / 9;
       case '4:3':
         return 4 / 3;
+      case '3:4':
+        return 3 / 4;
       default:
         return 1;
     }
@@ -115,8 +117,8 @@ export default function ImageUploader({
     if (!ctx) return;
 
     // Определяем размер выходного изображения
-    const outputWidth = aspectRatio === 'square' ? 800 : 1920;
-    const outputHeight = aspectRatio === 'square' ? 800 : aspectRatio === '16:9' ? 1080 : 1440;
+    const outputWidth = aspectRatio === 'square' ? 800 : aspectRatio === '3:4' ? 900 : 1920;
+    const outputHeight = aspectRatio === 'square' ? 800 : aspectRatio === '3:4' ? 1200 : aspectRatio === '16:9' ? 1080 : 1440;
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
@@ -182,7 +184,7 @@ export default function ImageUploader({
           <div className="relative group">
             <div
               className={`relative overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 ${
-                aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : 'aspect-[4/3]'
+                aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : aspectRatio === '3:4' ? 'aspect-[3/4]' : 'aspect-[4/3]'
               }`}
             >
               <img
@@ -215,7 +217,7 @@ export default function ImageUploader({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className={`w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl hover:border-orange-500 dark:hover:border-orange-500 transition-colors bg-gray-50 dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-900/10 ${
-              aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : 'aspect-[4/3]'
+              aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : aspectRatio === '3:4' ? 'aspect-[3/4]' : 'aspect-[4/3]'
             } flex flex-col items-center justify-center gap-3`}
           >
             <ImageIcon className="w-12 h-12 text-gray-400" />
@@ -224,7 +226,7 @@ export default function ImageUploader({
                 Нажмите для выбора изображения
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {aspectRatio === 'square' ? 'Квадрат 1:1' : aspectRatio === '16:9' ? 'Широкий 16:9' : 'Стандарт 4:3'} • Макс. {maxSizeMB}MB
+                {aspectRatio === 'square' ? 'Квадрат 1:1' : aspectRatio === '16:9' ? 'Широкий 16:9' : aspectRatio === '3:4' ? 'Портрет 3:4' : 'Стандарт 4:3'} • Макс. {maxSizeMB}MB
               </p>
             </div>
           </button>
@@ -262,7 +264,7 @@ export default function ImageUploader({
               </div>
               <div
                 className={`relative mx-auto bg-gray-900 rounded-xl overflow-hidden ${
-                  aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : 'aspect-[4/3]'
+                  aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : aspectRatio === '3:4' ? 'aspect-[3/4]' : 'aspect-[4/3]'
                 } max-h-[50vh] cursor-grab active:cursor-grabbing select-none ${isDragging ? 'ring-4 ring-orange-500' : ''}`}
                 onMouseDown={handleMouseDown}
               >

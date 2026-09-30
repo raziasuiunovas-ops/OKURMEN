@@ -3,9 +3,47 @@
 import { useTranslations } from 'next-intl';
 import { ArrowRight, Play, Sparkles, TrendingUp, Award } from 'lucide-react';
 import RevealOnScroll from '@/components/RevealOnScroll';
+import { useState, useEffect } from 'react';
+
+interface SiteStats {
+  totalStudents: number;
+  employedCount: number;
+  employmentRate: number;
+}
 
 export default function HeroSection() {
   const t = useTranslations('hero');
+  const [stats, setStats] = useState<SiteStats | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+        const response = await fetch(`${apiUrl}/api/site-stats`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setStats(data.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching site stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const formatNumber = (num: number): string => {
+    if (num >= 1000) {
+      return `${Math.floor(num / 1000)}K+`;
+    }
+    return `${num}+`;
+  };
+
+  const studentsValue = stats ? formatNumber(stats.totalStudents) : t('students_value');
+  const successValue = stats ? `${stats.employmentRate}%` : t('success_value');
 
   const scrollToSection = (id: string) => {
     const element = document.querySelector(id);
@@ -51,10 +89,11 @@ export default function HeroSection() {
                     {t('main_title_1')}
                   </span>
                   <span className="block text-slate-900 dark:text-white mb-3">
+                    <span className="text-slate-900 dark:text-white">{t('main_title_2')}</span>
+                    <span className="text-slate-900 dark:text-white"> {t('main_title_with')} </span>
                     <span className="inline-block bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
-                      {t('main_title_2')}
+                      {t('main_title_3')}
                     </span>
-                    <span className="text-slate-900 dark:text-white"> {t('main_title_with')} {t('main_title_3')}</span>
                   </span>
                 </h1>
               </div>
@@ -64,7 +103,7 @@ export default function HeroSection() {
             <RevealOnScroll delay={200}>
               <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
                 {t('description_full')}{' '}
-                <span className="font-semibold text-slate-700 dark:text-slate-200">{t('description_hybrid')}</span> жана{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{t('description_hybrid')}</span> {t('description_and')}{' '}
                 <span className="font-semibold text-slate-700 dark:text-slate-200">{t('description_mentor')}</span> {t('description_support')}
               </p>
             </RevealOnScroll>
@@ -158,7 +197,7 @@ export default function HeroSection() {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-2xl font-black text-slate-900 dark:text-white">{t('students_value')}</div>
+                        <div className="text-2xl font-black text-slate-900 dark:text-white">{studentsValue}</div>
                         <div className="text-xs font-medium text-slate-600 dark:text-slate-400">{t('students_count')}</div>
                       </div>
                     </div>
@@ -172,7 +211,7 @@ export default function HeroSection() {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-2xl font-black text-slate-900 dark:text-white">{t('success_value')}</div>
+                        <div className="text-2xl font-black text-slate-900 dark:text-white">{successValue}</div>
                         <div className="text-xs font-medium text-slate-600 dark:text-slate-400">{t('success_label')}</div>
                       </div>
                     </div>

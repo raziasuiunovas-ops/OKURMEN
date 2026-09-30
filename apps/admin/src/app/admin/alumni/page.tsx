@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, Search, Edit, Trash2, Award, Briefcase, MapPin } from 'lucide-react';
+import ImageUploader from '@/components/ImageUploader';
 
 // Disable SSR for this page
 export const dynamic = 'force-dynamic';
@@ -83,16 +84,16 @@ export default function AlumniPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white">
             Выпускники
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-slate-600 dark:text-slate-400 mt-2 text-lg">
             Успешные истории наших студентов
           </p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all space-x-2"
+          className="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl hover:shadow-xl hover:scale-105 transition-all space-x-2 font-bold"
         >
           <Plus className="w-5 h-5" />
           <span>Добавить выпускника</span>
@@ -101,30 +102,32 @@ export default function AlumniPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Поиск по имени, компании или должности"
-          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white transition-all"
+          className="w-full pl-12 pr-4 py-3.5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white transition-all shadow-sm"
         />
       </div>
 
       {/* Alumni Grid */}
       {filteredAlumni.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-          <p className="text-gray-500 dark:text-gray-400">Выпускники не найдены</p>
+        <div className="text-center py-12 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50">
+          <p className="text-slate-500 dark:text-slate-400 text-lg">Выпускники не найдены</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAlumni.map((person) => (
             <div
               key={person.id}
-              className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all"
+              className="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
             >
               {/* Header with gradient */}
-              <div className="h-24 bg-gradient-to-br from-orange-400 to-orange-600"></div>
+              <div className="h-24 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              </div>
 
               {/* Alumni Info */}
               <div className="p-6 -mt-12">
@@ -134,30 +137,30 @@ export default function AlumniPage() {
                     <img
                       src={person.image}
                       alt={person.name || 'Выпускник'}
-                      className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
+                      className="w-20 h-20 rounded-2xl object-cover border-4 border-white dark:border-slate-800 shadow-xl"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-gray-800 shadow-lg">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-black border-4 border-white dark:border-slate-800 shadow-xl">
                       {(person.name || 'A').charAt(0)}
                     </div>
                   )}
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3">
                   {person.name || 'Без имени'}
                 </h3>
 
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
                     <Briefcase className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium">{person.position}</span>
+                    <span className="font-bold">{person.position}</span>
                   </div>
                   <div className="flex items-center space-x-2 text-sm text-orange-600 dark:text-orange-400">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span>{person.company}</span>
+                    <span className="font-bold">{person.company}</span>
                   </div>
                   {person.course && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
                       <Award className="w-4 h-4 flex-shrink-0" />
                       <span>{person.course?.title || 'Курс не указан'}</span>
                     </div>
@@ -165,7 +168,7 @@ export default function AlumniPage() {
                 </div>
 
                 {person.testimonial && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 italic">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3 italic">
                     &ldquo;{person.testimonial}&rdquo;
                   </p>
                 )}
@@ -174,14 +177,14 @@ export default function AlumniPage() {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setEditingAlumni(person)}
-                    className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center space-x-2"
+                    className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all flex items-center justify-center space-x-2 font-bold hover:scale-105"
                   >
                     <Edit className="w-4 h-4" />
                     <span>Изменить</span>
                   </button>
                   <button
                     onClick={() => handleDelete(person.id)}
-                    className="px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+                    className="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all hover:scale-105"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -332,14 +335,14 @@ function AlumniModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              URL фото
+              Фото выпускника
             </label>
-            <input
-              type="url"
-              value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              placeholder="https://example.com/photo.jpg"
-              className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
+            <ImageUploader
+              currentImage={formData.image}
+              onImageSelect={(base64) => setFormData({ ...formData, image: base64 })}
+              label="Загрузить фото выпускника"
+              aspectRatio="square"
+              maxSizeMB={2}
             />
           </div>
 
