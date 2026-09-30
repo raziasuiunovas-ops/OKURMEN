@@ -301,6 +301,10 @@
     "optional": "optional",
     "consent": "By clicking the button, you consent to the processing of personal data"
   },
+  "alumni": {
+    "view_project": "View project",
+    "view_projects": "View projects"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

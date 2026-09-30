@@ -67,6 +67,10 @@ export const createAlumniSchema = z.object({
   position: z.string().optional(),
   story: z.string().optional(),
   photoUrl: z.string().optional(), // Разрешаем любую строку (включая base64)
+  projects: z.array(z.object({
+    title: z.string().min(1),
+    url: z.string().url(),
+  })).optional().default([]),
   isFeatured: z.boolean().default(false),
   studentId: z.string().optional(),
 });

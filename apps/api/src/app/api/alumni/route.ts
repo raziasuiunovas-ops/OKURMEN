@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
 
-    const { name, company, position, story, photoUrl, isFeatured, studentId } = validation.data;
+    const { name, company, position, story, photoUrl, projects, isFeatured, studentId } = validation.data;
 
     const alumni = await prisma.alumni.create({
       data: {
@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
         position,
         story,
         photoUrl,
+        projects: projects || [],
         isFeatured: isFeatured ?? false,
         ...(studentId && { studentId }),
       },

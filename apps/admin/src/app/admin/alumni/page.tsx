@@ -1,12 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit, Trash2, Award, Briefcase, MapPin } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Award, Briefcase, MapPin, ExternalLink, X } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
 
 // Disable SSR for this page
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
+
+interface Project {
+  title: string;
+  url: string;
+}
 
 interface Alumni {
   id: string;
@@ -15,6 +20,7 @@ interface Alumni {
   company: string;
   testimonial: string;
   image: string | null;
+  projects?: Project[];
   course: {
     title: string;
   } | null;
@@ -151,14 +157,18 @@ export default function AlumniPage() {
                 </h3>
 
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Briefcase className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-bold">{person.position}</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-orange-600 dark:text-orange-400">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-bold">{person.company}</span>
-                  </div>
+                  {person.position && (
+                    <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
+                      <Briefcase className="w-4 h-4 flex-shrink-0" />
+                      <span className="font-bold">{person.position}</span>
+                    </div>
+                  )}
+                  {person.company && (
+                    <div className="flex items-center space-x-2 text-sm text-orange-600 dark:text-orange-400">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <span className="font-bold">{person.company}</span>
+                    </div>
+                  )}
                   {person.course && (
                     <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
                       <Award className="w-4 h-4 flex-shrink-0" />
@@ -171,6 +181,25 @@ export default function AlumniPage() {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3 italic">
                     &ldquo;{person.testimonial}&rdquo;
                   </p>
+                )}
+
+                {/* Projects */}
+                {person.projects && person.projects.length > 0 && (
+                  <div className="mb-4 space-y-1">
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Проекты:</p>
+                    {person.projects.map((project, idx) => (
+                      <a
+                        key={idx}
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-1 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>{project.title}</span>
+                      </a>
+                    ))}
+                  </div>
                 )}
 
                 {/* Actions */}
@@ -226,8 +255,27 @@ function AlumniModal({
     company: alumni?.company || '',
     testimonial: alumni?.testimonial || '',
     image: alumni?.image || '',
+    projects: alumni?.projects || [],
   });
   const [loading, setLoading] = useState(false);
+  const [newProject, setNewProject] = useState({ title: '', url: '' });
+
+  const handleAddProject = () => {
+    if (newProject.title.trim() && newProject.url.trim()) {
+      setFormData({
+        ...formData,
+        projects: [...formData.projects, { title: newProject.title.trim(), url: newProject.url.trim() }],
+      });
+      setNewProject({ title: '', url: '' });
+    }
+  };
+
+  const handleRemoveProject = (index: number) => {
+    setFormData({
+      ...formData,
+      projects: formData.projects.filter((_, i) => i !== index),
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,18 +286,18 @@ function AlumniModal({
         ? `http://localhost:3002/api/alumni/${alumni.id}`
         : 'http://localhost:3002/api/alumni';
       
-      // Адаптируем данные под существующий API
       const payload = {
         name: formData.name,
-        position: formData.position,
-        company: formData.company,
-        story: formData.testimonial, // API ожидает 'story'
-        photoUrl: formData.image, // API ожидает 'photoUrl'
-        isFeatured: false,
+        position: formData.position || undefined,
+        company: formData.company || undefined,
+        story: formData.testimonial || undefined,
+        photoUrl: formData.image || undefined,
+        projects: formData.projects,
+        isFeatured: true,
       };
       
       const response = await fetch(url, {
-        method: alumni ? 'PUT' : 'POST',
+        method: alumni ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -280,7 +328,7 @@ function AlumniModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Имя
+              Имя <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -302,7 +350,6 @@ function AlumniModal({
                 onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                 placeholder="Frontend Developer"
                 className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
-                required
               />
             </div>
 
@@ -316,14 +363,13 @@ function AlumniModal({
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                 placeholder="Google"
                 className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white"
-                required
               />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Отзыв
+              Описание / Отзыв
             </label>
             <textarea
               value={formData.testimonial}
@@ -333,15 +379,77 @@ function AlumniModal({
             />
           </div>
 
+          {/* Projects Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Фото выпускника
+              Проекты <span className="text-red-500">*</span> (минимум 1)
+            </label>
+            
+            {/* Current Projects */}
+            {formData.projects.length > 0 && (
+              <div className="space-y-2 mb-4">
+                {formData.projects.map((project, index) => (
+                  <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-gray-900 dark:text-white">{project.title}</p>
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        {project.url}
+                      </a>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveProject(index)}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add New Project */}
+            <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+              <input
+                type="text"
+                value={newProject.title}
+                onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
+                placeholder="Название проекта (напр. Ekidos Taxi)"
+                className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white text-sm"
+              />
+              <input
+                type="url"
+                value={newProject.url}
+                onChange={(e) => setNewProject({ ...newProject, url: e.target.value })}
+                placeholder="https://example.com"
+                className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:text-white text-sm"
+              />
+              <button
+                type="button"
+                onClick={handleAddProject}
+                className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 font-medium"
+              >
+                <Plus className="w-4 h-4" />
+                Добавить проект
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Фото выпускника (3:4)
             </label>
             <ImageUploader
               currentImage={formData.image}
               onImageSelect={(base64) => setFormData({ ...formData, image: base64 })}
               label="Загрузить фото выпускника"
-              aspectRatio="square"
+              aspectRatio="portrait"
               maxSizeMB={2}
             />
           </div>
@@ -349,8 +457,8 @@ function AlumniModal({
           <div className="flex items-center space-x-4 pt-4">
             <button
               type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+              disabled={loading || !formData.name || formData.projects.length === 0}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Сохранение...' : 'Сохранить'}
             </button>
