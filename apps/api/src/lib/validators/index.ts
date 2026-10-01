@@ -30,7 +30,7 @@ export const createEmployeeSchema = z.object({
     (val) => val === '' ? undefined : val,
     z.string().email().optional()
   ),
-  position: z.enum(['FOUNDER', 'TEACHER', 'MENTOR', 'MANAGER', 'DEVELOPER', 'SALES', 'MARKETING', 'ADMIN_STAFF', 'OTHER']),
+  positions: z.array(z.enum(['FOUNDER', 'DIRECTOR', 'HEAD_TEACHER', 'DEPARTMENT_HEAD', 'ROP', 'SENIOR_MANAGER', 'MANAGER', 'CURATOR', 'MENTOR', 'TEACHER', 'DEVELOPER', 'HR', 'MARKETING', 'SMM', 'SALES', 'ADMIN_STAFF', 'OTHER'])).min(1),
   bio: z.string().optional().transform(val => val === '' ? undefined : val),
   education: z.string().optional().transform(val => val === '' ? undefined : val),
   experience: z.string().optional().transform(val => val === '' ? undefined : val),

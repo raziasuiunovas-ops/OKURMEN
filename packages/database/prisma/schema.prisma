@@ -31,16 +31,23 @@ enum StudentStatus {
 }
 
 enum EmployeePosition {
-  FOUNDER
-  TEACHER
-  MENTOR
-  MANAGER
-  DEVELOPER
-  SALES
-  MARKETING
-  SMM
-  ADMIN_STAFF
-  OTHER
+  FOUNDER         // Основатель
+  DIRECTOR        // Руководитель/Директор
+  HEAD_TEACHER    // Завуч
+  DEPARTMENT_HEAD // Руководитель отдела
+  ROP             // РОП (Руководитель образовательных программ)
+  SENIOR_MANAGER  // Старший менеджер
+  MANAGER         // Менеджер
+  CURATOR         // Куратор
+  MENTOR          // Ментор
+  TEACHER         // Преподаватель
+  DEVELOPER       // Разработчик
+  HR              // HR
+  MARKETING       // Маркетолог
+  SMM             // SMM
+  SALES           // Продажи
+  ADMIN_STAFF     // Административный персонал
+  OTHER           // Другое
 }
 
 enum CourseFormat {
@@ -169,18 +176,18 @@ model StudentProfile {
 }
 
 model EmployeeProfile {
-  id         String           @id @default(cuid())
-  userId     String           @unique @map("user_id")
-  position   EmployeePosition
-  bio        String?          @db.Text
-  education  String?          @db.Text
-  experience String?          @db.Text
-  photoUrl   String?          @map("photo_url")
-  sortOrder  Int              @default(0) @map("sort_order")
-  joinedAt   DateTime?        @map("joined_at")
-  isActive   Boolean          @default(true) @map("is_active")
-  createdAt  DateTime         @default(now()) @map("created_at")
-  updatedAt  DateTime         @updatedAt @map("updated_at")
+  id         String             @id @default(cuid())
+  userId     String             @unique @map("user_id")
+  positions  EmployeePosition[] // Массив должностей
+  bio        String?            @db.Text
+  education  String?            @db.Text
+  experience String?            @db.Text
+  photoUrl   String?            @map("photo_url")
+  sortOrder  Int                @default(0) @map("sort_order")
+  joinedAt   DateTime?          @map("joined_at")
+  isActive   Boolean            @default(true) @map("is_active")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
 
   user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseTeachers    CourseTeacher[]
@@ -188,7 +195,6 @@ model EmployeeProfile {
   bookings          Booking[]
   mentoredGroup     Group? // One mentor can have one group (1:1 relation)
 
-  @@index([position])
   @@index([isActive])
   @@index([sortOrder])
   @@map("employee_profiles")

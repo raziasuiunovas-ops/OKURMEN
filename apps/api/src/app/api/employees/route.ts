@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       fullName,
       phone,
       email,
-      position,
+      positions,
       bio,
       education,
       experience,
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         isActive: isActive ?? true,
         employeeProfile: {
           create: {
-            position,
+            positions,
             bio,
             education,
             experience,

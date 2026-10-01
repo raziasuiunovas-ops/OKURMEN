@@ -311,7 +311,6 @@ function LessonModal({
         videoUrl: (formData.videoUrl && formData.videoUrl.trim()) || undefined,
         duration: formData.duration || undefined,
         order: formData.order,
-        isPublished: formData.isPublished,
       };
       
       const response = await fetch(url, {

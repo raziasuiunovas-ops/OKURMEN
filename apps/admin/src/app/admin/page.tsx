@@ -38,20 +38,25 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       // Загружаем реальные данные из API
-      const [coursesRes, studentsRes, applicationsRes] = await Promise.all([
+      const [coursesRes, siteStatsRes, applicationsRes] = await Promise.all([
         fetch('http://localhost:3002/api/courses', { credentials: 'include' }),
-        fetch('http://localhost:3002/api/admin/students', { credentials: 'include' }),
+        fetch('http://localhost:3002/api/site-stats', { credentials: 'include' }),
         fetch('http://localhost:3002/api/applications', { credentials: 'include' }),
       ]);
 
+      // Проверяем response перед парсингом JSON
+      if (!coursesRes.ok || !siteStatsRes.ok || !applicationsRes.ok) {
+        throw new Error('API request failed');
+      }
+
       const courses = await coursesRes.json();
-      const students = await studentsRes.json();
+      const siteStats = await siteStatsRes.json();
       const applications = await applicationsRes.json();
 
       // Реальные данные из БД
       setStats({
         totalCourses: courses.data?.length || 0,
-        totalStudents: students.data?.length || 0,
+        totalStudents: siteStats.data?.totalStudents || 0,
         totalRevenue: 0, // Пока нет платежей, доход = 0
         pendingApplications: applications.data?.filter((a: any) => a.status === 'PENDING').length || 0,
       });

@@ -27,7 +27,7 @@ export const fetchCache = 'force-no-store';
 
 interface Employee {
   id: string;
-  position: string;
+  positions: string[]; // Массив должностей
   bio: string | null;
   education: string | null;
   experience: string | null;
@@ -49,6 +49,47 @@ interface Toast {
   type: ToastType;
   message: string;
 }
+
+// Иерархия должностей (порядок важен для сортировки)
+const POSITION_HIERARCHY: Record<string, number> = {
+  FOUNDER: 1,
+  DIRECTOR: 2,
+  HEAD_TEACHER: 3,
+  DEPARTMENT_HEAD: 4,
+  ROP: 5,
+  SENIOR_MANAGER: 6,
+  MANAGER: 7,
+  CURATOR: 8,
+  MENTOR: 9,
+  TEACHER: 10,
+  DEVELOPER: 11,
+  HR: 12,
+  MARKETING: 13,
+  SMM: 14,
+  SALES: 15,
+  ADMIN_STAFF: 16,
+  OTHER: 99,
+};
+
+const POSITION_LABELS: Record<string, string> = {
+  FOUNDER: 'Основатель',
+  DIRECTOR: 'Руководитель/Директор',
+  HEAD_TEACHER: 'Завуч',
+  DEPARTMENT_HEAD: 'Руководитель отдела',
+  ROP: 'РОП',
+  SENIOR_MANAGER: 'Старший менеджер',
+  MANAGER: 'Менеджер',
+  CURATOR: 'Куратор',
+  MENTOR: 'Ментор',
+  TEACHER: 'Преподаватель',
+  DEVELOPER: 'Разработчик',
+  HR: 'HR',
+  MARKETING: 'Маркетолог',
+  SMM: 'SMM',
+  SALES: 'Продажи',
+  ADMIN_STAFF: 'Административный персонал',
+  OTHER: 'Другое',
+};
 
 // Категории отделов с цветами
 const DEPARTMENTS = [
@@ -109,7 +150,14 @@ export default function EmployeesPage() {
         return acc;
       }, []);
       
-      setEmployees(uniqueEmployees.sort((a: Employee, b: Employee) => a.sortOrder - b.sortOrder));
+      // Сортируем по иерархии должностей
+      const sorted = uniqueEmployees.sort((a: Employee, b: Employee) => {
+        const aMinPriority = Math.min(...(a.positions || []).map(p => POSITION_HIERARCHY[p] || 99));
+        const bMinPriority = Math.min(...(b.positions || []).map(p => POSITION_HIERARCHY[p] || 99));
+        return aMinPriority - bMinPriority;
+      });
+      
+      setEmployees(sorted);
     } catch (error) {
       console.error('Failed to fetch employees:', error);
       showToast('error', '❌ Ошибка загрузки сотрудников');
@@ -121,11 +169,11 @@ export default function EmployeesPage() {
   const filteredEmployees = employees.filter((employee) => {
     const matchesSearch =
       (employee.user?.fullName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (employee.position || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (employee.positions || []).some(p => (POSITION_LABELS[p] || p).toLowerCase().includes(searchQuery.toLowerCase())) ||
       (employee.user?.email || '').toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesDepartment =
-      selectedDepartment === 'ALL' || employee.position === selectedDepartment;
+      selectedDepartment === 'ALL' || (employee.positions || []).includes(selectedDepartment);
 
     return matchesSearch && matchesDepartment;
   });
@@ -157,22 +205,19 @@ export default function EmployeesPage() {
     }
   };
 
-  const getColorClass = (position: string) => {
-    if (position === 'FOUNDER') return 'from-orange-500 to-orange-600';
-    if (position === 'MENTOR') return 'from-green-500 to-green-600';
-    if (position === 'MANAGER') return 'from-purple-500 to-purple-600';
-    if (position === 'DEVELOPER') return 'from-pink-500 to-pink-600';
+  const getColorClass = (positions: string[]) => {
+    if (!positions || positions.length === 0) return 'from-gray-500 to-gray-600';
+    const topPosition = positions[0]; // Берём первую (самую приоритетную)
+    if (topPosition === 'FOUNDER' || topPosition === 'DIRECTOR') return 'from-orange-500 to-orange-600';
+    if (topPosition === 'MENTOR' || topPosition === 'TEACHER') return 'from-green-500 to-green-600';
+    if (topPosition === 'MANAGER' || topPosition === 'SENIOR_MANAGER') return 'from-purple-500 to-purple-600';
+    if (topPosition === 'DEVELOPER') return 'from-pink-500 to-pink-600';
     return 'from-gray-500 to-gray-600';
   };
 
-  const getPositionLabel = (position: string) => {
-    const labels: Record<string, string> = {
-      FOUNDER: 'Основатель',
-      MENTOR: 'Ментор',
-      MANAGER: 'Менеджер/Управление',
-      DEVELOPER: 'ОКУРМЭН Студия',
-    };
-    return labels[position] || position;
+  const getPositionLabels = (positions: string[]) => {
+    if (!positions || positions.length === 0) return 'Должность не указана';
+    return positions.map(p => POSITION_LABELS[p] || p).join(', ');
   };
 
   if (loading) {
@@ -270,7 +315,7 @@ export default function EmployeesPage() {
           const isActive = selectedDepartment === dept.key;
           const deptCount = dept.key === 'ALL' 
             ? employees.length 
-            : employees.filter(e => e.position === dept.key).length;
+            : employees.filter(e => (e.positions || []).includes(dept.key)).length;
           
           return (
             <button
@@ -317,20 +362,25 @@ export default function EmployeesPage() {
               className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
             >
               {/* Employee Header - ТОЛЬКО ФОТО */}
-              <div className={`p-6 bg-gradient-to-br ${getColorClass(employee.position)} relative overflow-hidden`}>
+              <div className={`p-6 bg-gradient-to-br ${getColorClass(employee.positions || [])} relative overflow-hidden`}>
                 {/* Animated gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
                 <div className="absolute top-2 right-2 z-10">
                   <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-bold rounded-full shadow-sm">
-                    {getPositionLabel(employee.position)}
+                    {getPositionLabels(employee.positions || [])}
                   </span>
                 </div>
                 <div className="flex flex-col items-center justify-center relative z-10" style={{ minHeight: '160px' }}>
                   {employee.photoUrl ? (
                     <div className="relative w-32 h-32 group-hover:scale-110 transition-transform duration-300">
                       <img
-                        src={employee.photoUrl}
+                        src={(() => {
+                          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+                          return employee.photoUrl.startsWith('data:') 
+                            ? employee.photoUrl 
+                            : `${apiUrl}${employee.photoUrl}`;
+                        })()}
                         alt={employee.user?.fullName || 'Сотрудник'}
                         className="w-full h-full rounded-full object-cover border-4 border-white shadow-xl"
                         style={{ objectPosition: 'center' }}
@@ -439,7 +489,7 @@ function EmployeeModal({
 }) {
   const [formData, setFormData] = useState({
     fullName: employee?.user?.fullName || '',
-    position: employee?.position || 'MANAGER',
+    positions: employee?.positions || [],
     email: employee?.user?.email || '',
     phone: employee?.user?.phone || '',
     bio: employee?.bio || '',
@@ -464,7 +514,7 @@ function EmployeeModal({
       // Очищаем пустые строки - отправляем null или не включаем поле
       const cleanData = {
         fullName: formData.fullName || undefined,
-        position: formData.position || undefined,
+        positions: formData.positions && formData.positions.length > 0 ? formData.positions : undefined,
         email: (formData.email && formData.email.trim()) || undefined,
         phone: (formData.phone && formData.phone.trim()) || undefined,
         bio: (formData.bio && formData.bio.trim()) || undefined,
@@ -553,21 +603,37 @@ function EmployeeModal({
               />
             </div>
 
-            <div>
+            <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Должность *
+                Должности * (выберите одну или несколько)
               </label>
-              <select
-                value={formData.position}
-                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-orange-500 dark:text-white"
-                required
-              >
-                <option value="FOUNDER">Основатель</option>
-                <option value="MENTOR">Ментор</option>
-                <option value="MANAGER">Менеджер/Управление</option>
-                <option value="DEVELOPER">ОКУРМЭН Студия (Разработчик)</option>
-              </select>
+              <div className="grid grid-cols-2 gap-2 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-300 dark:border-gray-600">
+                {Object.entries(POSITION_LABELS).map(([key, label]) => (
+                  <label
+                    key={key}
+                    className="flex items-center space-x-2 p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={(formData.positions || []).includes(key)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setFormData({
+                          ...formData,
+                          positions: checked
+                            ? [...(formData.positions || []), key]
+                            : (formData.positions || []).filter((p: string) => p !== key),
+                        });
+                      }}
+                      className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                  </label>
+                ))}
+              </div>
+              {formData.positions && formData.positions.length === 0 && (
+                <p className="text-xs text-red-500 mt-1">Выберите хотя бы одну должность</p>
+              )}
             </div>
 
             <div>

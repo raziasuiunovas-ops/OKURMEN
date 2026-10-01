@@ -260,7 +260,7 @@ export default function AlumniSection() {
                 return (
                   <div
                     key={alum.id}
-                    className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-transparent hover:-translate-y-2 flex-shrink-0"
+                    className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-transparent hover:-translate-y-2 flex-shrink-0 flex flex-col"
                     style={{ 
                       width: itemsPerView === 1 ? 'calc(100vw - 80px)' : 
                              itemsPerView === 2 ? 'calc(50vw - 60px)' : 
@@ -288,26 +288,28 @@ export default function AlumniSection() {
                     </div>
 
                     {/* Info */}
-                    <div className="p-4 space-y-2">
-                      <h3 className="font-display text-base font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight">
-                        {alum.name}
-                      </h3>
-                      
-                      {alum.position && (
-                        <p className="text-xs font-semibold text-orange-600 dark:text-orange-400">
-                          {alum.position}
-                        </p>
-                      )}
-                      
-                      {alum.story && (
-                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                          {alum.story}
-                        </p>
-                      )}
+                    <div className="p-4 flex flex-col flex-1">
+                      <div className="flex-1 space-y-2">
+                        <h3 className="font-display text-base font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight">
+                          {alum.name}
+                        </h3>
+                        
+                        {alum.position && (
+                          <p className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+                            {alum.position}
+                          </p>
+                        )}
+                        
+                        {alum.story && (
+                          <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                            {alum.story}
+                          </p>
+                        )}
+                      </div>
 
-                      {/* Project Buttons */}
+                      {/* Project Buttons - Always at bottom */}
                       {projects.length > 0 && (
-                        <div className="pt-2 space-y-1.5">
+                        <div className="pt-3 space-y-1.5">
                           {projects.map((project, idx) => (
                             <a
                               key={idx}

@@ -7,7 +7,7 @@ import { useLocale } from 'next-intl';
 
 interface Employee {
   id: string;
-  position: string;
+  positions: string[];
   bio: string | null;
   photoUrl: string | null;
   experience: string | null;
@@ -19,12 +19,25 @@ interface Employee {
   };
 }
 
-// Иерархия должностей для сортировки
+// Иерархия должностей для сортировки (порядок важен!)
 const POSITION_HIERARCHY: Record<string, number> = {
   FOUNDER: 1,
-  MANAGER: 2,
-  MENTOR: 3,
-  TEACHER: 4,
+  DIRECTOR: 2,
+  HEAD_TEACHER: 3,
+  DEPARTMENT_HEAD: 4,
+  ROP: 5,
+  SENIOR_MANAGER: 6,
+  MANAGER: 7,
+  CURATOR: 8,
+  MENTOR: 9,
+  TEACHER: 10,
+  DEVELOPER: 11,
+  HR: 12,
+  MARKETING: 13,
+  SMM: 14,
+  SALES: 15,
+  ADMIN_STAFF: 16,
+  OTHER: 99,
 };
 
 export default function TeamSection() {
@@ -80,11 +93,11 @@ export default function TeamSection() {
         const data = await response.json();
         
         if (data.success && data.data) {
-          // Сортировка по иерархии: FOUNDER → MANAGER → MENTOR → TEACHER
+          // Сортировка по иерархии должностей (берём самую приоритетную должность каждого сотрудника)
           const sortedEmployees = [...data.data].sort((a, b) => {
-            const orderA = POSITION_HIERARCHY[a.position] || 999;
-            const orderB = POSITION_HIERARCHY[b.position] || 999;
-            return orderA - orderB;
+            const aMinPriority = Math.min(...(a.positions || []).map((p: string) => POSITION_HIERARCHY[p] || 99));
+            const bMinPriority = Math.min(...(b.positions || []).map((p: string) => POSITION_HIERARCHY[p] || 99));
+            return aMinPriority - bMinPriority;
           });
           
           setEmployees(sortedEmployees);
@@ -269,11 +282,29 @@ export default function TeamSection() {
                 const getPositionLabel = (pos: string) => {
                   const positions: Record<string, Record<string, string>> = {
                     FOUNDER: { ru: 'Основатель', ky: 'Негиздөөчү', en: 'Founder' },
+                    DIRECTOR: { ru: 'Руководитель/Директор', ky: 'Жетекчи/Директор', en: 'Director' },
+                    HEAD_TEACHER: { ru: 'Завуч', ky: 'Окуу бөлүмүнүн башчысы', en: 'Head Teacher' },
+                    DEPARTMENT_HEAD: { ru: 'Руководитель отдела', ky: 'Бөлүм башчысы', en: 'Department Head' },
+                    ROP: { ru: 'РОП', ky: 'РОП', en: 'Head of Sales' },
+                    SENIOR_MANAGER: { ru: 'Старший менеджер', ky: 'Улук менеджер', en: 'Senior Manager' },
                     MANAGER: { ru: 'Менеджер', ky: 'Менеджер', en: 'Manager' },
+                    CURATOR: { ru: 'Куратор', ky: 'Куратор', en: 'Curator' },
                     MENTOR: { ru: 'Ментор', ky: 'Ментор', en: 'Mentor' },
                     TEACHER: { ru: 'Преподаватель', ky: 'Мугалим', en: 'Teacher' },
+                    DEVELOPER: { ru: 'Разработчик', ky: 'Иштеп чыгуучу', en: 'Developer' },
+                    HR: { ru: 'HR', ky: 'HR', en: 'HR' },
+                    MARKETING: { ru: 'Маркетолог', ky: 'Маркетолог', en: 'Marketing' },
+                    SMM: { ru: 'SMM', ky: 'SMM', en: 'SMM' },
+                    SALES: { ru: 'Продажи', ky: 'Сатуу', en: 'Sales' },
+                    ADMIN_STAFF: { ru: 'Административный персонал', ky: 'Администрациялык кызматкер', en: 'Admin Staff' },
+                    OTHER: { ru: 'Другое', ky: 'Башка', en: 'Other' },
                   };
                   return positions[pos]?.[locale] || pos;
+                };
+                
+                const getPositionLabels = (positions: string[]) => {
+                  if (!positions || positions.length === 0) return '';
+                  return positions.map(p => getPositionLabel(p)).join(', ');
                 };
 
                 // Bio жана experience толук англисче котормо
@@ -373,7 +404,7 @@ export default function TeamSection() {
                       </h3>
                       {/* Position */}
                       <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">
-                        {getPositionLabel(employee.position)}
+                        {getPositionLabels(employee.positions || [])}
                       </p>
                       {employee.bio && (
                         <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">

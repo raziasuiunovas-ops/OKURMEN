@@ -73,7 +73,7 @@ export async function PATCH(
       fullName,
       phone,
       email,
-      position,
+      positions,
       bio,
       education,
       experience,
@@ -102,7 +102,7 @@ export async function PATCH(
         ...(email !== undefined && { email }),
         employeeProfile: {
           update: {
-            ...(position && { position }),
+            ...(positions && { positions }),
             ...(bio !== undefined && { bio }),
             ...(education !== undefined && { education }),
             ...(experience !== undefined && { experience }),

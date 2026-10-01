@@ -179,13 +179,14 @@ export default function ImageUploader({
       </label>
 
       {/* Preview / Upload Area */}
-      <div className="relative">
+      <div className="relative max-w-xs">
         {preview && !showEditor ? (
           <div className="relative group">
             <div
               className={`relative overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 ${
                 aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : aspectRatio === '3:4' ? 'aspect-[3/4]' : 'aspect-[4/3]'
               }`}
+              style={{ maxHeight: '240px' }}
             >
               <img
                 src={preview}
@@ -197,17 +198,17 @@ export default function ImageUploader({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
+                className="px-3 py-1.5 bg-white text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center gap-1.5"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="w-3.5 h-3.5" />
                 Изменить
               </button>
               <button
                 type="button"
                 onClick={handleRemove}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center gap-2"
+                className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-1.5"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
                 Удалить
               </button>
             </div>
@@ -218,14 +219,15 @@ export default function ImageUploader({
             onClick={() => fileInputRef.current?.click()}
             className={`w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl hover:border-orange-500 dark:hover:border-orange-500 transition-colors bg-gray-50 dark:bg-gray-800 hover:bg-orange-50 dark:hover:bg-orange-900/10 ${
               aspectRatio === 'square' ? 'aspect-square' : aspectRatio === '16:9' ? 'aspect-video' : aspectRatio === '3:4' ? 'aspect-[3/4]' : 'aspect-[4/3]'
-            } flex flex-col items-center justify-center gap-3`}
+            } flex flex-col items-center justify-center gap-2 py-6`}
+            style={{ maxHeight: '240px' }}
           >
-            <ImageIcon className="w-12 h-12 text-gray-400" />
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <ImageIcon className="w-10 h-10 text-gray-400" />
+            <div className="text-center px-4">
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
                 Нажмите для выбора изображения
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
                 {aspectRatio === 'square' ? 'Квадрат 1:1' : aspectRatio === '16:9' ? 'Широкий 16:9' : aspectRatio === '3:4' ? 'Портрет 3:4' : 'Стандарт 4:3'} • Макс. {maxSizeMB}MB
               </p>
             </div>

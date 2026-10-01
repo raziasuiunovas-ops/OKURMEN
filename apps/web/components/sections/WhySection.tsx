@@ -144,7 +144,7 @@ export default function WhySection() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-display text-xl font-bold text-slate-900 dark:text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:${feature.gradient} transition-all duration-300">
+                  <h3 className="font-display text-xl font-bold text-slate-900 dark:text-white transition-all duration-300">
                     {feature.title}
                   </h3>
 

@@ -449,7 +449,7 @@ function AlumniModal({
               currentImage={formData.image}
               onImageSelect={(base64) => setFormData({ ...formData, image: base64 })}
               label="Загрузить фото выпускника"
-              aspectRatio="portrait"
+              aspectRatio="3:4"
               maxSizeMB={2}
             />
           </div>

@@ -89,11 +89,11 @@ export default function HeroSection() {
                     {t('main_title_1')}
                   </span>
                   <span className="block text-slate-900 dark:text-white mb-3">
-                    <span className="text-slate-900 dark:text-white">{t('main_title_2')}</span>
-                    <span className="text-slate-900 dark:text-white"> {t('main_title_with')} </span>
                     <span className="inline-block bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
-                      {t('main_title_3')}
+                      {t('main_title_2')}
                     </span>
+                    <span className="text-slate-900 dark:text-white"> {t('main_title_with')} </span>
+                    <span className="text-slate-900 dark:text-white">{t('main_title_3')}</span>
                   </span>
                 </h1>
               </div>

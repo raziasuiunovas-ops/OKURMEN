@@ -14,10 +14,10 @@ export function BackButton({ fallbackPath = '/', className = '' }: BackButtonPro
   const t = useTranslations('common');
 
   const handleBack = () => {
-    // Проверяем есть ли история навигации
+    // Используем router.back() вместо window.history.back()
+    // next-intl router автоматически сохраняет locale
     if (typeof window !== 'undefined' && window.history.length > 1) {
-      // Если есть история - используем браузерный back
-      window.history.back();
+      router.back();
     } else {
       // Если истории нет (прямой переход) - идём на fallbackPath
       router.push(fallbackPath);
