@@ -99,6 +99,7 @@
     "in_development": "Courses are currently being developed. Stay tuned for updates!",
     "coming_soon": "New courses coming soon",
     "details": "Learn More",
+    "learn_price": "Learn Price",
     "view_all": "View All Courses",
     "lesson_one": "lesson",
     "lesson_few": "lessons",
@@ -230,6 +231,7 @@
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
+    "settings": "Settings",
     "login_title": "Login",
     "register_title": "Register",
     "login_description": "Login to your account",
@@ -268,14 +270,15 @@
       "q3": "How often are IT classes held?",
       "q4": "Is there a Talking Club?",
       "q5": "Are scholarships provided?",
-      "q6": "Are hackathons held?",
-      "q7": "What gifts are given?",
-      "q8": "Is a diploma provided?"
+      "q6": "What gifts are given?",
+      "q7": "Is a diploma provided?",
+      "q8": "Where do students work after OKURMEN?"
     }
   },
   "application": {
     "title": "Submit Application",
     "description": "Fill out the form and we'll contact you for consultation",
+    "price_inquiry_message": "Here you can learn about the course price or ask your question — submit an application and we'll contact you",
     "fullName": "Name",
     "fullName_placeholder": "Your name",
     "fullName_required": "Please enter your name",
@@ -325,5 +328,29 @@
     "all": "All",
     "more": "More",
     "less": "Less"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account and preferences",
+    "back": "Go back",
+    "profile": {
+      "title": "Profile",
+      "name": "Name",
+      "email": "Email"
+    },
+    "theme": {
+      "title": "Theme",
+      "description": "Choose your theme",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Configure notification preferences",
+      "email": "Email notifications",
+      "email_desc": "Receive important updates via email",
+      "updates": "News and updates",
+      "updates_desc": "Information about new courses and promotions"
+    }
   }
 }

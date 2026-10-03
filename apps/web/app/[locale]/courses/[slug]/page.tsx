@@ -278,6 +278,14 @@ export default function CourseDetailPage() {
                       <span className="text-white/70">{t('hours')}</span>
                     </div>
                   )}
+
+                  {/* Duration/Period */}
+                  {course.duration && (
+                    <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+                      <Calendar className="w-5 h-5" />
+                      <span className="font-bold">{course.duration}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -300,6 +308,32 @@ export default function CourseDetailPage() {
                   <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                     {translation.description}
                   </p>
+                  
+                  {/* Add Review Button */}
+                  <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <button
+                      onClick={() => {
+                        // Scroll to reviews section if it exists, or show modal
+                        const reviewsSection = document.querySelector('#reviews');
+                        if (reviewsSection) {
+                          reviewsSection.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                          // Future: open review modal or navigate to review form
+                          alert(locale === 'ru' 
+                            ? 'Функция добавления отзыва будет доступна в ближайшее время' 
+                            : locale === 'ky' 
+                            ? 'Пикир кошуу функциясы жакынкы убакта иштейт' 
+                            : 'Review feature coming soon');
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 text-sm font-medium text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors duration-200 group"
+                    >
+                      <Star className="w-4 h-4 group-hover:fill-orange-600 dark:group-hover:fill-orange-500 transition-all duration-200" />
+                      <span className="border-b border-transparent group-hover:border-orange-600 dark:group-hover:border-orange-500">
+                        {locale === 'ru' ? 'Добавить отзыв' : locale === 'ky' ? 'Пикир кошуу' : 'Add review'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Program if available */}
@@ -323,15 +357,53 @@ export default function CourseDetailPage() {
                   {/* Price Card */}
                   <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-soft border border-slate-200 dark:border-slate-700">
                     <div className="text-center mb-6">
-                      <div className="text-5xl font-black text-orange-600 dark:text-orange-500 mb-2">
-                        {course.price.toLocaleString()}
-                      </div>
-                      <div className="text-lg font-semibold text-slate-500 dark:text-slate-400">
-                        {locale === 'ru' ? 'сом' : locale === 'ky' ? 'сом' : 'som'}
-                      </div>
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+                        {locale === 'ru' ? 'Готовы начать обучение?' : locale === 'ky' ? 'Окууну баштоого даярсызбы?' : 'Ready to start learning?'}
+                      </h3>
                     </div>
 
-                    <button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
+                    {/* Learn Price Button */}
+                    <a
+                      href="/#application-form"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Navigate to home page with application form anchor
+                        window.location.href = `/${locale}#application-form`;
+                      }}
+                      className="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 mb-4"
+                    >
+                      {t('learn_price')}
+                    </a>
+
+                    <button 
+                      onClick={() => {
+                        // Scroll to application form
+                        const applicationSection = document.querySelector('#application');
+                        if (applicationSection) {
+                          applicationSection.scrollIntoView({ behavior: 'smooth' });
+                          // Prefill course name if possible
+                          const courseInput = document.querySelector('select[name="course"]') as HTMLSelectElement;
+                          if (courseInput) {
+                            setTimeout(() => {
+                              const options = Array.from(courseInput.options);
+                              const matchingOption = options.find(opt => 
+                                opt.text.toLowerCase().includes(translation.title.toLowerCase()) ||
+                                translation.title.toLowerCase().includes(opt.text.toLowerCase())
+                              );
+                              if (matchingOption) {
+                                courseInput.value = matchingOption.value;
+                                courseInput.dispatchEvent(new Event('change', { bubbles: true }));
+                              }
+                            }, 500);
+                          }
+                        } else {
+                          // Fallback - navigate to home with hash
+                          window.location.href = `/${locale}#application-form`;
+                        }
+                      }}
+                      className="w-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 hover:border-orange-500 dark:hover:border-orange-500 text-slate-900 dark:text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200"
+                    >
                       {locale === 'ru' ? 'Записаться на курс' : locale === 'ky' ? 'Курска жазылуу' : 'Enroll now'}
                     </button>
 

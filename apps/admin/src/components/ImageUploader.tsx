@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Upload, X, ZoomIn, ZoomOut, RotateCw, Check, Image as ImageIcon } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ImageUploaderProps {
   currentImage?: string | null;
@@ -15,9 +16,10 @@ export default function ImageUploader({
   currentImage,
   onImageSelect,
   aspectRatio = 'square',
-  label = 'Загрузить фото',
+  label,
   maxSizeMB = 5,
 }: ImageUploaderProps) {
+  const { t } = useLanguage();
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showEditor, setShowEditor] = useState(false);
@@ -56,13 +58,13 @@ export default function ImageUploader({
 
     // Проверка размера
     if (file.size > maxSizeMB * 1024 * 1024) {
-      alert(`Файл слишком большой! Максимум ${maxSizeMB}MB`);
+      alert(t('imageUploader.fileTooLarge', { maxSizeMB }));
       return;
     }
 
     // Проверка типа
     if (!file.type.startsWith('image/')) {
-      alert('Пожалуйста, выберите изображение');
+      alert(t('imageUploader.pleaseSelectImage'));
       return;
     }
 
@@ -201,7 +203,7 @@ export default function ImageUploader({
                 className="px-3 py-1.5 bg-white text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center gap-1.5"
               >
                 <Upload className="w-3.5 h-3.5" />
-                Изменить
+                {t('imageUploader.change')}
               </button>
               <button
                 type="button"
@@ -209,7 +211,7 @@ export default function ImageUploader({
                 className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-1.5"
               >
                 <X className="w-3.5 h-3.5" />
-                Удалить
+                {t('common.remove')}
               </button>
             </div>
           </div>
@@ -225,10 +227,10 @@ export default function ImageUploader({
             <ImageIcon className="w-10 h-10 text-gray-400" />
             <div className="text-center px-4">
               <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                Нажмите для выбора изображения
+                {label || t('imageUploader.clickToSelect')}
               </p>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
-                {aspectRatio === 'square' ? 'Квадрат 1:1' : aspectRatio === '16:9' ? 'Широкий 16:9' : aspectRatio === '3:4' ? 'Портрет 3:4' : 'Стандарт 4:3'} • Макс. {maxSizeMB}MB
+                {aspectRatio === 'square' ? t('imageUploader.square') : aspectRatio === '16:9' ? t('imageUploader.wide') : aspectRatio === '3:4' ? t('imageUploader.portrait') : t('imageUploader.standard')} • {t('common.total')}. {maxSizeMB}MB
               </p>
             </div>
           </button>
@@ -250,10 +252,10 @@ export default function ImageUploader({
             {/* Header */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Редактировать изображение
+                {t('imageUploader.editImage')}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Перетащите, масштабируйте и поверните изображение
+                {t('imageUploader.dragScale')}
               </p>
             </div>
 
@@ -261,7 +263,7 @@ export default function ImageUploader({
             <div className="flex-1 p-6 overflow-hidden">
               <div className="mb-4 text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  💡 <strong>Зажми и тяни</strong> изображение чтобы переместить
+                  {t('imageUploader.dragHint')}
                 </p>
               </div>
               <div
@@ -329,7 +331,7 @@ export default function ImageUploader({
                     onClick={() => setRotation((rotation + 90) % 360)}
                     className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   >
-                    Повернуть 90°
+                    {t('imageUploader.rotate90')}
                   </button>
                   <button
                     type="button"
@@ -340,7 +342,7 @@ export default function ImageUploader({
                     }}
                     className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   >
-                    Сбросить
+                    {t('imageUploader.reset')}
                   </button>
                 </div>
               </div>
@@ -353,7 +355,7 @@ export default function ImageUploader({
                 onClick={() => setShowEditor(false)}
                 className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
-                Отмена
+                {t('common.cancel')}
               </button>
               <button
                 type="button"
@@ -361,7 +363,7 @@ export default function ImageUploader({
                 className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center gap-2"
               >
                 <Check className="w-5 h-5" />
-                Применить
+                {t('common.apply')}
               </button>
             </div>
           </div>

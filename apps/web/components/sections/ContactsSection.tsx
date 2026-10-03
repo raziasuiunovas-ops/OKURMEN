@@ -1,22 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ExternalLink } from 'lucide-react';
 
 export default function ContactsSection() {
   const t = useTranslations('contacts');
   const scheduleT = useTranslations('schedule');
 
   const contactInfo = [
-    {
-      icon: MapPin,
-      title: t('address'),
-      value: t('address_value'),
-      link: null,
-      gradient: 'from-blue-500 to-cyan-500',
-      iconBg: 'bg-blue-100 dark:bg-blue-900/30',
-      iconColor: 'text-blue-600'
-    },
     {
       icon: Phone,
       title: t('phone'),
@@ -65,94 +56,136 @@ export default function ContactsSection() {
 
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
           {/* Contact Cards */}
-          <div className="lg:col-span-2 grid md:grid-cols-3 gap-6">
-            {contactInfo.map((contact, index) => {
-              const Icon = contact.icon;
-              const content = (
-                <div
-                  className="group relative p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg border-2 border-slate-200 dark:border-slate-700 hover:border-transparent transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  {/* Gradient Background on Hover */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${contact.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-                  
-                  {/* Decorative Pattern */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300">
-                    <div className="absolute inset-0" style={{
-                      backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
-                      backgroundSize: '20px 20px'
-                    }}></div>
-                  </div>
-
-                  <div className="relative space-y-5">
-                    {/* Icon */}
-                    <div className={`inline-flex p-4 rounded-2xl ${contact.iconBg} group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm`}>
-                      <Icon className={`w-7 h-7 ${contact.iconColor} group-hover:scale-110 transition-transform duration-300`} />
+          <div className="lg:col-span-2 space-y-6">
+            {/* Phone and Email - Top Row */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Phone Card */}
+              {contactInfo.map((contact, index) => {
+                const Icon = contact.icon;
+                return (
+                  <a
+                    key={index}
+                    href={contact.link}
+                    className="group relative p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg border-2 border-slate-200 dark:border-slate-700 hover:border-transparent transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className={`absolute inset-0 bg-gradient-to-br ${contact.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300">
+                      <div className="absolute inset-0" style={{
+                        backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
+                        backgroundSize: '20px 20px'
+                      }}></div>
                     </div>
 
-                    {/* Title */}
-                    <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white">
-                      {contact.title}
-                    </h3>
+                    <div className="relative space-y-5">
+                      <div className={`inline-flex p-4 rounded-2xl ${contact.iconBg} group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm`}>
+                        <Icon className={`w-7 h-7 ${contact.iconColor} group-hover:scale-110 transition-transform duration-300`} />
+                      </div>
+                      <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white">
+                        {contact.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-orange-600 dark:text-orange-400 font-semibold group-hover:text-orange-700 dark:group-hover:text-orange-300">
+                        {contact.value}
+                      </p>
+                    </div>
 
-                    {/* Value */}
-                    <p className={`text-sm leading-relaxed ${contact.link ? 'text-orange-600 dark:text-orange-400 font-semibold group-hover:text-orange-700 dark:group-hover:text-orange-300' : 'text-slate-600 dark:text-slate-400'}`}>
-                      {contact.value}
+                    <div className="absolute bottom-4 right-4 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className={`absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l ${contact.gradient}`}></div>
+                      <div className={`absolute bottom-0 right-0 w-0.5 h-6 bg-gradient-to-t ${contact.gradient}`}></div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+
+            {/* Address Card - Horizontal under Phone/Email */}
+            <div className="group relative p-6 bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg border-2 border-blue-200 dark:border-blue-900/50 hover:border-blue-400 dark:hover:border-blue-600 transition-all duration-300 hover:-translate-y-1 overflow-hidden animate-scale-in" style={{ animationDelay: '0.2s' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-blue-500/5 dark:from-blue-500/10 dark:via-cyan-500/10 dark:to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 dark:bg-blue-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-cyan-400/10 dark:bg-cyan-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+
+              <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="flex-shrink-0 p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                    <MapPin className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-display font-bold text-xl text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {t('address')}
+                    </h3>
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300 font-semibold">
+                      {t('address_value')}
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Бишкек, Кыргызстан
                     </p>
                   </div>
-
-                  {/* Decorative corner */}
-                  <div className="absolute bottom-4 right-4 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className={`absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l ${contact.gradient}`}></div>
-                    <div className={`absolute bottom-0 right-0 w-0.5 h-6 bg-gradient-to-t ${contact.gradient}`}></div>
-                  </div>
                 </div>
-              );
 
-              return contact.link ? (
-                <a key={index} href={contact.link} className="relative block">
-                  {content}
-                </a>
-              ) : (
-                <div key={index} className="relative">
-                  {content}
+                <div className="flex flex-col sm:flex-row gap-3 md:flex-shrink-0">
+                  <a
+                    href="https://go.2gis.com/0NyFS"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/btn flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:scale-105 shadow-md"
+                  >
+                    <ExternalLink className="w-4 h-4 group-hover/btn:rotate-12 transition-transform" />
+                    <span>2GIS</span>
+                  </a>
+                  <a
+                    href="https://maps.app.goo.gl/ssPcmD2k8dtYKoQy7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/btn flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:scale-105 shadow-md"
+                  >
+                    <ExternalLink className="w-4 h-4 group-hover/btn:rotate-12 transition-transform" />
+                    <span>Google Maps</span>
+                  </a>
                 </div>
-              );
-            })}
+              </div>
+
+              <div className="absolute bottom-4 right-4 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l from-blue-500 to-cyan-500"></div>
+                <div className="absolute bottom-0 right-0 w-0.5 h-6 bg-gradient-to-t from-blue-500 to-cyan-500"></div>
+              </div>
+            </div>
           </div>
 
           {/* Schedule Card */}
-          <div className="relative p-8 bg-gradient-to-br from-orange-600 via-orange-500 to-blue-600 rounded-2xl shadow-premium-lg text-white animate-scale-in overflow-hidden" style={{ animationDelay: '0.3s' }}>
+          <div className="group relative p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-soft hover:shadow-premium-lg border-2 border-slate-200 dark:border-slate-700 hover:border-orange-400 dark:hover:border-orange-500 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden" style={{ animationDelay: '0.3s' }}>
+            {/* Subtle hover gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
             {/* Decorative Pattern */}
-            <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300">
               <div className="absolute inset-0" style={{
-                backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                backgroundSize: '24px 24px'
+                backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
+                backgroundSize: '20px 20px'
               }}></div>
             </div>
 
-            {/* Animated Background Shapes */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-orange-200/20 dark:bg-orange-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
 
             <div className="relative">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
-                  <Clock className="w-7 h-7" />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl shadow-sm group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <Clock className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h3 className="font-display text-2xl font-bold">{scheduleT('title')}</h3>
+                <h3 className="font-display text-xl font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">{scheduleT('title')}</h3>
               </div>
 
               <div className="space-y-3">
                 {schedule.map((item, index) => (
                   <div 
                     key={index}
-                    className={`flex justify-between items-center p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 transition-all duration-300 hover:bg-white/20 hover:border-white/40 ${
-                      !item.active ? 'opacity-70' : ''
+                    className={`flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 hover:scale-[1.02] ${
+                      !item.active ? 'opacity-60' : ''
                     }`}
                   >
-                    <span className="font-semibold text-sm">{item.days}</span>
-                    <span className={`text-sm font-bold ${item.active ? 'text-white' : 'text-white/70'}`}>
+                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">{item.days}</span>
+                    <span className={`text-sm font-bold ${item.active ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400 dark:text-slate-500'}`}>
                       {item.time}
                     </span>
                   </div>
@@ -160,13 +193,20 @@ export default function ContactsSection() {
               </div>
 
               {/* Additional Info */}
-              <div className="mt-6 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
-                <p className="text-sm text-white/90 text-center">
+              <div className="mt-5 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800 group-hover:bg-orange-100 dark:group-hover:bg-orange-900/30 transition-colors">
+                <p className="text-xs text-orange-800 dark:text-orange-300 text-center font-medium">
                   📞 {scheduleT('call_or_apply')}
                 </p>
               </div>
             </div>
+
+            {/* Decorative corner */}
+            <div className="absolute bottom-4 right-4 w-12 h-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute bottom-0 right-0 w-6 h-0.5 bg-gradient-to-l from-orange-500 to-orange-600"></div>
+              <div className="absolute bottom-0 right-0 w-0.5 h-6 bg-gradient-to-t from-orange-500 to-orange-600"></div>
+            </div>
           </div>
+
         </div>
 
         {/* Social Media Section */}

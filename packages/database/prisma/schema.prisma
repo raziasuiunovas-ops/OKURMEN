@@ -209,6 +209,7 @@ model Course {
   format           CourseFormat @default(HYBRID)
   coverImage       String?      @map("cover_image") // URL фото курса
   coverGradient    String?      @map("cover_gradient") // JSON: {from, to, direction}
+  colorTheme       String?      @map("color_theme") // Solid color for course card (hex: #FF6B35)
   icon             String? // Emoji или название иконки
   rating           Decimal?     @default(0) @db.Decimal(3, 2) // Средний рейтинг 0-5
   totalReviews     Int          @default(0) @map("total_reviews") // Количество оценок
@@ -666,6 +667,34 @@ enum BookingStatus {
   CANCELLED
 }
 
+enum StatisticPeriodType {
+  MONTH
+  YEAR
+  ALL_TIME
+}
+
+enum StatisticMetricType {
+  // Period-based metrics (counted within period)
+  NEW_STUDENTS
+  NEW_APPLICATIONS
+  COMPLETED_APPLICATIONS
+  NEW_PAYMENTS
+  TOTAL_PAYMENT_AMOUNT
+  NEW_REVIEWS
+  NEW_BOOKINGS
+  
+  // Current state metrics (snapshot)
+  TOTAL_STUDENTS
+  ACTIVE_STUDENTS
+  TOTAL_COURSES
+  ACTIVE_COURSES
+  TOTAL_EMPLOYEES
+  ACTIVE_EMPLOYEES
+  TOTAL_GROUPS
+  TOTAL_LESSONS
+  TOTAL_ALUMNI
+}
+
 model Booking {
   id        String        @id @default(cuid())
   studentId String        @map("student_id")
@@ -696,4 +725,18 @@ model SiteStats {
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("site_stats")
+}
+
+model SiteStatistics {
+  id            String                 @id @default(cuid())
+  periodType    StatisticPeriodType    @map("period_type")
+  month         Int?                   // 1-12, только для MONTH
+  year          Int?                   // Для MONTH и YEAR
+  enabledMetrics StatisticMetricType[] @map("enabled_metrics") // Массив включённых метрик
+  displayOrder  Json                   @default("[]") @map("display_order") // Порядок отображения [{metric, order}]
+  isPublished   Boolean                @default(true) @map("is_published") // Публиковать на сайте
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+
+  @@map("site_statistics")
 }

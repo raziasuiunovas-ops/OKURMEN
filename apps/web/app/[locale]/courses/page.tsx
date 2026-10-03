@@ -245,20 +245,32 @@ export default function CoursesPage() {
                         )}
                       </div>
 
-                      {/* Price & CTA */}
-                      <div className="flex items-center justify-between pt-2">
-                        <div>
-                          <div className="text-3xl font-bold text-orange-600 dark:text-orange-500">
-                            {course.price.toLocaleString()}
-                          </div>
-                          <div className="text-sm text-slate-500 dark:text-slate-400">{locale === 'ru' ? 'сом' : locale === 'ky' ? 'сом' : 'KGS'}</div>
-                        </div>
+                      {/* CTA Buttons */}
+                      <div className="flex flex-col gap-3 pt-2">
+                        {/* Learn Price Button */}
+                        <a
+                          href="/#application-form"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Navigate to home page with application form anchor
+                            window.location.href = `/${locale}#application-form`;
+                          }}
+                          className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+                        >
+                          {t('learn_price')}
+                        </a>
+                        
+                        {/* Details Button */}
                         <Button
                           variant="primary"
                           size="md"
                           className="btn-enhanced"
+                          onClick={() => {
+                            window.location.href = `/${locale}/courses/${course.slug}`;
+                          }}
                         >
-                          {locale === 'ru' ? 'Записаться' : locale === 'ky' ? 'Жазылуу' : 'Enroll'}
+                          {locale === 'ru' ? 'Подробнее' : locale === 'ky' ? 'Кененирээк' : 'Learn more'}
                         </Button>
                       </div>
 

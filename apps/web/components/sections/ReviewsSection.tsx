@@ -190,20 +190,13 @@ export default function ReviewsSection() {
                 {t('be_first_to_share')}
               </p>
               
-              {/* Кнопка "Написать отзыв" с анимацией */}
+              {/* Кнопка "Написать отзыв" */}
               <button
                 onClick={handleWriteReview}
-                className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 text-white font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105"
               >
-                {/* Анимированный градиент фон */}
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-shift"></div>
-                
-                {/* Glow эффект */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-50 blur-xl bg-gradient-to-r from-orange-400 via-pink-400 to-blue-500 transition-opacity duration-300"></div>
-                
-                {/* Текст кнопки */}
-                <span className="relative z-10">{t('write_review')}</span>
-                <Star className="relative z-10 w-5 h-5" />
+                <span>{t('write_review')}</span>
+                <Star className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -391,17 +384,10 @@ export default function ReviewsSection() {
           <div className="flex justify-center mt-12">
             <button
               onClick={handleWriteReview}
-              className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 text-white font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
-              {/* Анимированный градиент фон */}
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-pink-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-shift"></div>
-              
-              {/* Glow эффект */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-50 blur-xl bg-gradient-to-r from-orange-400 via-pink-400 to-blue-500 transition-opacity duration-300"></div>
-              
-              {/* Текст кнопки */}
-              <span className="relative z-10">{t('write_review')}</span>
-              <Star className="relative z-10 w-5 h-5" />
+              <span>{t('write_review')}</span>
+              <Star className="w-5 h-5" />
             </button>
           </div>
         </div>

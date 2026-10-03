@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     console.log('JWT payload:', payload);
 
     // Проверяем userId (может быть в разных полях)
-    const userId = (payload.id || payload.userId) as string;
+    const userId = (payload.user_id || payload.id || payload.userId) as string;
 
     if (!userId) {
       console.log('No userId in token');
@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
         employeeProfile: {
           select: {
             id: true,
-            position: true,
             photoUrl: true,
           },
         },
@@ -92,7 +91,6 @@ export async function GET(request: NextRequest) {
         name: user.fullName,
         email: user.email,
         role: user.role,
-        position: user.employeeProfile?.position,
         photoUrl: user.employeeProfile?.photoUrl,
       },
     });

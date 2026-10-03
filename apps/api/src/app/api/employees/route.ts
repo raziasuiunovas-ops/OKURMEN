@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const employees = await prisma.employeeProfile.findMany({
       where: {
         ...(includeInactive ? {} : { isActive: true }),
-        ...(position && { position: position as any }),
+        ...(position && { positions: { has: position as any } }),
       },
       include: {
         user: {

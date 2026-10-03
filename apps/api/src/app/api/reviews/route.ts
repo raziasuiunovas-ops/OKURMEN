@@ -50,14 +50,30 @@ export async function GET(request: NextRequest) {
 // POST /api/reviews - Public (anyone can submit, auto PENDING status)
 export async function POST(request: NextRequest) {
   try {
+    console.log('[POST /api/reviews] Starting...');
+    
     const body = await request.json();
+    console.log('[POST /api/reviews] Body received:', body);
+    
     const validation = createReviewSchema.safeParse(body);
+    console.log('[POST /api/reviews] Validation result:', validation.success);
 
     if (!validation.success) {
+      console.error('[POST /api/reviews] Validation failed:', validation.error.flatten().fieldErrors);
       return validationErrorResponse(validation.error.flatten().fieldErrors);
     }
 
     const { authorName, reviewType, text, rating, photoUrl, videoUrl, status, courseId, userId } = validation.data;
+    
+    console.log('[POST /api/reviews] Creating review with data:', {
+      authorName,
+      reviewType,
+      textLength: text.length,
+      rating,
+      courseId,
+      userId,
+      status,
+    });
 
     const review = await prisma.review.create({
       data: {
@@ -74,9 +90,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log('[POST /api/reviews] Review created successfully:', review.id);
     return successResponse(review, 201);
   } catch (error: any) {
-    console.error('Create review error:', error);
+    console.error('[POST /api/reviews] Error:', error);
+    console.error('[POST /api/reviews] Error message:', error.message);
+    console.error('[POST /api/reviews] Error stack:', error.stack);
     return serverErrorResponse();
   }
 }

@@ -92,7 +92,7 @@ export default function LessonsPage() {
   });
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот урок?')) {
+    if (!confirm(t('lessons.confirmDelete'))) {
       return;
     }
 
@@ -207,7 +207,7 @@ export default function LessonsPage() {
                   </div>
 
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    {lesson.description || 'Нет описания'}
+                    {lesson.description || t('lessons.noDescription')}
                   </p>
 
                   <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
@@ -237,7 +237,7 @@ export default function LessonsPage() {
                     className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center space-x-2"
                   >
                     <Edit className="w-4 h-4" />
-                    <span>Изменить</span>
+                    <span>{t('common.edit')}</span>
                   </button>
                   <button
                     onClick={() => handleDelete(lesson.id)}

@@ -172,7 +172,7 @@ export default function ApplicationsPage() {
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                      {app.name || 'Без имени'}
+                      {app.name || t('common.noName')}
                     </h3>
                     <span className={`inline-flex items-center space-x-1 px-3 py-1.5 rounded-full text-sm font-bold ${getStatusColor(app.status)}`}>
                       {getStatusIcon(app.status)}

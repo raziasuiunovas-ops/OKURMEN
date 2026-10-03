@@ -11,6 +11,7 @@ import ReviewsSection from '@/components/sections/ReviewsSection';
 import ContactsSection from '@/components/sections/ContactsSection';
 import ApplicationFormSection from '@/components/sections/ApplicationFormSection';
 import RevealOnScroll from '@/components/RevealOnScroll';
+// BilbarsWelcome и BilbarsFloating временно отключены
 
 export default async function HomePage({
   params,
@@ -22,6 +23,7 @@ export default async function HomePage({
 
   return (
     <main className="min-h-screen">
+      {/* BilbarsWelcome и BilbarsFloating временно отключены */}
       <Header />
       <HeroSection />
       <RevealOnScroll delay={0}>

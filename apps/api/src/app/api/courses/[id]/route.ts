@@ -185,13 +185,15 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log('\n=== PATCH /api/courses/[id] START ===');
+    
     await requireAdmin(request);
+    console.log('✅ Admin check passed');
 
     const { id } = await params;
-    const body = await request.json();
-    
-    console.log('=== PATCH /api/courses/[id] DEBUG ===');
     console.log('Course ID:', id);
+    
+    const body = await request.json();
     console.log('Request body:', JSON.stringify(body, null, 2));
     
     const validation = updateCourseSchema.safeParse(body);
@@ -204,6 +206,7 @@ export async function PATCH(
     }
     
     console.log('✅ Validation passed');
+    console.log('Validated data:', JSON.stringify(validation.data, null, 2));
 
     const {
       price,
@@ -218,40 +221,56 @@ export async function PATCH(
     } = validation.data;
 
     // Check if course exists
+    console.log('Checking if course exists...');
     const existingCourse = await prisma.course.findUnique({
       where: { id },
     });
 
     if (!existingCourse) {
+      console.error('❌ Course not found:', id);
       return notFoundResponse('Course');
     }
+    
+    console.log('✅ Course found:', existingCourse.slug);
+
+    // Prepare update data
+    const updateData: any = {};
+    
+    if (price !== undefined) {
+      console.log('Setting price:', price, 'type:', typeof price);
+      updateData.price = price;
+    }
+    if (duration !== undefined) updateData.duration = duration;
+    if (format !== undefined) updateData.format = format;
+    if (coverImage !== undefined) updateData.coverImage = coverImage;
+    if (coverGradient !== undefined) updateData.coverGradient = coverGradient;
+    if (icon !== undefined) updateData.icon = icon;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    
+    if (translations) {
+      console.log('Translations to update:', JSON.stringify(translations, null, 2));
+      updateData.translations = {
+        deleteMany: {},
+        create: translations,
+      };
+    }
+    
+    if (teacherIds) {
+      updateData.teachers = {
+        deleteMany: {},
+        create: teacherIds.map((employeeId) => ({
+          employeeId,
+        })),
+      };
+    }
+    
+    console.log('Final update data:', JSON.stringify(updateData, null, 2));
 
     // Update course
+    console.log('Updating course in database...');
     const course = await prisma.course.update({
       where: { id },
-      data: {
-        ...(price !== undefined && { price }),
-        ...(duration !== undefined && { duration }),
-        ...(format !== undefined && { format }),
-        ...(coverImage !== undefined && { coverImage }),
-        ...(coverGradient !== undefined && { coverGradient }),
-        ...(icon !== undefined && { icon }),
-        ...(isActive !== undefined && { isActive }),
-        ...(translations && {
-          translations: {
-            deleteMany: {},
-            create: translations,
-          },
-        }),
-        ...(teacherIds && {
-          teachers: {
-            deleteMany: {},
-            create: teacherIds.map((employeeId) => ({
-              employeeId,
-            })),
-          },
-        }),
-      },
+      data: updateData,
       include: {
         translations: true,
         teachers: {
@@ -277,9 +296,20 @@ export async function PATCH(
       },
     });
 
+    console.log('✅ Course updated successfully');
+    console.log('=== PATCH /api/courses/[id] END ===\n');
+    
     return successResponse(course);
   } catch (error: any) {
-    console.error('Update course error:', error);
+    console.error('\n❌❌❌ PATCH ERROR ❌❌❌');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('=== PATCH /api/courses/[id] END WITH ERROR ===\n');
+    
+    if (error.message === 'Unauthorized') {
+      return errorResponse('Unauthorized', 401);
+    }
     
     if (error.message === 'Forbidden: Admin access required') {
       return forbiddenResponse();

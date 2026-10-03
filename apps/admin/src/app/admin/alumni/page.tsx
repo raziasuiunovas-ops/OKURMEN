@@ -44,7 +44,12 @@ export default function AlumniPage() {
         credentials: 'include',
       });
       const data = await response.json();
-      setAlumni(data.data || []);
+      // Map photoUrl to image for frontend compatibility
+      const mappedAlumni = (data.data || []).map((alumni: any) => ({
+        ...alumni,
+        image: alumni.photoUrl || alumni.image || null,
+      }));
+      setAlumni(mappedAlumni);
     } catch (error) {
       console.error('Failed to fetch alumni:', error);
     } finally {
@@ -59,7 +64,7 @@ export default function AlumniPage() {
   );
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этого выпускника?')) {
+    if (!confirm(t('alumni.confirmDelete'))) {
       return;
     }
 
@@ -131,29 +136,41 @@ export default function AlumniPage() {
               className="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
             >
               {/* Header with gradient */}
-              <div className="h-24 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 relative overflow-hidden">
+              <div className="h-20 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
               </div>
 
               {/* Alumni Info */}
-              <div className="p-6 -mt-12">
+              <div className="p-6 -mt-10">
                 {/* Avatar */}
                 <div className="mb-4">
                   {person.image ? (
-                    <img
-                      src={person.image}
-                      alt={person.name || 'Выпускник'}
-                      className="w-20 h-20 rounded-2xl object-cover border-4 border-white dark:border-slate-800 shadow-xl"
-                    />
+                    <div className="relative w-24 h-24 overflow-hidden rounded-2xl border-4 border-white dark:border-slate-800 shadow-xl">
+                      <img
+                        src={person.image}
+                        alt={person.name || 'Выпускник'}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.parentElement) {
+                            const fallback = document.createElement('div');
+                            fallback.className = 'absolute inset-0 bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-3xl font-black';
+                            fallback.textContent = (person.name || 'A').charAt(0);
+                            e.currentTarget.parentElement.appendChild(fallback);
+                          }
+                        }}
+                      />
+                    </div>
                   ) : (
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-black border-4 border-white dark:border-slate-800 shadow-xl">
+                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-3xl font-black border-4 border-white dark:border-slate-800 shadow-xl">
                       {(person.name || 'A').charAt(0)}
                     </div>
                   )}
                 </div>
 
                 <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3">
-                  {person.name || 'Без имени'}
+                  {person.name || t('common.noName')}
                 </h3>
 
                 <div className="space-y-2 mb-4">
@@ -209,7 +226,7 @@ export default function AlumniPage() {
                     className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all flex items-center justify-center space-x-2 font-bold hover:scale-105"
                   >
                     <Edit className="w-4 h-4" />
-                    <span>Изменить</span>
+                    <span>{t('common.edit')}</span>
                   </button>
                   <button
                     onClick={() => handleDelete(person.id)}

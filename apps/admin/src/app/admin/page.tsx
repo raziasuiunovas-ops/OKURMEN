@@ -95,7 +95,7 @@ export default function DashboardPage() {
     },
     {
       title: 'Доход',
-      value: `${stats.totalRevenue.toLocaleString()} сом`,
+      value: `${stats.totalRevenue.toLocaleString()} ${t('dashboard.som')}`,
       icon: DollarSign,
       color: 'from-green-500 to-green-600',
       bgColor: 'bg-green-50 dark:bg-green-900/20',

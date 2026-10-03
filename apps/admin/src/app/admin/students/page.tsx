@@ -149,7 +149,34 @@ export default function StudentsPage() {
       }
     } catch (error) {
       console.error('Failed to delete student:', error);
-      showToast('error', '❌ Ошибка при удалении ученика');
+      showToast('error', `❌ ${t('students.deleteStudentError')}`);
+    }
+  };
+
+  const handleDeleteGroup = async (groupId: string, groupName: string) => {
+    if (!confirm(t('students.confirmDeleteGroup', { name: groupName }))) return;
+
+    try {
+      const token = localStorage.getItem('auth-token');
+      const response = await fetch(
+        `http://localhost:3002/api/groups/${groupId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
+
+      if (response.ok) {
+        fetchGroups();
+        showToast('success', `✅ ${t('students.groupDeleteSuccess', { name: groupName })}`);
+      } else {
+        const data = await response.json();
+        throw new Error(data.error || 'Delete failed');
+      }
+    } catch (error: any) {
+      console.error('Failed to delete group:', error);
+      showToast('error', error.message || '❌ Ошибка при удалении группы');
     }
   };
 
@@ -162,10 +189,10 @@ export default function StudentsPage() {
     };
 
     const labels = {
-      ACTIVE: 'Учится',
-      INACTIVE: 'Неактивен',
-      GRADUATED: 'Завершил',
-      DROPPED: 'Отчислен',
+      ACTIVE: t('students.statusActive'),
+      INACTIVE: t('students.statusInactive'),
+      GRADUATED: t('students.statusGraduated'),
+      DROPPED: t('students.statusDropped'),
     };
 
     return (
@@ -195,11 +222,11 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6">
       {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-[100] space-y-2">
+      <div className="fixed top-4 right-4 z-[100] space-y-2 max-w-[calc(100vw-2rem)] sm:max-w-md">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg backdrop-blur-sm animate-in slide-in-from-right duration-300 ${
+            className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl shadow-lg backdrop-blur-sm animate-in slide-in-from-right duration-300 ${
               toast.type === 'success'
                 ? 'bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
                 : toast.type === 'error'
@@ -207,11 +234,15 @@ export default function StudentsPage() {
                 : 'bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800'
             }`}
           >
-            {toast.type === 'success' && <CheckCircle className="w-5 h-5 flex-shrink-0" />}
-            {toast.type === 'error' && <XCircle className="w-5 h-5 flex-shrink-0" />}
-            {toast.type === 'info' && <AlertCircle className="w-5 h-5 flex-shrink-0" />}
-            <p className="font-medium text-sm">{toast.message}</p>
-            <button onClick={() => removeToast(toast.id)} className="ml-2 hover:opacity-70">
+            {toast.type === 'success' && <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />}
+            {toast.type === 'error' && <XCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />}
+            {toast.type === 'info' && <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />}
+            <p className="font-medium text-xs sm:text-sm flex-1 break-words">{toast.message}</p>
+            <button 
+              onClick={() => removeToast(toast.id)} 
+              className="ml-1 sm:ml-2 hover:opacity-70 flex-shrink-0 min-w-[24px] min-h-[24px] flex items-center justify-center"
+              aria-label="Close"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -219,20 +250,25 @@ export default function StudentsPage() {
       </div>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Ученики и Группы</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Всего: {groups.reduce((sum, g) => sum + g._count.students, 0)} учеников в {groups.length} группах
-          </p>
+      <div className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">{t('students.title')}</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+              {t('students.totalInGroups', { 
+                total: groups.reduce((sum, g) => sum + g._count.students, 0),
+                groups: groups.length 
+              })}
+            </p>
+          </div>
+          <button
+            onClick={() => setCreatingGroup(true)}
+            className="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all space-x-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 hover:scale-105 transform duration-200 min-h-[48px] flex-shrink-0 text-sm sm:text-base"
+          >
+            <Plus className="w-5 h-5" />
+            <span>{t('students.createGroup')}</span>
+          </button>
         </div>
-        <button
-          onClick={() => setCreatingGroup(true)}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all space-x-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 hover:scale-105 transform duration-200"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Создать группу</span>
-        </button>
       </div>
 
       {/* Groups Accordion */}
@@ -269,10 +305,10 @@ export default function StudentsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
                           <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                            Группа {group.name}
+                            {t('students.groupPrefix')} {group.name}
                           </h3>
                           <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full text-sm font-medium">
-                            {group._count.students} {group._count.students === 1 ? 'ученик' : 'учеников'}
+                            {t('students.studentCount', { count: group._count.students })}
                           </span>
                         </div>
 
@@ -303,14 +339,14 @@ export default function StudentsPage() {
                       <button
                         onClick={() => setGrantingAccess({ type: 'group', target: group })}
                         className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl transition-colors"
-                        title="Открыть доступ к курсу для всей группы"
+                        title={t('students.grantAccessTooltip')}
                       >
                         <Key className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => setAddingStudentToGroup(group)}
                         className="p-2 hover:bg-orange-100 dark:hover:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl transition-colors"
-                        title="Добавить ученика"
+                        title={t('students.addStudentTooltip')}
                       >
                         <UserPlus className="w-5 h-5" />
                       </button>
@@ -320,6 +356,13 @@ export default function StudentsPage() {
                         title="Редактировать группу"
                       >
                         <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteGroup(group.id, group.name)}
+                        className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-colors"
+                        title={t('students.deleteGroupTooltip')}
+                      >
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
@@ -851,8 +894,8 @@ function AddStudentModal({
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
-              <option value="ACTIVE">Учится</option>
-              <option value="INACTIVE">Неактивен</option>
+              <option value="ACTIVE">{t('students.statusActive')}</option>
+              <option value="INACTIVE">{t('students.statusInactive')}</option>
             </select>
           </div>
 

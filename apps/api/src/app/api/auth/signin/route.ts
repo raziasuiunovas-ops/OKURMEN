@@ -81,34 +81,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create JWT token
-    const token = await createSessionToken({
-      id: user.id,
-      email: user.email!,
-      role: user.role,
-      name: user.fullName,
-    });
-
-    // Set httpOnly cookie
-    const cookieStore = await cookies();
-    cookieStore.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/',
-    });
-
-    // Return success
-    return NextResponse.json({
-      ok: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.fullName,
-        role: user.role,
+    // ВАЖНО: ADMIN и EMPLOYEE должны использовать 2FA
+    // Этот эндпоинт больше не выдаёт токены напрямую для админов
+    return NextResponse.json(
+      { 
+        error: 'Требуется двухфакторная аутентификация',
+        require2FA: true,
+        message: 'Используйте /api/auth/request-2fa для входа'
       },
-    });
+      { status: 401 }
+    );
   } catch (error) {
     console.error('Sign in error:', error);
     return NextResponse.json(

@@ -18,6 +18,7 @@ import {
   Moon,
   Globe,
   BarChart3,
+  TrendingUp,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -115,7 +116,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     { name: t('nav.lessons'), href: '/admin/lessons', icon: GraduationCap },
     { name: t('nav.students'), href: '/admin/students', icon: GraduationCap },
     { name: t('nav.employees'), href: '/admin/employees', icon: Users },
-    { name: 'Статистика', href: '/admin/site-stats', icon: BarChart3 },
+    { name: t('nav.siteStats'), href: '/admin/site-stats', icon: BarChart3 },
+    { name: 'Статистика', href: '/admin/statistics', icon: TrendingUp },
     { name: t('nav.applications'), href: '/admin/applications', icon: FileText },
     { name: t('nav.reviews'), href: '/admin/reviews', icon: Star },
     { name: t('nav.alumni'), href: '/admin/alumni', icon: Award },
@@ -141,12 +143,13 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2.5 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-all"
+          className="p-3 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
+          aria-label={mobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
         >
           {mobileMenuOpen ? (
-            <X className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300" />
           ) : (
-            <Menu className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300" />
           )}
         </button>
       </div>
@@ -161,25 +164,25 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       >
         <div className="h-full flex flex-col">
           {/* Logo */}
-          <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
+          <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-slate-700/50">
             <Link
               href="/admin"
               className="flex items-center space-x-3 group"
             >
-              <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform">
+              <div className="p-2 sm:p-2.5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl sm:rounded-2xl shadow-lg group-hover:scale-110 transition-transform">
                 <img 
                   src={theme === 'dark' ? '/logo.svg' : '/logo.svg'}
                   alt="ОКУРМЭН" 
-                  className="w-6 h-6 flex-shrink-0 brightness-0 invert"
+                  className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 brightness-0 invert"
                 />
               </div>
               {sidebarOpen && (
-                <div>
-                  <h1 className="text-xl font-black bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+                <div className="min-w-0">
+                  <h1 className="text-lg sm:text-xl font-black bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent truncate">
                     ОКУРМЭН
                   </h1>
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                    Admin Panel
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
+                    {t('nav.adminPanel')}
                   </p>
                 </div>
               )}
@@ -187,7 +190,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <nav className="flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -195,7 +198,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 min-h-[44px] ${
                     isActive
                       ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/30 scale-[1.02]'
                       : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:scale-[1.01]'
@@ -203,7 +207,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {sidebarOpen && (
-                    <span>{item.name}</span>
+                    <span className="text-sm sm:text-base truncate">{item.name}</span>
                   )}
                 </Link>
               );
@@ -211,24 +215,38 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           </nav>
 
           {/* User & Settings */}
-          <div className="p-4 border-t border-slate-200/50 dark:border-slate-700/50 space-y-2">
+          <div className="p-3 sm:p-4 border-t border-slate-200/50 dark:border-slate-700/50 space-y-1 sm:space-y-2">
             {user && sidebarOpen && (
-              <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-700/50 dark:to-slate-800/50 mb-2 border border-slate-200/50 dark:border-slate-600/50">
-                <p className="text-sm font-bold text-slate-900 dark:text-white">
+              <div className="px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-700/50 dark:to-slate-800/50 mb-2 border border-slate-200/50 dark:border-slate-600/50">
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
                   {user.name || user.email}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                   {user.email}
                 </p>
               </div>
             )}
             
+            {/* Settings button */}
+            <Link
+              href="/admin/settings"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium transition-all hover:scale-[1.01] min-h-[44px]"
+            >
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {sidebarOpen && <span className="text-sm sm:text-base truncate">{t('nav.settings')}</span>}
+            </Link>
+            
+            {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-all hover:scale-[1.01]"
+              className="w-full flex items-center space-x-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-all hover:scale-[1.01] min-h-[44px]"
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
-              {sidebarOpen && <span>{t('nav.logout')}</span>}
+              {sidebarOpen && <span className="text-sm sm:text-base truncate">{t('nav.logout')}</span>}
             </button>
           </div>
         </div>
@@ -241,26 +259,28 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         }`}
       >
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 px-6 py-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="hidden lg:block p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105"
+                className="hidden lg:block p-2 sm:p-2.5 rounded-xl sm:rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105 flex-shrink-0"
+                aria-label="Toggle sidebar"
               >
                 <Menu className="w-5 h-5 text-slate-700 dark:text-slate-300" />
               </button>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 dark:text-white truncate">
                 {navigation.find((item) => item.href === pathname)?.name || t('nav.dashboard')}
               </h2>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               {/* Language selector */}
               <div className="relative">
                 <button
                   onClick={() => setLangMenuOpen(!langMenuOpen)}
-                  className="p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105"
+                  className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center"
+                  aria-label="Change language"
                 >
                   <Globe className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 </button>
@@ -271,7 +291,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                       className="fixed inset-0 z-40"
                       onClick={() => setLangMenuOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 py-2 z-50">
+                    <div className="absolute right-0 mt-2 w-36 sm:w-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 py-2 z-50">
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
@@ -279,7 +299,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                             setLanguage(lang.code as any);
                             setLangMenuOpen(false);
                           }}
-                          className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-all ${
+                          className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 text-left text-sm font-medium transition-all min-h-[40px] ${
                             language === lang.code
                               ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20'
                               : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
@@ -296,7 +316,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105"
+                className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all hover:scale-105 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center"
+                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               >
                 {theme === 'light' ? (
                   <Moon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
@@ -309,7 +330,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         </header>
 
         {/* Page content */}
-        <main className="p-6">
+        <main className="p-4 sm:p-6">
           {children}
         </main>
       </div>

@@ -178,7 +178,8 @@ export default function ApplicationFormSection() {
   };
 
   return (
-    <section id="application" className="py-20 bg-slate-50 dark:bg-slate-800/50 relative overflow-hidden">
+    <section id="application" className="py-20 bg-slate-50 dark:bg-slate-800/50 relative overflow-hidden scroll-mt-20">
+      <div id="application-form"></div>
       {/* Decorative Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 right-10 w-96 h-96 bg-orange-200/20 dark:bg-orange-500/10 rounded-full blur-3xl"></div>
@@ -196,6 +197,13 @@ export default function ApplicationFormSection() {
             <p className="text-lg text-slate-600 dark:text-slate-400">
               {t('description')}
             </p>
+            
+            {/* Info Message for Price Inquiry */}
+            <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl max-w-2xl mx-auto">
+              <p className="text-base text-blue-800 dark:text-blue-300 font-medium">
+                💡 {t('price_inquiry_message')}
+              </p>
+            </div>
           </div>
 
           {/* Form Card */}
