@@ -113,51 +113,51 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      <div className="flex items-center justify-center py-8 min-h-[50vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-orange-400 via-orange-500 to-blue-500 rounded-xl p-4 sm:p-5 text-white shadow-lg relative overflow-hidden">
         {/* Декоративные элементы */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 bg-blue-500/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
         
         <div className="relative z-10">
-          <h1 className="text-4xl font-black mb-2">{t('dashboard.title')}</h1>
-          <p className="text-orange-50 text-lg">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1">{t('dashboard.title')}</h1>
+          <p className="text-orange-50 text-xs sm:text-sm md:text-base">
             Добро пожаловать в систему управления ОКУРМЭН
           </p>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
             <div
               key={index}
-              className="group relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 dark:border-slate-700/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+              className="group relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-slate-200/50 dark:border-slate-700/50 hover:shadow-lg transition-all duration-200 overflow-hidden min-w-0"
             >
               {/* Gradient background on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-400/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-2xl ${card.bgColor} shadow-lg group-hover:scale-110 transition-transform`}>
-                    <Icon className={`w-6 h-6 ${card.textColor}`} />
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <div className={`p-2 sm:p-2.5 rounded-lg ${card.bgColor} shadow-sm flex-shrink-0`}>
+                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${card.textColor}`} />
                   </div>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
                 </div>
-                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-1">
-                  {card.value}
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-0.5 truncate">
+                  {typeof card.value === 'number' ? card.value.toLocaleString() : card.value}
                 </h3>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
                   {card.title}
                 </p>
               </div>
@@ -166,34 +166,32 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Charts Section - будет добавлено позже с реальными данными */}
-
       {/* Quick Actions */}
-      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+        <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-3">
           Быстрые действия
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
           <button 
             onClick={() => window.location.href = '/admin/courses'}
-            className="group px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold"
+            className="group px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-lg hover:shadow-md transition-all flex items-center justify-center gap-2 font-medium text-xs sm:text-sm min-h-[44px]"
           >
-            <BookOpen className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            <span>Добавить курс</span>
+            <BookOpen className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate">Добавить курс</span>
           </button>
           <button 
             onClick={() => window.location.href = '/admin/employees'}
-            className="px-6 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-600 hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold"
+            className="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2 font-medium text-xs sm:text-sm min-h-[44px]"
           >
-            <Users className="w-5 h-5" />
-            <span>Добавить сотрудника</span>
+            <Users className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate">Добавить сотрудника</span>
           </button>
           <button 
             onClick={() => window.location.href = '/admin/applications'}
-            className="px-6 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-600 hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 font-bold"
+            className="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2 font-medium text-xs sm:text-sm min-h-[44px] xs:col-span-2 lg:col-span-1"
           >
-            <FileText className="w-5 h-5" />
-            <span>Просмотреть заявки</span>
+            <FileText className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate">Просмотреть заявки</span>
           </button>
         </div>
       </div>

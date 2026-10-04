@@ -17,6 +17,7 @@ import {
   GraduationCap,
   Key,
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,6 +71,7 @@ interface Toast {
 }
 
 export default function StudentsPage() {
+  const { t } = useLanguage();
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -149,12 +151,12 @@ export default function StudentsPage() {
       }
     } catch (error) {
       console.error('Failed to delete student:', error);
-      showToast('error', `❌ ${t('students.deleteStudentError')}`);
+      showToast('error', '❌ Ошибка удаления студента');
     }
   };
 
   const handleDeleteGroup = async (groupId: string, groupName: string) => {
-    if (!confirm(t('students.confirmDeleteGroup', { name: groupName }))) return;
+    if (!confirm(`Вы уверены, что хотите удалить группу "${groupName}"?`)) return;
 
     try {
       const token = localStorage.getItem('auth-token');
@@ -169,7 +171,7 @@ export default function StudentsPage() {
 
       if (response.ok) {
         fetchGroups();
-        showToast('success', `✅ ${t('students.groupDeleteSuccess', { name: groupName })}`);
+        showToast('success', `✅ Группа "${groupName}" успешно удалена`);
       } else {
         const data = await response.json();
         throw new Error(data.error || 'Delete failed');
@@ -189,10 +191,10 @@ export default function StudentsPage() {
     };
 
     const labels = {
-      ACTIVE: t('students.statusActive'),
-      INACTIVE: t('students.statusInactive'),
-      GRADUATED: t('students.statusGraduated'),
-      DROPPED: t('students.statusDropped'),
+      ACTIVE: 'Активный',
+      INACTIVE: 'Неактивный',
+      GRADUATED: 'Выпускник',
+      DROPPED: 'Отчислен',
     };
 
     return (
@@ -509,6 +511,7 @@ function EditGroupModal({
   onClose: () => void; 
   onSuccess: (message: string) => void;
 }) {
+  const { t } = useLanguage();
   const isEditing = group && group.id;
   
   const [formData, setFormData] = useState({
@@ -744,6 +747,7 @@ function AddStudentModal({
   onClose: () => void; 
   onSuccess: (message: string) => void;
 }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
@@ -894,8 +898,8 @@ function AddStudentModal({
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
-              <option value="ACTIVE">{t('students.statusActive')}</option>
-              <option value="INACTIVE">{t('students.statusInactive')}</option>
+              <option value="ACTIVE">Активный</option>
+              <option value="INACTIVE">Неактивный</option>
             </select>
           </div>
 
@@ -962,6 +966,7 @@ function GrantCourseAccessModal({
   onClose: () => void;
   onSuccess: (message: string) => void;
 }) {
+  const { t } = useLanguage();
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [loading, setLoading] = useState(false);

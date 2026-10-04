@@ -243,6 +243,7 @@ function CourseCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useLanguage();
   const translation = course.translations[0];
   const rating = Number(course.rating) || 0;
   const students = course.enrolledStudents || 0;
@@ -401,6 +402,7 @@ function CourseModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { t } = useLanguage();
   const [coverType, setCoverType] = useState<'gradient' | 'image'>(
     course?.coverImage ? 'image' : 'gradient'
   );

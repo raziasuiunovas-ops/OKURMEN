@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, Search, Edit, Trash2, Award, Briefcase, MapPin, ExternalLink, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import ImageUploader from '@/components/ImageUploader';
 
 // Disable SSR for this page
@@ -28,6 +29,7 @@ interface Alumni {
 }
 
 export default function AlumniPage() {
+  const { t } = useLanguage();
   const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');

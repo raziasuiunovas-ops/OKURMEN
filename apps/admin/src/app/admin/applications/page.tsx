@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Search, Eye, Check, X, Clock, Mail, Phone, FileText } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Disable SSR for this page
 export const dynamic = 'force-dynamic';
@@ -19,6 +20,7 @@ interface Application {
 }
 
 export default function ApplicationsPage() {
+  const { t } = useLanguage();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');

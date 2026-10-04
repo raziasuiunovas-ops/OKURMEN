@@ -2,6 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Compact Admin Panel Overrides */
+@layer components {
+  /* Reduced section spacing */
+  .admin-section {
+    @apply space-y-3;
+  }
+  
+  /* Compact cards */
+  .admin-card {
+    @apply bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700;
+  }
+  
+  /* Compact buttons */
+  .admin-btn {
+    @apply px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all;
+  }
+  
+  .admin-btn-primary {
+    @apply admin-btn bg-gradient-to-r from-orange-400 to-orange-500 text-white hover:shadow-md;
+  }
+  
+  /* Compact form elements */
+  .admin-input {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 text-sm;
+  }
+  
+  .admin-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5;
+  }
+  
+  /* Compact headings */
+  .admin-heading {
+    @apply text-xl sm:text-2xl font-bold text-gray-900 dark:text-white;
+  }
+  
+  .admin-subheading {
+    @apply text-base sm:text-lg font-bold text-gray-900 dark:text-white;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

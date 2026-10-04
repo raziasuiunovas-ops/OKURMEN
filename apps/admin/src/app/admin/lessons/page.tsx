@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, Search, Edit, Trash2, Video, FileText, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import ImageUploader from '@/components/ImageUploader';
 
 // Disable SSR for this page
@@ -29,6 +30,7 @@ interface Course {
 }
 
 export default function LessonsPage() {
+  const { t } = useLanguage();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);

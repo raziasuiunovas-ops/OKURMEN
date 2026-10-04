@@ -12,9 +12,12 @@ export default function Loading() {
           bottom: 0;
           width: 10px;
           height: 50%;
-          background: rgb(249, 115, 22);
+          background: rgb(15, 23, 42);
           transform-origin: center bottom;
           box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .dark .loader__bar {
+          background: rgb(248, 250, 252);
         }
         .loader__bar:nth-child(1) {
           left: 0px;
@@ -105,7 +108,7 @@ export default function Loading() {
           100% { transform: scale(1, 1); }
         }
       `}</style>
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-900">
         <div className="loader">
           <div className="loader__bar"></div>
           <div className="loader__bar"></div>

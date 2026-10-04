@@ -1114,7 +1114,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = (key: string, params?: Record<string, any>): string => {
-    let text = translations[language][key as keyof typeof translations['ru']] || key;
+    const translationKey = key as keyof typeof translations['ru'];
+    let text = (translations[language] as any)[key] || key;
     
     // Замена параметров {name} в строке
     if (params) {

@@ -189,9 +189,23 @@ export default function AIChat() {
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-5 py-3.5 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-2 transition-colors duration-200">
-                        <Loader2 className="w-4 h-4 animate-spin text-orange-600 dark:text-orange-500" />
-                        <p className="text-sm text-slate-600 dark:text-slate-400">{t('loading')}</p>
+                      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-3.5 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-2.5 transition-colors duration-200">
+                        {/* Typing dots */}
+                        <style>{`
+                          @keyframes typingDot {
+                            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+                            30% { transform: translateY(-5px); opacity: 1; }
+                          }
+                          .typing-dot:nth-child(1) { animation: typingDot 1.2s infinite 0s; }
+                          .typing-dot:nth-child(2) { animation: typingDot 1.2s infinite 0.2s; }
+                          .typing-dot:nth-child(3) { animation: typingDot 1.2s infinite 0.4s; }
+                        `}</style>
+                        <div className="flex items-center gap-1">
+                          <span className="typing-dot w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
+                          <span className="typing-dot w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
+                          <span className="typing-dot w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
+                        </div>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{t('loading')}...</p>
                       </div>
                     </div>
                   )}

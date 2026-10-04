@@ -40,7 +40,11 @@ export default function HeroSection() {
   const t = useTranslations('hero');
   const locale = useLocale();
   const [publicStats, setPublicStats] = useState<PublicStats | null>(null);
-  // waveFrame временно не используется
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+  const [isQuoteVisible, setIsQuoteVisible] = useState(true);
+  
+  // Get motivational quotes array
+  const quotes = t.raw('motivational_quotes') as string[];
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -61,6 +65,20 @@ export default function HeroSection() {
 
     fetchStats();
   }, []);
+
+  // Automatic quote rotation with smooth fade animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsQuoteVisible(false);
+      
+      setTimeout(() => {
+        setCurrentQuoteIndex((prev) => (prev + 1) % quotes.length);
+        setIsQuoteVisible(true);
+      }, 500); // Half second for fade out
+    }, 4000); // Change every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [quotes.length]);
 
   const formatNumber = (num: number): string => {
     if (num >= 1000000) {
@@ -120,33 +138,26 @@ export default function HeroSection() {
               </div>
             </RevealOnScroll>
 
-            {/* Main Heading - Улучшенная иерархия */}
+            {/* Motivational Quote Carousel - Main Heading */}
             <RevealOnScroll delay={100}>
               <div className="space-y-3 sm:space-y-4">
                 <h1 className="font-display text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] text-balance">
-                  <span className="block text-slate-900 dark:text-white mb-1 sm:mb-2">
-                    {t('main_title_1')}
-                  </span>
-                  <span className="block text-slate-900 dark:text-white mb-2 sm:mb-3">
-                    <span className={locale === 'ky' ? 'inline-block bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift' : 'text-slate-900 dark:text-white'}>
-                      {t('main_title_2')}
-                    </span>
-                    <span className="text-slate-900 dark:text-white"> {t('main_title_with')} </span>
-                    <span className={locale === 'ky' ? 'text-slate-900 dark:text-white' : 'inline-block bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift'}>
-                      {t('main_title_3')}
-                    </span>
-                  </span>
+                  <span 
+                    className={`block text-slate-900 dark:text-white transition-all duration-500 ease-in-out ${
+                      isQuoteVisible 
+                        ? 'opacity-100 transform translate-y-0' 
+                        : 'opacity-0 transform -translate-y-2'
+                    }`}
+                    dangerouslySetInnerHTML={{ 
+                      __html: quotes[currentQuoteIndex]
+                        .replace(
+                          /<span class='gradient'>(.*?)<\/span>/g, 
+                          '<span class="inline-block bg-gradient-to-r from-orange-500 via-orange-600 to-blue-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">$1</span>'
+                        )
+                    }}
+                  />
                 </h1>
               </div>
-            </RevealOnScroll>
-
-            {/* Description - Улучшенная читаемость */}
-            <RevealOnScroll delay={200}>
-              <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-                {t('description_full')}{' '}
-                <span className="font-semibold text-slate-700 dark:text-slate-200">{t('description_hybrid')}</span> {t('description_and')}{' '}
-                <span className="font-semibold text-slate-700 dark:text-slate-200">{t('description_mentor')}</span> {t('description_support')}
-              </p>
             </RevealOnScroll>
 
             {/* CTA Buttons - Улучшенный стиль */}
@@ -231,7 +242,7 @@ export default function HeroSection() {
                       <div className="flex gap-3 mb-2 pl-6">
                         <span className="text-slate-500">2</span>
                         <span className="text-blue-300">name:</span>
-                        <span className="text-green-400">"Студент"</span>
+                        <span className="text-green-400">&quot;Студент&quot;</span>
                         <span className="text-slate-300">,</span>
                       </div>
                       
@@ -240,7 +251,7 @@ export default function HeroSection() {
                         <span className="text-slate-500">3</span>
                         <span className="text-blue-300">skill:</span>
                         <span className="text-green-400 inline-flex">
-                          "IT"
+                          &quot;IT&quot;
                           <span className="w-2 h-5 bg-orange-500 ml-1 animate-pulse"></span>
                         </span>
                       </div>
@@ -299,57 +310,34 @@ export default function HeroSection() {
                 </div>
               </div>
 
-              {/* Dynamic Statistics Cards from Admin */}
-              {publicStats?.hasStats && publicStats.stats.length > 0 ? (
-                <div className="flex flex-wrap justify-center gap-4 max-w-lg mx-auto">
-                  {publicStats.stats.slice(0, 2).map((stat, index) => (
-                    <div
-                      key={stat.metric}
-                      className="flex items-center gap-3 px-5 py-4 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-orange-200 dark:border-orange-800 hover:shadow-lg transition-all"
-                    >
-                      <div className="p-2.5 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex-shrink-0">
-                        <span className="text-2xl">{METRIC_LABELS[stat.metric]?.icon || '📊'}</span>
-                      </div>
-                      <div>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                          {formatNumber(stat.value)}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {getMetricLabel(stat.metric)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap justify-center gap-4 max-w-lg mx-auto">
-                  {/* Students Card */}
-                  <div className="flex items-center gap-3 px-5 py-4 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-orange-200 dark:border-orange-800">
-                    <div className="p-2.5 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex-shrink-0">
-                      <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-3xl font-bold text-gray-900 dark:text-white">{studentsValue}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">{t('students_count')}</div>
-                    </div>
+              {/* Stats Cards */}
+              <div className="flex flex-wrap justify-center gap-4 max-w-lg mx-auto">
+                {/* Students Card */}
+                <div className="flex items-center gap-3 px-5 py-4 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-orange-200 dark:border-orange-800">
+                  <div className="p-2.5 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex-shrink-0">
+                    <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
                   </div>
+                  <div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{studentsValue}</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">{t('students_count')}</div>
+                  </div>
+                </div>
 
-                  {/* Success Card */}
-                  <div className="flex items-center gap-3 px-5 py-4 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-blue-200 dark:border-blue-800">
-                    <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
-                      <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-3xl font-bold text-gray-900 dark:text-white">{successValue}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">{t('success_label')}</div>
-                    </div>
+                {/* Success Card */}
+                <div className="flex items-center gap-3 px-5 py-4 bg-white dark:bg-slate-800 rounded-xl shadow-md border border-blue-200 dark:border-blue-800">
+                  <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
+                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{successValue}</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">{t('success_label')}</div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </RevealOnScroll>
         </div>
@@ -357,20 +345,3 @@ export default function HeroSection() {
     </section>
   );
 }
-
-<style jsx>{`
-  @keyframes bilbars-float-gentle {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-  }
-
-  .animate-bilbars-float-gentle {
-    animation: bilbars-float-gentle 3s ease-in-out infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .animate-bilbars-float-gentle {
-      animation: none;
-    }
-  }
-`}</style>

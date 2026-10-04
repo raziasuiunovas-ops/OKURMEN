@@ -41,22 +41,345 @@ export async function POST(request: NextRequest) {
 
     // Detect user language from message
     const detectLanguage = (text: string): 'ky' | 'ru' | 'en' => {
-      const kyrText = /[ӨөҮүҢңӨөҮү]/;
-      const rusText = /[ЁёЪъЫыЭэ]/;
-      
-      if (kyrText.test(text)) return 'ky';
-      if (rusText.test(text)) return 'ru';
-      
-      // Check common words
+      // Кыргыз тилине гана тиешелүү тамгалар
+      const kyrgyzOnly = /[ӨөҮүҢңЖж]/;
+      // Орус тилине гана тиешелүү тамгалар
+      const russianOnly = /[ЁёЪъЫыЭэ]/;
+
+      if (kyrgyzOnly.test(text)) return 'ky';
+      if (russianOnly.test(text)) return 'ru';
+
       const lowerText = text.toLowerCase();
-      if (lowerText.match(/канча|кайда|барбы|болобу|эмне|кантип|менен/)) return 'ky';
-      if (lowerText.match(/сколько|где|есть|как|что|когда/)) return 'ru';
-      if (lowerText.match(/how|where|what|when|is there|are there/)) return 'en';
-      
-      return 'ru'; // default
+
+      // Кыргызча мүнөздүү сөздөр/мүчөлөр
+      if (lowerText.match(/\b(канча|кайда|барбы|болобу|эмне|кантип|менен|берилеби|барбы|болобу|жазылсам|окуй|жооп|сурайм|кошуп|кийин|болот|окушат|иштейт|тандасам|ылайыктуу)\b/)) return 'ky';
+
+      // Орусча мүнөздүү сөздөр
+      if (lowerText.match(/\b(сколько|где|есть|как|что|когда|можно|нельзя|будет|хочу|нужно|подойдёт|подойдет|выдают|проходит|работать)\b/)) return 'ru';
+
+      // Латын (английский)
+      if (lowerText.match(/\b(how|where|what|when|is|are|there|can|does|do|will|have|get|study|work|course|learn)\b/)) return 'en';
+
+      // Кириллица бар — орусча деп кабыл алабыз
+      if (/[а-яА-Я]/.test(text)) return 'ru';
+
+      return 'en';
     };
 
     const userLang = detectLanguage(message);
+
+    // ── LOCAL FAQ MATCHER ─────────────────────────────────────────────────────
+    // Эгер суроо FAQ'га туура келсе — Gemini'га жөнөтпөй, түз жооп кайтарат.
+    // Бул API error / timeout / token-limit маселесин жок кылат.
+
+    type Lang = 'ky' | 'ru' | 'en';
+
+    interface FaqEntry {
+      patterns: RegExp[];
+      answers: Record<Lang, string>;
+    }
+
+    const FAQ_DB: FaqEntry[] = [
+      // ── ОКУРМЭН деген эмне / Что такое ОКУРМЭН / What is OKURMEN ──────────
+      {
+        patterns: [
+          /окурм[эе]н.*(деген|эмне|жөнүндө|тууралуу|баяндап|айтып)/i,
+          /что.*(такое|это).*(окурм[эе]н)/i,
+          /(окурм[эе]н).*(что|кто|это)/i,
+          /what.*(is|are).*okurm[ea]n/i,
+          /tell.*about.*okurm[ea]n/i,
+        ],
+        answers: {
+          ky: 'ОКУРМЭН — билим алууга, IT жана заманбап көндүмдөрдү өнүктүрүүгө багытталган билим берүү борбору.',
+          ru: 'ОКУРМЭН — образовательный центр, направленный на обучение, развитие IT-навыков и современных компетенций.',
+          en: 'OKURMEN is an educational center focused on learning, IT skills, and modern professional competencies.',
+        },
+      },
+
+      // ── Кандай курстар / Какие курсы / What courses ───────────────────────
+      {
+        patterns: [
+          /кандай.*(курс|багыт|программа)/i,
+          /кайсы.*(курс|багыт)/i,
+          /(курс|багыт).*(кандай|канча|бар)/i,
+          /какие.*(курс|направ|программ)/i,
+          /(курс|направ).*(есть|имеет)/i,
+          /what.*(course|program|direction)/i,
+          /(course|program).*(offer|have|available)/i,
+        ],
+        answers: {
+          ky: 'ОКУРМЭНде компьютердик сабаттуулук, AI Web Developer, English, АЭМ, AI менен видео жасоо, Русский Front-end жана PYTHON Backend багыттары бар.',
+          ru: 'В ОКУРМЭН есть направления: компьютерная грамотность, AI Web Developer, English, АЭМ, создание видео с AI, Русский Front-end и PYTHON Backend.',
+          en: 'OKURMEN offers Computer Literacy, AI Web Developer, English, АЭМ, AI Video Creation, Russian Front-end, and PYTHON Backend.',
+        },
+      },
+
+      // ── Кантип жазылуу / Как записаться / How to apply ───────────────────
+      {
+        patterns: [
+          /кантип.*(жазыл|каттал|арыз|кир)/i,
+          /жазылуу|катталуу|арыз берүү/i,
+          /как.*(записат|подат|зарегистр|поступ)/i,
+          /записат|подат заявку|поступ/i,
+          /how.*(apply|register|sign up|enroll)/i,
+          /apply|sign.?up|enroll|registration/i,
+        ],
+        answers: {
+          ky: 'ОКУРМЭНдин сайтындагы тиешелүү курс аркылуу арыз калтырып, байланыш маалыматтарыңызды жөнөтсөңүз болот. Андан кийин сиз менен байланышып, кийинки кадамдар түшүндүрүлөт.',
+          ru: 'Оставьте заявку через сайт ОКУРМЭН, указав контактные данные и интересующий курс. После этого с вами свяжутся и объяснят дальнейшие шаги.',
+          en: 'Submit an application through the OKURMEN website with your contact information and the course you are interested in. OKURMEN will then contact you and explain the next steps.',
+        },
+      },
+
+      // ── Онлайн же офлайн / Онлайн или офлайн / Online or offline ──────────
+      {
+        patterns: [
+          /онлайн|офлайн|online|offline/i,
+          /формат.*(окуу|обучен)/i,
+          /(окуу|обучен).*(формат|кандай)/i,
+          /format.*(learn|study|class)/i,
+        ],
+        answers: {
+          ky: 'Окуу форматы конкреттүү курс жана программага жараша болот. Так форматты ОКУРМЭНдин администраторунан тактап алсаңыз болот.',
+          ru: 'Формат обучения зависит от конкретного курса и программы. Актуальный формат можно уточнить у администратора ОКУРМЭН.',
+          en: 'The learning format depends on the specific course and program. You can confirm the current format with an OKURMEN administrator.',
+        },
+      },
+
+      // ── Тажрыйба жок / Без опыта / No experience ──────────────────────────
+      {
+        patterns: [
+          /тажрыйба.*(жок|болбосо)|жок.*тажрыйба/i,
+          /башталгыч|нөлдөн/i,
+          /без.*(опыт|знан)|опыт.*(нет|без)/i,
+          /с нуля|новичок.*IT|IT.*новичок/i,
+          /no.*(experience|background)|without.*experience/i,
+          /beginner|from.?scratch|never.*program/i,
+        ],
+        answers: {
+          ky: 'Ооба, башталгычтар үчүн да ылайыктуу багыттар бар. Кайсы курстан баштоо керектигин ОКУРМЭНдин администраторунан тактап алсаңыз болот.',
+          ru: 'Да, в ОКУРМЭН есть направления, подходящие для начинающих. Подходящий курс можно выбрать в зависимости от вашего уровня и цели обучения.',
+          en: 'Yes, OKURMEN has courses suitable for beginners. The best starting point depends on your current level and learning goal.',
+        },
+      },
+
+      // ── Баасы / Стоимость / Price ──────────────────────────────────────────
+      {
+        patterns: [
+          /баасы|канча турат|төлөм/i,
+          /стоимост|сколько стоит|цена|стоит/i,
+          /how much|price|cost|fee/i,
+        ],
+        answers: {
+          ky: 'Курстардын баасы багытка жараша айырмаланат. Учурдагы бааны билүү үчүн сайттагы арыз формасы аркылуу маалымат сурасаңыз болот.',
+          ru: 'Стоимость зависит от выбранного курса. Чтобы узнать актуальную цену, оставьте заявку на сайте ОКУРМЭН.',
+          en: 'The price depends on the selected course. Submit an application through the OKURMEN website to ask for the current price.',
+        },
+      },
+
+      // ── Байланыш / Контакты / Contact ─────────────────────────────────────
+      {
+        patterns: [
+          /байланыш|кантип табам|телефон|адрес/i,
+          /контакт|связат|телефон|адрес/i,
+          /contact|phone|address|reach/i,
+        ],
+        answers: {
+          ky: 'ОКУРМЭН менен байланышуу: Телефон: +996 550 550 550 | Email: info@okurmen.kg | Дарек: ул. Орозбекова, 136, Бишкек.',
+          ru: 'Контакты ОКУРМЭН: Телефон: +996 550 550 550 | Email: info@okurmen.kg | Адрес: ул. Орозбекова, 136, Бишкек.',
+          en: 'OKURMEN contacts: Phone: +996 550 550 550 | Email: info@okurmen.kg | Address: Orozbekova St. 136, Bishkek.',
+        },
+      },
+
+      // ── Кандай окушат / Как проходит обучение / How does studying work ─────
+      {
+        patterns: [
+          /кандай окушат|окуу кандай [өо]төт|окуу кандай|кантип окуш/i,
+          /как проходит обучен|как учатся|как устроен процесс|как обучают/i,
+          /how.*stud(y|ies|ying)|how.*learn|how.*class|how.*educat/i,
+          /studying.*work|learning.*work/i,
+        ],
+        answers: {
+          ky: 'Окуу тандалган курска жараша өтөт. Студенттер теорияны үйрөнүп, практикалык тапшырмаларды аткарып, алган билимдерин практикада колдонушат. Так формат жана расписание курс боюнча айырмаланат.',
+          ru: 'Обучение зависит от выбранного курса: теория, практические задания и применение полученных знаний. Точный формат и расписание уточняйте по конкретному курсу у администратора ОКУРМЭН.',
+          en: 'Learning at OKURMEN includes theory, practical tasks, and applying knowledge. The exact format and schedule depend on the specific course.',
+        },
+      },
+
+      // ── Ментор канча убакыт / Как долго ментор / Mentor duration ───────────
+      {
+        patterns: [
+          /ментор.*(канча|убакыт|коштойт|канчалык)/i,
+          /канча.*(ментор|коштоо)/i,
+          /как долго.*ментор|ментор.*сопровожд|сколько.*ментор/i,
+          /how long.*mentor|mentor.*support.*how|mentor.*duration/i,
+        ],
+        answers: {
+          ky: 'Ментордун коштоо мөөнөтү конкреттүү курс жана программага жараша болот. Так убакытты ОКУРМЭНдин администраторунан тактоо керек.',
+          ru: 'Продолжительность сопровождения ментора зависит от конкретного курса и программы. Точные сроки уточните у администратора ОКУРМЭН.',
+          en: 'The duration of mentor support depends on the specific course and program. Please confirm the exact period with an OKURMEN administrator.',
+        },
+      },
+
+      // ── IT сабактары канча жолу / Сколько занятий / How often classes ───────
+      {
+        patterns: [
+          /IT.*(сабак|канча жолу|жыштыгы)|сабак.*канча жолу/i,
+          /канча жолу.*(сабак|IT)/i,
+          /сколько.*(занятий|раз|уроков)|занятия.*сколько/i,
+          /how.*(often|many).*class|class.*how.*often|frequency.*class/i,
+        ],
+        answers: {
+          ky: 'IT сабактарынын жыштыгы конкреттүү курска жана расписаниесине жараша болот. Так графикти ОКУРМЭНдин администраторунан тактап алуу керек.',
+          ru: 'Частота IT-занятий зависит от конкретного курса и расписания. Точное количество занятий уточните у администратора ОКУРМЭН.',
+          en: 'The frequency of IT classes depends on the specific course and schedule. Ask an OKURMEN administrator for the exact timetable.',
+        },
+      },
+
+      // ── Talking Club ───────────────────────────────────────────────────────
+      {
+        patterns: [
+          /talking.?club/i,
+          /англис.*клуб|клуб.*англис/i,
+          /english.*club|club.*english/i,
+        ],
+        answers: {
+          ky: 'Talking Club\'дун болушу жана учурдагы форматы ОКУРМЭНдин актуалдуу программасына жараша болот. Расписаниесин жана катышуу шарттарын администратордон тактаңыз.',
+          ru: 'Наличие и актуальный формат Talking Club зависят от текущей программы ОКУРМЭН. Уточните расписание и условия участия у администратора.',
+          en: 'The availability and current format of the Talking Club depend on OKURMEN\'s current program. Please confirm the schedule with an administrator.',
+        },
+      },
+
+      // ── Стипендия / Scholarships ───────────────────────────────────────────
+      {
+        patterns: [
+          /стипендия|стипендиялык/i,
+          /стипендия|стипендиальн/i,
+          /scholarship|grant.*stud|financial.*aid/i,
+        ],
+        answers: {
+          ky: 'Стипендиянын болушу жана шарттары ОКУРМЭНдин учурдагы программаларына жараша болот. Актуалдуу маалыматты администратордон тактаңыз.',
+          ru: 'Наличие стипендий и условия зависят от действующих программ ОКУРМЭН. Актуальную информацию уточните у администратора.',
+          en: 'Scholarship availability and conditions depend on OKURMEN\'s current programs. Please contact an administrator for up-to-date information.',
+        },
+      },
+
+      // ── Белектер / Подарки / Gifts ─────────────────────────────────────────
+      {
+        patterns: [
+          /белек|сыйлык|белектер/i,
+          /подарк|наград|приз/i,
+          /gift|prize|reward/i,
+        ],
+        answers: {
+          ky: 'Белектер жана сыйлыктардын түрлөрү конкреттүү иш-чараларга жана ОКУРМЭНдин учурдагы программаларына жараша болот. Так маалыматты администратордон тактаңыз.',
+          ru: 'Виды подарков и наград зависят от конкретных мероприятий и программ ОКУРМЭН. Актуальную информацию уточните у администратора.',
+          en: 'The types of gifts and rewards depend on specific events and OKURMEN\'s current programs. Please confirm with an administrator.',
+        },
+      },
+
+      // ── Диплом / Diploma / Certificate ────────────────────────────────────
+      {
+        patterns: [
+          /диплом|сертификат|документ.*алабы/i,
+          /диплом|сертификат|документ.*выдают/i,
+          /diploma|certificate|document.*receiv/i,
+        ],
+        answers: {
+          ky: 'Курс аяктагандан кийин берилүүчү документтин түрү конкреттүү курстун шарттарына жараша болот. Диплом же сертификат берилеби — администратордон тактаңыз.',
+          ru: 'Тип документа после завершения курса зависит от условий конкретной программы. Уточните у администратора ОКУРМЭН, выдаётся ли диплом, сертификат или другой документ.',
+          en: 'The type of document after completing a course depends on the specific program. Ask an OKURMEN administrator whether a diploma, certificate, or other document is issued.',
+        },
+      },
+
+      // ── Кайда иштейт / Где работать / Career after OKURMEN ────────────────
+      {
+        patterns: [
+          /окурм[эе]н.*кийин.*(иштей|жумуш)|кийин.*кайда.*иштей/i,
+          /кайда.*(иштей|орношо)|карьер/i,
+          /после.*(окурм[эе]н).*(работ|устроит)|где.*работат/i,
+          /карьер.*окурм[эе]н/i,
+          /after.*okurm[ea]n.*(work|job|career)/i,
+          /career.*after|job.*after.*okurm[ea]n/i,
+          /where.*work.*after|work.*after.*okurm[ea]n/i,
+        ],
+        answers: {
+          ky: 'Бул сиз бүтүргөн курска жана алган көндүмдөрүңүзгө жараша болот. IT багытын бүткөн студент web development, frontend же backend боюнча өнүгүүгө аракет кыла алат. Жумушка орношуу студенттин билимине, практикасына жана жеке аракетине да байланыштуу.',
+          ru: 'Это зависит от выбранного курса и полученных навыков. После IT-направлений можно развиваться в web development, frontend или backend. Трудоустройство зависит от знаний, практики и личных усилий студента.',
+          en: 'This depends on the course completed and skills developed. After IT courses, students can pursue careers in web development, frontend, or backend. Employment depends on your knowledge, practice, and personal effort.',
+        },
+      },
+
+      // ── Кайсы курс ылайыктуу / Какой курс выбрать / Which course ──────────
+      {
+        patterns: [
+          /кайсы курс.*(ылайыктуу|тандайын|сунуш)|кеңеш.*(курс|багыт)/i,
+          /какой курс.*(выбрать|лучше|подходит)|с чего начать/i,
+          /which course.*(choose|start|recommend|best)|recommend.*course/i,
+        ],
+        answers: {
+          ky: 'Туура курс тандоо сиздин азыркы билимиңизге, кызыгууңузга жана максатыңызга жараша болот. Компьютер менен жаңы баштасаңыз — компьютердик сабаттуулук, веб-иштеп чыгууга кызыксаңыз — AI Web Developer же Front-end, Python үйрөнгүңүз келсе — PYTHON Backend, англис тилин өнүктүрүүгө — English курсу ылайыктуу. Администратордон кеңеш алсаңыз болот.',
+          ru: 'Выбор курса зависит от вашего уровня, интересов и цели. Для новичков — компьютерная грамотность, для веб-разработки — AI Web Developer или Front-end, для Python — PYTHON Backend, для английского — English. Обратитесь к администратору за рекомендацией.',
+          en: 'The best course depends on your level, interests, and goals. For beginners: Computer Literacy. For web development: AI Web Developer or Front-end. For Python: PYTHON Backend. For English: English course. Contact an administrator for a personal recommendation.',
+        },
+      },
+
+      // ── Мектепке/студентке ылайыктуубу / Для школьника / For student ───────
+      {
+        patterns: [
+          /мектеп|окуучу|студент.*(окуй алабы|ылайыктуу)/i,
+          /школьник|ученик|студент.*(подойдёт|может учиться)/i,
+          /school|student.*(suitable|can.*study|right for)/i,
+        ],
+        answers: {
+          ky: 'Ооба, мектеп окуучулары жана студенттер үчүн да ылайыктуу багыттар бар. Конкреттүү талаптар жана расписание тууралуу ОКУРМЭНдин администраторунан тактаңыз.',
+          ru: 'Да, в ОКУРМЭН есть направления, подходящие для школьников и студентов. Конкретные требования и расписание уточните у администратора ОКУРМЭН.',
+          en: 'Yes, OKURMEN has courses suitable for school students and university students. For specific requirements and schedule, please contact an OKURMEN administrator.',
+        },
+      },
+
+      // ── Иш/мектеп менен айкалыштыруу / Совмещать / Combine with work ───────
+      {
+        patterns: [
+          /иш.*айкалыштыр|мектеп.*айкалыштыр/i,
+          /совмещат.*(работ|школ|учёб)|работ.*(совмещ)/i,
+          /combine.*(work|school)|study.*while.*(work|school)/i,
+        ],
+        answers: {
+          ky: 'Айкалыштыруу мүмкүнчүлүгү конкреттүү курстун расписаниесине жана сиздин жүктөмүңүзгө жараша болот. Актуалдуу расписаниени администратордон тактаңыз.',
+          ru: 'Возможность совмещать зависит от расписания конкретного курса и вашей нагрузки. Уточните актуальное расписание у администратора ОКУРМЭН.',
+          en: 'The possibility of combining depends on the course schedule and your personal workload. Please confirm the current schedule with an OKURMEN administrator.',
+        },
+      },
+    ];
+
+    /**
+     * Суроону FAQ'га матчинг жасайт.
+     * Табылса — тилге жараша даяр жоопту кайтарат.
+     * Табылбаса — null.
+     */
+    const matchFAQ = (msg: string, lang: Lang): string | null => {
+      const normalised = msg.trim().toLowerCase();
+      for (const entry of FAQ_DB) {
+        for (const pattern of entry.patterns) {
+          if (pattern.test(normalised)) {
+            return entry.answers[lang];
+          }
+        }
+      }
+      return null;
+    };
+
+    const faqAnswer = matchFAQ(message, userLang);
+    if (faqAnswer) {
+      // Биринчи билдирүү болсо — приветствие + FAQ жооп
+      const isFirstMessage = history.length === 0;
+      const greeting = isFirstMessage
+        ? 'Саламатсызбы! ОКУРМЭН чатына кош келиңиз. Сурооңузду жазыңыз, жардам берүүгө даярмын.\n\n'
+        : '';
+      return NextResponse.json({ success: true, response: greeting + faqAnswer });
+    }
+    // ── END LOCAL FAQ MATCHER ─────────────────────────────────────────────────
 
     // Формируем контекст для Gemini
     const systemPrompt = `You are an AI assistant for the OKURMEN (ОКУРМЭН) educational project.
@@ -242,6 +565,214 @@ Talking Club учурунда студенттер:
 
 ---
 
+# FAQ — ЖЫШААЛУУ БЕРИЛГЕН СУРООЛОР / ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ / FREQUENTLY ASKED QUESTIONS
+
+## KY — КЫРГЫЗЧА FAQ
+
+### FAQ-1: ОКУРМЭН деген эмне?
+ОКУРМЭН — билим алууга, IT жана заманбап көндүмдөрдү өнүктүрүүгө багытталган билим берүү борбору.
+
+### FAQ-2: ОКУРМЭНде кандай курстар бар?
+ОКУРМЭНде компьютердик сабаттуулук, AI Web Developer, English, АЭМ — Акыл Эмгегинин Маданияты, AI менен видео жасоо, Русский Front-end жана PYTHON Backend багыттары бар.
+
+### FAQ-3: Курстарга кантип жазылсам болот?
+ОКУРМЭНдин сайтындагы тиешелүү курс аркылуу арыз калтырып, байланыш маалыматтарыңызды жөнөтсөңүз болот. Андан кийин сиз менен байланышып, кийинки кадамдар түшүндүрүлөт.
+
+### FAQ-4: Курстар онлайнбы же офлайнбы?
+Окуу форматы конкреттүү курс жана программага жараша болот. Так форматты курс боюнча администратордон тактап алууга болот.
+
+### FAQ-5: Окууга катталуу үчүн кандай талаптар бар?
+Талаптар тандалган курска жараша айырмаланышы мүмкүн. Көпчүлүк учурда негизги талап — окууга жана жаңы нерселерди үйрөнүүгө даяр болуу.
+
+### FAQ-6: IT боюнча тажрыйбам жок болсо окуй аламбы?
+Ооба, башталгычтар үчүн да ылайыктуу багыттар бар. Кайсы курстан баштоо керектигин ОКУРМЭНдин администраторунан тактап алсаңыз болот.
+
+### FAQ-7: Курстардын баасы канча?
+Курстардын баасы курс боюнча айырмаланат. Учурдагы бааны билүү үчүн сайттагы арыз формасы аркылуу маалымат сурасаңыз болот.
+
+### FAQ-8: ОКУРМЭНде кандай тилдерде маалымат бар?
+ОКУРМЭНдин сайты кыргызча, орусча жана англисче тилдерди колдойт.
+
+### FAQ-9: ОКУРМЭН менен кантип байланышсам болот?
+Сайттагы байланыш бөлүмү жана көрсөтүлгөн байланыш каналдары аркылуу ОКУРМЭН менен байланышсаңыз болот.
+
+### FAQ-10: ОКУРМЭНде кимдер окуй алат?
+ОКУРМЭНдин курстары жаңы көндүмдөрдү үйрөнүүнү каалаган адамдар үчүн багытталган. Конкреттүү курс боюнча талаптарды администратордон тактоого болот.
+
+### FAQ-31: ОКУРМЭНде кайсы курсту тандасам болот жана мага кайсы курс ылайыктуу?
+Туура курс тандоо сиздин азыркы билимиңизге, кызыгууңузга жана келечектеги максатыңызга жараша болот. Эгер компьютер менен жаңы баштап жатсаңыз, компьютердик сабаттуулук ылайыктуу башталыш болушу мүмкүн. Веб-сайттарды жана IT тармагын үйрөнүүгө кызыксаңыз, AI Web Developer же Front-end багыттарын карап көрүүгө болот. Python жана backend технологияларына кызыккандар үчүн PYTHON Backend багыты бар. Англис тилин өнүктүрүүнү каалагандар English курсун тандай алышат. Эгер кайсы багыт сизге ылайыктуу экенин так билбесеңиз, ОКУРМЭНдин администраторуна кайрылып, максатыңыз жана даярдык деңгээлиңиз боюнча кеңеш алсаңыз болот.
+
+### FAQ-32: ОКУРМЭНде окуп бүткөндөн кийин кандай мүмкүнчүлүктөр болот?
+Курстун максаты тандалган багыт боюнча билим жана практикалык көндүмдөрдү өнүктүрүүгө жардам берүү. IT багытындагы курстарда технологияларды үйрөнүп, практикалык тапшырмалар жана долбоорлор менен иштөө мүмкүнчүлүгү болушу мүмкүн. Натыйжа студенттин өзүнүн аракетине, практикасына жана окуу процессине катышуусуна да байланыштуу. Конкреттүү курс бүткөндөн кийинки мүмкүнчүлүктөр тууралуу актуалдуу маалыматты ОКУРМЭНдин администраторунан тактап алуу керек.
+
+### FAQ-33: Мен IT тармагын нөлдөн баштагым келет. ОКУРМЭН мага ылайыктуубу?
+Ооба, IT тармагына жаңы кирип жаткан болсоңуз, ОКУРМЭНдеги башталгычтарга ылайыктуу багыттарды карап көрүүгө болот. Сиздин деңгээлиңизге жана максатыңызга жараша компьютердик сабаттуулук, AI Web Developer же башка IT багыттары ылайыктуу болушу мүмкүн. Эгер кайсы курстан баштоону билбей жатсаңыз, администратордон кеңеш сурасаңыз болот.
+
+## RU — РУССКОЯЗЫЧНЫЙ FAQ
+
+### FAQ-11: Что такое ОКУРМЭН?
+ОКУРМЭН — образовательный центр, направленный на обучение, развитие IT-навыков и современных компетенций.
+
+### FAQ-12: Какие курсы есть в ОКУРМЭН?
+В ОКУРМЭН есть направления: компьютерная грамотность, AI Web Developer, English, АЭМ — культура умственного труда, создание видео с AI, Русский Front-end и PYTHON Backend.
+
+### FAQ-13: Как записаться на курс?
+Можно оставить заявку через сайт ОКУРМЭН, указав необходимые контактные данные и интересующий курс. После этого с вами свяжутся и объяснят дальнейшие шаги.
+
+### FAQ-14: Обучение проходит онлайн или офлайн?
+Формат обучения зависит от конкретного курса и программы. Актуальный формат можно уточнить у администратора ОКУРМЭН.
+
+### FAQ-15: Можно ли начать обучение без опыта в IT?
+Да. В ОКУРМЭН есть направления, подходящие для начинающих. Подходящий курс можно выбрать в зависимости от вашего уровня и цели обучения.
+
+### FAQ-16: Какие требования нужны для поступления на курс?
+Требования зависят от выбранного курса. Для некоторых направлений специальных предварительных знаний не требуется.
+
+### FAQ-17: Сколько стоят курсы?
+Стоимость зависит от выбранного курса. Чтобы узнать актуальную стоимость, можно оставить заявку на сайте ОКУРМЭН.
+
+### FAQ-18: На каких языках работает сайт ОКУРМЭН?
+Сайт ОКУРМЭН поддерживает кыргызский, русский и английский языки.
+
+### FAQ-19: Как связаться с ОКУРМЭН?
+Связаться с ОКУРМЭН можно через контакты и каналы связи, указанные на сайте.
+
+### FAQ-20: Для кого предназначены курсы ОКУРМЭН?
+Курсы предназначены для людей, которые хотят получить новые знания и современные навыки. Конкретные требования зависят от выбранного направления.
+
+### FAQ-34: Какой курс ОКУРМЭН лучше выбрать новичку?
+Выбор курса зависит от вашего текущего уровня, интересов и цели. Если вы только начинаете знакомиться с компьютером, можно рассмотреть курс компьютерной грамотности. Если вас интересует создание сайтов и развитие в IT, можно обратить внимание на AI Web Developer или Front-end. Для тех, кто хочет изучать Python и серверную разработку, есть направление PYTHON Backend. Если ваша цель — улучшить английский язык, можно выбрать English. Если вы не уверены, с чего начать, лучше описать администратору свой уровень и цель обучения, чтобы получить более подходящую рекомендацию.
+
+### FAQ-35: Можно ли совмещать обучение в ОКУРМЭН со школой или работой?
+Возможность совмещать обучение зависит от расписания конкретного курса и вашей личной нагрузки. Перед регистрацией стоит уточнить у администратора актуальное расписание, продолжительность занятий и формат обучения. Это поможет понять, насколько выбранный курс подходит вашему графику. Актуальные условия лучше уточнить непосредственно у ОКУРМЭН.
+
+### FAQ-36: Что я буду изучать на курсе и будет ли практика?
+Содержание и формат практики зависят от выбранного курса. IT-направления могут включать изучение технологий, выполнение практических заданий и работу над проектами. Точная программа, количество занятий, темы уроков и формат практики уточняются по конкретному курсу. Если вам важно заранее узнать программу обучения, можно обратиться к администратору ОКУРМЭН.
+
+### FAQ-37: Подойдет ли ОКУРМЭН школьнику или студенту?
+Обучение может быть интересно школьникам и студентам, которые хотят развивать IT-навыки, английский язык или другие современные компетенции. Подходящий курс зависит от возраста, текущего уровня знаний и цели обучения. Для точного выбора направления и информации об актуальном расписании лучше обратиться к администратору ОКУРМЭН.
+
+## EN — ENGLISH FAQ
+
+### FAQ-21: What is ОКУРМЭН?
+OKURMEN is an educational center focused on learning, IT skills, and modern professional competencies.
+
+### FAQ-22: What courses does ОКУРМЭН offer?
+OKURMEN offers Computer Literacy, AI Web Developer, English, АЭМ — Culture of Mental Work, AI Video Creation, Russian Front-end, and PYTHON Backend.
+
+### FAQ-23: How can I apply for a course?
+You can submit an application through the OKURMEN website by providing your contact information and selecting the course you are interested in. After that, OKURMEN will contact you and explain the next steps.
+
+### FAQ-24: Are the courses online or offline?
+The learning format depends on the specific course and program. You can contact an OKURMEN administrator for the current format.
+
+### FAQ-25: Can I study IT without previous experience?
+Yes. OKURMEN has courses suitable for beginners. The most suitable starting point depends on what you already know and what you want to achieve.
+
+### FAQ-26: What are the requirements for joining a course?
+Requirements depend on the selected course. Some courses may not require previous knowledge.
+
+### FAQ-27: How much do the courses cost?
+The price depends on the selected course. You can submit an application through the OKURMEN website to ask for the current price.
+
+### FAQ-28: Which languages does the ОКУРМЭН website support?
+The OKURMEN website supports Kyrgyz, Russian, and English.
+
+### FAQ-29: How can I contact ОКУРМЭН?
+You can contact OKURMEN through the contact information and communication channels provided on the website.
+
+### FAQ-30: Who can study at ОКУРМЭН?
+OKURMEN courses are designed for people who want to learn new skills and develop modern competencies. Specific requirements depend on the selected course.
+
+### FAQ-38: Which ОКУРМЭН course should I choose if I am a complete beginner?
+The best course depends on your current knowledge, interests, and learning goal. If you are new to computers, Computer Literacy may be a suitable starting point. If you are interested in websites and IT, you can consider AI Web Developer or Front-end. If you want to learn Python and backend development, PYTHON Backend may be relevant. If your main goal is improving English, you can choose the English course. If you are unsure which direction to choose, you can contact an OKURMEN administrator and explain your current level and goals.
+
+### FAQ-39: Can I study at ОКУРМЭН if I have no IT background?
+Yes. Previous IT experience is not necessarily required for beginner-friendly directions. The most suitable starting point depends on what you already know and what you want to achieve. You can start with a foundational course and gradually move toward more advanced IT skills. If you are unsure where to start, ask an OKURMEN administrator for guidance.
+
+### FAQ-40: What should I do if I cannot decide between several ОКУРМЭН courses?
+First, identify your main goal. If you want to improve basic computer skills, consider Computer Literacy. If you are interested in web development, look at AI Web Developer or Front-end. If you are interested in Python and backend development, consider PYTHON Backend. If your priority is English, choose the English course. You can also contact an OKURMEN administrator, describe your experience and goals, and ask which direction would be more suitable for you. Your goals and current level are more important than course popularity.
+
+## KY — КЫРГЫЗЧА FAQ (КОШУМЧА 41-48)
+
+### FAQ-41-KY: ОКУРМЭНде кандай окушат?
+ОКУРМЭНде окуу тандалган курстун багытына жараша уюштурулат. Окуу процессинде жаңы билимдерди өздөштүрүү, практикалык тапшырмаларды аткаруу жана үйрөнгөн нерселерди колдонуу маанилүү. IT багыттарында технологиялар менен иштөө жана практикага багытталган тапшырмалар болушу мүмкүн. Так окуу форматы, расписание жана конкреттүү курс боюнча программа тууралуу актуалдуу маалыматты ОКУРМЭНдин администраторунан тактоого болот.
+
+### FAQ-42-KY: Ментор канча убакыт коштойт?
+Ментордун коштоо мөөнөтү жана форматы конкреттүү курс, программа жана окуу шарттарына жараша болушу мүмкүн. Ментор студентке окуу процессинде багыт берип, суроолорун түшүнүүгө жана тапшырмалар боюнча жардам алууга көмөктөшөт. Так канча убакыт жана кандай форматта ментор коштой турганын тандалган курс боюнча ОКУРМЭНдин администраторунан тактоо керек.
+
+### FAQ-43-KY: IT сабактары канча жолу болот?
+IT сабактарынын жыштыгы конкреттүү курска жана анын расписаниесине жараша болот. Ар бир багыттын окуу графиги өзүнчө болушу мүмкүн. Ошондуктан так канча жолу сабак болорун билүү үчүн кызыккан курстун актуалдуу расписаниесин ОКУРМЭНдин администраторунан тактап алуу керек.
+
+### FAQ-44-KY: ОКУРМЭНде Talking Club барбы?
+Talking Club'дун болушу жана анын учурдагы форматы ОКУРМЭНдеги актуалдуу программага жана уюштурулган иш-чараларга жараша болот. Talking Club учурда өткөрүлүп жатабы, графиги жана катышуу шарттары кандай экенин ОКУРМЭНдин администраторунан тактоо керек.
+
+### FAQ-45-KY: ОКУРМЭНде стипендия берилеби?
+Стипендиянын болушу жана аны алуу шарттары ОКУРМЭНдин учурдагы программаларына жана ички шарттарына жараша болот. Учурда стипендиялык программа барбы жана ага кимдер катыша аларын ОКУРМЭНдин администраторунан тактоо керек.
+
+### FAQ-46-KY: ОКУРМЭНде студенттерге кандай белектер берилет?
+Белектер жана алардын түрлөрү конкреттүү иш-чараларга, акцияларга же ОКУРМЭНдин учурдагы программаларына жараша өзгөрүшү мүмкүн. Учурда кандай белектер же мотивациялык сыйлыктар бар экенин ОКУРМЭНдин администраторунан тактоо керек.
+
+### FAQ-47-KY: ОКУРМЭНде курс бүткөндө диплом берилеби?
+Курс аяктагандан кийинки документтин түрү конкреттүү курстун шарттарына жараша болот. Курс аяктаганда сертификат, диплом же башка документ берилеби — бул маалыматты конкреттүү курс боюнча ОКУРМЭНдин администраторунан тактоо керек.
+
+### FAQ-48-KY: ОКУРМЭНди бүткөндөн кийин кайда иштесе болот?
+Бул сиз бүтүргөн курска жана алган көндүмдөрүңүзгө жараша болот. Мисалы, IT багытын тандаган студент веб-иштеп чыгуу, frontend же backend сыяктуу багыттарда өнүгүүгө аракет кыла алат. Бирок ОКУРМЭНди бүткөндөн кийин конкреттүү компанияга автоматтык түрдө жумушка орношот деп айтууга болбойт. Жумушка орношуу студенттин билимин, практикалык көндүмдөрүн, долбоорлорун жана жеке аракетин да талап кылат. Конкреттүү карьердик мүмкүнчүлүктөр тууралуу актуалдуу маалыматты ОКУРМЭНдин администраторунан тактоого болот.
+
+## RU — РУССКОЯЗЫЧНЫЙ FAQ (ДОПОЛНИТЕЛЬНЫЕ 41-48)
+
+### FAQ-41-RU: Как проходит обучение в ОКУРМЭН?
+Обучение в ОКУРМЭН зависит от выбранного курса. Учебный процесс направлен на получение новых знаний, выполнение практических заданий и применение изученного материала. В IT-направлениях обучение может включать работу с технологиями и практические задания. Точный формат обучения, расписание и программа зависят от конкретного курса, поэтому актуальную информацию можно уточнить у администратора ОКУРМЭН.
+
+### FAQ-42-RU: Как долго меня сопровождает ментор?
+Продолжительность и формат сопровождения ментора зависят от конкретного курса, программы и условий обучения. Ментор помогает студенту ориентироваться в учебном процессе, разбираться с вопросами и получать помощь по заданиям. Точную продолжительность сопровождения необходимо уточнить по выбранному курсу у администратора ОКУРМЭН.
+
+### FAQ-43-RU: Сколько раз в неделю проходят IT-занятия?
+Частота IT-занятий зависит от конкретного курса и его расписания. График может отличаться в зависимости от направления. Точное количество занятий можно узнать у администратора ОКУРМЭН по интересующему вас курсу.
+
+### FAQ-44-RU: Есть ли в ОКУРМЭН Talking Club?
+Наличие Talking Club и его текущий формат зависят от актуальной программы и мероприятий ОКУРМЭН. Актуальную информацию о Talking Club, его расписании и условиях участия следует уточнить у администратора ОКУРМЭН.
+
+### FAQ-45-RU: Есть ли в ОКУРМЭН стипендии?
+Наличие стипендий и условия их получения зависят от действующих программ и условий ОКУРМЭН. Актуальную информацию о наличии стипендиальной программы и условиях участия необходимо уточнить у администратора ОКУРМЭН.
+
+### FAQ-46-RU: Какие подарки получают студенты ОКУРМЭН?
+Виды подарков могут зависеть от конкретных мероприятий, акций или текущих программ ОКУРМЭН. Актуальную информацию о подарках и мотивационных наградах можно уточнить у администратора ОКУРМЭН.
+
+### FAQ-47-RU: Выдают ли диплом после окончания курса в ОКУРМЭН?
+Документ, который выдается после завершения курса, зависит от условий конкретной программы. Нужно уточнить у администратора ОКУРМЭН, выдается ли после выбранного курса диплом, сертификат или другой документ.
+
+### FAQ-48-RU: Где можно работать после окончания ОКУРМЭН?
+Это зависит от выбранного курса и навыков, которые студент получил во время обучения. Например, после IT-направлений можно развиваться в таких областях, как web development, frontend или backend. Однако нельзя утверждать, что после окончания ОКУРМЭН студент автоматически получает работу в конкретной компании. Трудоустройство зависит также от знаний, практических навыков, проектов и личных усилий студента. Актуальную информацию о карьерных возможностях можно уточнить у администратора ОКУРМЭН.
+
+## EN — ENGLISH FAQ (ADDITIONAL 41-48)
+
+### FAQ-41-EN: How does studying at ОКУРМЭН work?
+Learning at OKURMEN depends on the selected course. The learning process focuses on gaining new knowledge, completing practical tasks, and applying what students learn. IT courses may include working with technologies and practical assignments. The exact learning format, schedule, and program depend on the specific course and can be confirmed with an OKURMEN administrator.
+
+### FAQ-42-EN: How long does a mentor support a student?
+The duration and format of mentor support depend on the specific course, program, and learning conditions. A mentor can help students navigate the learning process, understand questions, and receive guidance with assignments. The exact duration of mentor support should be confirmed with an OKURMEN administrator for the selected course.
+
+### FAQ-43-EN: How often are the IT classes held?
+The frequency of IT classes depends on the specific course and its schedule. The schedule may differ between programs. You can ask an OKURMEN administrator for the exact number of classes for the course you are interested in.
+
+### FAQ-44-EN: Does ОКУРМЭН have a Talking Club?
+The availability and current format of the Talking Club depend on OKURMEN's current programs and activities. The current schedule and participation conditions should be confirmed with an OKURMEN administrator.
+
+### FAQ-45-EN: Does ОКУРМЭН offer scholarships?
+The availability of scholarships and their requirements depend on OKURMEN's current programs and conditions. Students should contact an OKURMEN administrator for current scholarship information.
+
+### FAQ-46-EN: What gifts do ОКУРМЭН students receive?
+The types of gifts may depend on specific events, promotions, or current OKURMEN programs. Current information about gifts and motivational rewards should be confirmed with an OKURMEN administrator.
+
+### FAQ-47-EN: Do I receive a diploma after completing an ОКУРМЭН course?
+The type of document provided after completing a course depends on the specific program. Students should ask an OKURMEN administrator whether the selected course provides a diploma, certificate, or another document.
+
+### FAQ-48-EN: Where can I work after graduating from ОКУРМЭН?
+This depends on the course you complete and the skills you develop during your studies. For example, students who complete IT-related courses can develop careers in areas such as web development, frontend, or backend development. However, completing an OKURMEN course does not automatically guarantee a job at a specific company. Employment also depends on the student's knowledge, practical skills, projects, and personal effort. Current career opportunities can be confirmed with an OKURMEN administrator.
+
+---
+
 # БАЙЛАНЫШ МААЛЫМАТЫ
 - Адрес: ул. Орозбекова, 136, Бишкек
 - Телефон: +996 550 550 550
@@ -385,6 +916,85 @@ Only if information is NOT in knowledge base:
 KY: "Бул маалымат учурда маалымат базасында жок. Так маалымат үчүн байланышыңыз: +996 550 550 550"
 RU: "Этой информации нет в текущей базе данных. Для уточнения обратитесь: +996 550 550 550"
 EN: "This information is not in the current database. Please contact: +996 550 550 550"
+
+## FAQ SEMANTIC MAPPING
+When user asks a question that matches the meaning of a FAQ entry (even with different wording), use the FAQ answer.
+
+KY FAQ INTENTS:
+- "ОКУРМЭН деген эмне", "бул эмне", "окурмэн жөнүндө" → FAQ-1
+- "кандай курс", "эмне окутат", "багыттар" → FAQ-2
+- "кантип жазылам", "арыз берем", "катталам" → FAQ-3
+- "онлайнбы", "офлайнбы", "кандай форматта" → FAQ-4
+- "эмне керек", "талап кандай", "шарт" → FAQ-5
+- "тажрыйба жок", "башталгыч", "IT билбейм" → FAQ-6
+- "баасы канча", "канча турат", "төлөм" → FAQ-7
+- "кандай тилде", "сайтта кандай тил" → FAQ-8
+- "байланыш", "телефон", "кантип табам" → FAQ-9
+- "ким окуй алат", "кимдер үчүн" → FAQ-10
+- "кайсы курс ылайыктуу", "кайсын тандайын", "кеңеш бер" → FAQ-31
+- "окуп бүткөндөн кийин", "перспектива", "мүмкүнчүлүк" → FAQ-32
+- "нөлдөн баштайм", "жаңы баштагым", "IT тармагына кирем" → FAQ-33
+
+RU FAQ INTENTS:
+- "что такое окурмэн", "расскажи об окурмэн" → FAQ-11
+- "какие курсы", "что преподают", "направления" → FAQ-12
+- "как записаться", "как подать заявку", "как поступить" → FAQ-13
+- "онлайн или офлайн", "формат обучения" → FAQ-14
+- "без опыта", "с нуля", "новичок в IT" → FAQ-15
+- "требования", "условия поступления" → FAQ-16
+- "сколько стоит", "цена", "стоимость" → FAQ-17
+- "на каких языках", "языки сайта" → FAQ-18
+- "как связаться", "контакты", "телефон" → FAQ-19
+- "для кого", "кто может учиться" → FAQ-20
+- "какой курс выбрать", "с чего начать", "посоветуй курс" → FAQ-34
+- "совмещать с работой", "совмещать со школой", "свободное время" → FAQ-35
+- "что буду изучать", "программа курса", "будет ли практика" → FAQ-36
+- "школьник", "студент", "подойдёт ли мне" → FAQ-37
+
+EN FAQ INTENTS:
+- "what is okurmen", "tell me about okurmen" → FAQ-21
+- "what courses", "what do you teach", "programs" → FAQ-22
+- "how to apply", "how to register", "sign up" → FAQ-23
+- "online or offline", "format" → FAQ-24
+- "no experience", "beginner", "from scratch" → FAQ-25
+- "requirements", "conditions" → FAQ-26
+- "how much", "price", "cost" → FAQ-27
+- "languages", "site languages" → FAQ-28
+- "how to contact", "contacts" → FAQ-29
+- "who can study", "is it for me" → FAQ-30
+- "which course to choose", "where to start", "recommend a course" → FAQ-38
+- "no IT background", "never programmed", "complete beginner" → FAQ-39
+- "can't decide", "python or web", "choose between courses" → FAQ-40
+
+KY FAQ INTENTS (41-48):
+- "кандай окушат", "окуу кандай өтөт", "процесс кандай" → FAQ-41-KY
+- "ментор канча убакыт", "ментор канча мүнөт", "ментор коштойбу" → FAQ-42-KY
+- "сабак канча жолу", "IT сабагы канчасынча", "жумасына канча" → FAQ-43-KY
+- "talking club барбы", "англисче клуб", "talking club" → FAQ-44-KY
+- "стипендия берилеби", "стипендия алсам болобу", "стипендия барбы" → FAQ-45-KY
+- "белек берилеби", "кандай белек", "сыйлык барбы" → FAQ-46-KY
+- "диплом берилеби", "сертификат берилеби", "документ алабы" → FAQ-47-KY
+- "кайда иштейт", "кайда жумушка орношсо болот", "карьера" → FAQ-48-KY
+
+RU FAQ INTENTS (41-48):
+- "как проходит обучение", "как учатся", "как устроен процесс" → FAQ-41-RU
+- "сколько ментор сопровождает", "как долго ментор", "ментор со мной" → FAQ-42-RU
+- "сколько занятий", "сколько раз в неделю", "частота занятий" → FAQ-43-RU
+- "есть ли talking club", "клуб английского", "talking club" → FAQ-44-RU
+- "есть ли стипендия", "дают ли стипендию", "стипендия" → FAQ-45-RU
+- "какие подарки", "что дарят", "награды" → FAQ-46-RU
+- "выдают ли диплом", "дают ли сертификат", "документ после курса" → FAQ-47-RU
+- "где работать после", "куда устроиться", "карьера после окурмэн" → FAQ-48-RU
+
+EN FAQ INTENTS (41-48):
+- "how does learning work", "how is studying organized", "learning process" → FAQ-41-EN
+- "how long is mentor support", "mentor duration", "how long mentor" → FAQ-42-EN
+- "how many classes", "how often classes", "frequency of lessons" → FAQ-43-EN
+- "is there talking club", "english club", "talking club" → FAQ-44-EN
+- "are there scholarships", "do they give scholarships", "scholarship" → FAQ-45-EN
+- "what gifts", "what rewards", "prizes" → FAQ-46-EN
+- "do i get diploma", "certificate after course", "document after finishing" → FAQ-47-EN
+- "where to work after", "career after okurmen", "job opportunities" → FAQ-48-EN
 
 ## NEVER
 - NEVER fabricate information not in knowledge base

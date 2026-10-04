@@ -491,6 +491,7 @@ function EmployeeModal({
   onClose: () => void;
   onSuccess: (message: string) => void;
 }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fullName: employee?.user?.fullName || '',
     positions: employee?.positions || [],

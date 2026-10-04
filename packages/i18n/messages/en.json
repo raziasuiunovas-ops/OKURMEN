@@ -35,10 +35,19 @@
     "students_count": "Students",
     "students_value": "3K+",
     "success_label": "Success",
-    "success_value": "95%",
+    "success_value": "80%",
     "feature_1": "IT Education",
     "feature_2": "Personal Mentor",
-    "feature_3": "3000+ Students"
+    "feature_3": "3000+ Students",
+    "motivational_quotes": [
+      "Learn today to <span class='gradient'>create your tomorrow.</span>",
+      "IT starts not with code, but with the desire to <span class='gradient'>create.</span>",
+      "Your <span class='gradient'>future</span> is created by what you do today.",
+      "<span class='gradient'>Learn. Create. Grow.</span> Change the future.",
+      "The future belongs to those who are ready to <span class='gradient'>learn.</span>",
+      "Today you <span class='gradient'>learn</span> — tomorrow you create.",
+      "Your <span class='gradient'>knowledge</span> is your strongest tool."
+    ]
   },
   "about": {
     "title": "About OKURMEN",
@@ -176,7 +185,11 @@
     "auth_required_title": "Authorization Required",
     "auth_required_text": "To leave a review, please log in or register",
     "auth_login": "Login",
-    "auth_register": "Register"
+    "auth_register": "Register",
+    "read_more": "Read more",
+    "read_less": "Collapse",
+    "close": "Close",
+    "demo_notice": "Demo reviews for design testing"
   },
   "laptops": {
     "title": "Laptops",
@@ -259,7 +272,7 @@
     "subtitle": "Ask questions about courses and learning",
     "placeholder": "Ask a question...",
     "send": "Send",
-    "loading": "Thinking...",
+    "loading": "Typing",
     "error": "Could not get a response. Please try again.",
     "empty": "Hello! I'm the OKURMEN AI assistant. How can I help?",
     "abbr": "AI",

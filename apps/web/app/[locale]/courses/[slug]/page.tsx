@@ -363,8 +363,7 @@ export default function CourseDetailPage() {
                     </div>
 
                     {/* Learn Price Button */}
-                    <a
-                      href="/#application-form"
+                    <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -374,7 +373,7 @@ export default function CourseDetailPage() {
                       className="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 mb-4"
                     >
                       {t('learn_price')}
-                    </a>
+                    </button>
 
                     <button 
                       onClick={() => {

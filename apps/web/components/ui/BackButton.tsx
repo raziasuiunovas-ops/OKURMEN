@@ -14,13 +14,15 @@ export function BackButton({ fallbackPath = '/', className = '' }: BackButtonPro
   const t = useTranslations('common');
 
   const handleBack = () => {
-    // Используем router.back() вместо window.history.back()
-    // next-intl router автоматически сохраняет locale
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back();
-    } else {
-      // Если истории нет (прямой переход) - идём на fallbackPath
-      router.push(fallbackPath);
+    // Алгач window.history.back() аракет кылабыз
+    if (typeof window !== 'undefined') {
+      // Check if we can go back
+      if (window.history.length > 2) {
+        window.history.back();
+      } else {
+        // Эгер history жок болсо - fallbackPath'ка өтөбүз
+        router.push(fallbackPath);
+      }
     }
   };
 

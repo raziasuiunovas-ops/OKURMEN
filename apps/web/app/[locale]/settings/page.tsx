@@ -8,7 +8,7 @@ import { useRouter } from '@/i18n/routing';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const { data: session } = useSession();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
@@ -81,7 +81,11 @@ export default function SettingsPage() {
           </p>
           <div className="flex gap-3">
             <button
-              onClick={() => setTheme('light')}
+              onClick={() => {
+                if (theme !== 'light') {
+                  toggleTheme();
+                }
+              }}
               className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                 theme === 'light'
                   ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
@@ -100,7 +104,11 @@ export default function SettingsPage() {
               </div>
             </button>
             <button
-              onClick={() => setTheme('dark')}
+              onClick={() => {
+                if (theme !== 'dark') {
+                  toggleTheme();
+                }
+              }}
               className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                 theme === 'dark'
                   ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
