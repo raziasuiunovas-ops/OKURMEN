@@ -1,7 +1,6 @@
 {
-  "rootDirectory": "apps/web",
-  "buildCommand": "cd ../.. && pnpm install && pnpm --filter @okurmen/web build",
+  "buildCommand": "cd apps/web && pnpm install && pnpm run build",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "outputDirectory": ".next"
+  "outputDirectory": "apps/web/.next"
 }
