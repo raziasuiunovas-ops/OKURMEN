@@ -89,5 +89,5 @@ export async function requireAdmin(request?: NextRequest) {
 }
 
 export async function isAdmin(session: Awaited<ReturnType<typeof getSession>>) {
-  return session?.user?.role === UserRole.ADMIN;
+  return (session?.user as any)?.role === UserRole.ADMIN;
 }

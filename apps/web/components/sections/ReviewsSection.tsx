@@ -136,27 +136,9 @@ function CardFilled({ review, idx, t }: { review: Review; idx: number; t: TFn })
   const name = review.user?.fullName || review.authorName;
   const isLong = review.text.length > PREVIEW;
   const preview = isLong ? review.text.slice(0, PREVIEW).trimEnd() + '\u2026' : review.text;
-
-  const SPIN_COLORS = [
-    '142,249,252','142,252,204','142,252,157','215,252,142','252,252,142',
-    '252,208,142','252,142,142','252,142,239','204,142,252','142,202,252',
-  ];
-
   return (
     <>
-      <article className={`group relative flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 bg-gradient-to-br ${g.a} ${g.b}`}
-        style={{ aspectRatio: '1 / 1' }}>
-        {/* Uiverse 3-D spinner — фон */}
-        <div className="rv-spinner-wrap">
-          <div className="rv-spinner-inner" style={{ '--quantity': 10 } as React.CSSProperties}>
-            {SPIN_COLORS.map((c, i) => (
-              <div key={i} className="rv-spin-card" style={{ '--index': i, '--color-card': c } as React.CSSProperties}>
-                <div className="rv-spin-img" />
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <article className={`group relative flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 bg-gradient-to-br ${g.a} ${g.b}`}>
         <div className="absolute top-3 right-4 opacity-10 pointer-events-none" aria-hidden="true">
           <Quote className="w-16 h-16 text-white" />
         </div>
@@ -196,28 +178,10 @@ function CardOutlined({ review, idx, t }: { review: Review; idx: number; t: TFn 
   const name = review.user?.fullName || review.authorName;
   const isLong = review.text.length > PREVIEW;
   const preview = isLong ? review.text.slice(0, PREVIEW).trimEnd() + '\u2026' : review.text;
-
-  const SPIN_COLORS = [
-    '142,249,252','142,252,204','142,252,157','215,252,142','252,252,142',
-    '252,208,142','252,142,142','252,142,239','204,142,252','142,202,252',
-  ];
-
   return (
     <>
-      <article className={`group relative flex flex-col rounded-2xl overflow-hidden border-2 ${g.border} ${g.light} hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5`}
-        style={{ aspectRatio: '1 / 1' }}>
-        {/* Uiverse 3-D spinner — фон */}
-        <div className="rv-spinner-wrap">
-          <div className="rv-spinner-inner" style={{ '--quantity': 10 } as React.CSSProperties}>
-            {SPIN_COLORS.map((c, i) => (
-              <div key={i} className="rv-spin-card" style={{ '--index': i, '--color-card': c } as React.CSSProperties}>
-                <div className="rv-spin-img" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col flex-1 p-5 gap-3 relative z-10">
+      <article className={`group relative flex flex-col rounded-2xl overflow-hidden border-2 ${g.border} ${g.light} hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5`}>
+        <div className="flex flex-col flex-1 p-5 gap-3">
           <div className={`self-start text-5xl font-serif leading-none bg-gradient-to-r ${g.a} ${g.b} bg-clip-text text-transparent select-none`} aria-hidden="true">&ldquo;</div>
           <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm flex-1 -mt-1">{preview}</p>
           {isLong && (
@@ -249,29 +213,11 @@ function CardDefault({ review, idx, t }: { review: Review; idx: number; t: TFn }
   const name = review.user?.fullName || review.authorName;
   const isLong = review.text.length > PREVIEW;
   const preview = isLong ? review.text.slice(0, PREVIEW).trimEnd() + '\u2026' : review.text;
-
-  const SPIN_COLORS = [
-    '142,249,252','142,252,204','142,252,157','215,252,142','252,252,142',
-    '252,208,142','252,142,142','252,142,239','204,142,252','142,202,252',
-  ];
-
   return (
     <>
-      <article className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 overflow-hidden"
-        style={{ aspectRatio: '1 / 1' }}>
-        {/* Uiverse 3-D spinner — фон */}
-        <div className="rv-spinner-wrap">
-          <div className="rv-spinner-inner" style={{ '--quantity': 10 } as React.CSSProperties}>
-            {SPIN_COLORS.map((c, i) => (
-              <div key={i} className="rv-spin-card" style={{ '--index': i, '--color-card': c } as React.CSSProperties}>
-                <div className="rv-spin-img" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={`h-1 w-full bg-gradient-to-r ${g.a} ${g.b} flex-shrink-0 relative z-10`} />
-        <div className="flex flex-col flex-1 p-5 gap-3 relative z-10">
+      <article className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 overflow-hidden">
+        <div className={`h-1 w-full bg-gradient-to-r ${g.a} ${g.b} flex-shrink-0`} />
+        <div className="flex flex-col flex-1 p-5 gap-3">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${g.a} ${g.b} flex items-center justify-center flex-shrink-0 shadow-sm`}>
               <span className="text-white font-bold text-sm select-none">{name.charAt(0).toUpperCase()}</span>
@@ -511,6 +457,9 @@ export default function ReviewsSection() {
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode="login" />
 
       <style>{`
+        /* Track base: translateX(calc(-66% - 16px))
+           slideL: enter from right (+1 card width)  → from = 0  to = base
+           slideR: enter from left  (-1 card width)  → from = calc(-132% - 32px) to = base */
         @keyframes rv3slideL {
           from { transform: translateX(0px); }
           to   { transform: translateX(calc(-66% - 16px)); }
@@ -518,59 +467,6 @@ export default function ReviewsSection() {
         @keyframes rv3slideR {
           from { transform: translateX(calc(-132% - 32px)); }
           to   { transform: translateX(calc(-66% - 16px)); }
-        }
-
-        /* ── Uiverse 3-D spinner за карточками ── */
-        .rv-spinner-wrap {
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .rv-spinner-inner {
-          --w: 120px;
-          --h: 120px;
-          --translateZ: calc((var(--w) + var(--h)) + 0px);
-          --rotateX: -15deg;
-          --perspective: 1000px;
-          position: absolute;
-          width: var(--w);
-          height: var(--h);
-          top: 50%;
-          left: 50%;
-          margin-top: calc(var(--h) / -2);
-          margin-left: calc(var(--w) / -2 - 2.5px);
-          transform-style: preserve-3d;
-          transform: perspective(var(--perspective));
-          animation: rv-rotating 20s linear infinite;
-        }
-        @keyframes rv-rotating {
-          from { transform: perspective(var(--perspective)) rotateX(var(--rotateX)) rotateY(0); }
-          to   { transform: perspective(var(--perspective)) rotateX(var(--rotateX)) rotateY(1turn); }
-        }
-        .rv-spin-card {
-          position: absolute;
-          border-radius: 14px;
-          overflow: hidden;
-          inset: 0;
-          transform: rotateY(calc((360deg / var(--quantity)) * var(--index))) translateZ(var(--translateZ));
-          border: 2px solid rgba(var(--color-card), 0.7);
-        }
-        .rv-spin-img {
-          width: 100%;
-          height: 100%;
-          background: #0000 radial-gradient(
-            circle,
-            rgba(var(--color-card), 0.15) 0%,
-            rgba(var(--color-card), 0.45) 80%,
-            rgba(var(--color-card), 0.75) 100%
-          );
         }
       `}</style>
     </section>
