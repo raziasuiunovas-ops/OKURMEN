@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@okurmen/database';
+import { prisma, Prisma } from '@okurmen/database';
 import { requireAdmin } from '@/lib/auth/utils';
 import {
   successResponse,
@@ -8,6 +8,11 @@ import {
   serverErrorResponse,
 } from '@/lib/api-response';
 import { z } from 'zod';
+
+// Type of a student element inside group.students (with user included)
+type GroupStudent = Prisma.StudentProfileGetPayload<{
+  include: { user: true };
+}>;
 
 // Local enum to avoid depending on generated Prisma types export
 const EnrollmentStatus = {
@@ -167,7 +172,7 @@ export async function POST(request: NextRequest) {
 
       // Создаём enrollments для всех студентов в группе
       const enrollments = await Promise.all(
-        group.students.map(async (student) => {
+        group.students.map(async (student: GroupStudent) => {
           // Проверяем есть ли уже доступ
           const existing = await prisma.enrollment.findFirst({
             where: {

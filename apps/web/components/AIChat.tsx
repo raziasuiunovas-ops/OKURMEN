@@ -199,10 +199,8 @@ export default function AIChat() {
                             --color-four: #bf4a1d80;
                             --color-five: #ffbf4740;
                             --time-animation: 2s;
-                            --size: 1;
                             position: relative;
                             border-radius: 50%;
-                            transform: scale(var(--size));
                             box-shadow:
                               0 0 25px 0 var(--color-three),
                               0 20px 50px 0 var(--color-four);
@@ -260,8 +258,8 @@ export default function AIChat() {
                             100% { filter: hue-rotate(0deg); }
                           }
                         `}</style>
-                        <div style={{ width: 32, height: 32, position: 'relative', flexShrink: 0, transform: 'scale(0.32)', transformOrigin: 'left center' }}>
-                          <div className="aichat-loader">
+                        <div style={{ width: 34, height: 34, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+                          <div className="aichat-loader" style={{ position: 'absolute', top: 0, left: 0, transformOrigin: 'top left', transform: 'scale(0.34)', width: 100, height: 100 }}>
                             <svg width="100" height="100" viewBox="0 0 100 100">
                               <defs>
                                 <mask id="aichat-clipping">
