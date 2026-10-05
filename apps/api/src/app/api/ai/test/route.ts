@@ -19,10 +19,9 @@ export async function GET() {
     // Новые API ключи требуют заголовок X-goog-api-key
     // Пробуем разные модели по очереди
     const modelsToTry = [
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
+      'gemini-3.1-flash-lite',
       'gemini-flash-latest',
-      'gemini-pro'
+      'gemini-3.8-flash'
     ];
     
     let resultData = null;
@@ -31,7 +30,7 @@ export async function GET() {
     
     for (const model of modelsToTry) {
       try {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
         const requestBody = {
           contents: [{
@@ -45,7 +44,6 @@ export async function GET() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-goog-api-key': apiKey
           },
           body: JSON.stringify(requestBody)
         });

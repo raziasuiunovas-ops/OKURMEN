@@ -147,11 +147,11 @@ export default function WhySection() {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
-          <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
             {t('title')}
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-blue-600 mx-auto rounded-full mb-6" />
-          <p className="font-sans text-lg text-slate-600 dark:text-slate-400">{t('description')}</p>
+          <p className="font-sans text-base sm:text-lg text-slate-600 dark:text-slate-400">{t('description')}</p>
         </div>
 
         {/* Прогресс-индикаторы */}
@@ -178,7 +178,7 @@ export default function WhySection() {
         </div>
 
         {/* Сетка карточек */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 justify-items-center">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             const theme = cardThemes[index];
@@ -187,7 +187,7 @@ export default function WhySection() {
             return (
               <div
                 key={index}
-                className="why-card-parent"
+                className="why-card-parent w-full"
                 style={{
                   opacity: isVisible ? 1 : 0,
                   transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
@@ -240,9 +240,17 @@ export default function WhySection() {
 
       <style jsx>{`
         .why-card-parent {
-          width: 290px;
-          height: 320px;
+          width: 100%;
+          max-width: 320px;
+          height: 300px;
           perspective: 1000px;
+        }
+
+        @media (min-width: 640px) {
+          .why-card-parent {
+            max-width: 290px;
+            height: 320px;
+          }
         }
 
         .why-card {

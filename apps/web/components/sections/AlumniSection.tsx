@@ -162,17 +162,17 @@ export default function AlumniSection() {
           {alumni.length > itemsPerView && (
             <>
               <button onClick={goToPrev} aria-label="Previous"
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-30 group">
-                <div className="relative p-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm hover:scale-110">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 group-hover:from-purple-500/10 to-blue-500/0 group-hover:to-blue-500/10 rounded-2xl transition-all duration-300" />
-                  <ChevronLeft className="w-6 h-6 text-slate-700 dark:text-slate-300 relative z-10" />
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-30 group -translate-x-2 sm:-translate-x-5">
+                <div className="relative p-2 sm:p-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm hover:scale-110">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 group-hover:from-purple-500/10 to-blue-500/0 group-hover:to-blue-500/10 rounded-xl sm:rounded-2xl transition-all duration-300" />
+                  <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300 relative z-10" />
                 </div>
               </button>
               <button onClick={goToNext} aria-label="Next"
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-30 group">
-                <div className="relative p-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm hover:scale-110">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 group-hover:from-blue-500/10 to-cyan-500/0 group-hover:to-cyan-500/10 rounded-2xl transition-all duration-300" />
-                  <ChevronRight className="w-6 h-6 text-slate-700 dark:text-slate-300 relative z-10" />
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 group translate-x-2 sm:translate-x-5">
+                <div className="relative p-2 sm:p-4 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm hover:scale-110">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 group-hover:from-blue-500/10 to-cyan-500/0 group-hover:to-cyan-500/10 rounded-xl sm:rounded-2xl transition-all duration-300" />
+                  <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300 relative z-10" />
                 </div>
               </button>
             </>

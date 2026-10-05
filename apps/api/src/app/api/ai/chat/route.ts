@@ -1063,9 +1063,9 @@ Respond directly, concisely, naturally, and ALWAYS in user's language (${userLan
 
     // Пробуем разные модели
     const modelsToTry = [
-      'gemini-1.5-flash',
+      'gemini-3.1-flash-lite',
       'gemini-flash-latest',
-      'gemini-1.5-pro'
+      'gemini-3.8-flash'
     ];
     
     let resultData = null;
@@ -1074,7 +1074,7 @@ Respond directly, concisely, naturally, and ALWAYS in user's language (${userLan
     
     for (const model of modelsToTry) {
       try {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
         const requestBody = {
           contents: contents
@@ -1084,7 +1084,6 @@ Respond directly, concisely, naturally, and ALWAYS in user's language (${userLan
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-goog-api-key': apiKey
           },
           body: JSON.stringify(requestBody)
         });

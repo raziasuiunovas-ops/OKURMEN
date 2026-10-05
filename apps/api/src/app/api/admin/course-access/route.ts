@@ -9,14 +9,9 @@ import {
 } from '@/lib/api-response';
 import { z } from 'zod';
 
-// Derive the student element type directly from the Prisma query result shape.
-// This avoids depending on Prisma.StudentProfileGetPayload which may not be
-// available in all Prisma Client versions on production.
-type GroupQueryResult = Awaited<ReturnType<typeof prisma.group.findUnique<{
-  where: { id: string };
-  include: { students: { include: { user: true } } };
-}>>>;
-type GroupStudent = NonNullable<GroupQueryResult>['students'][number];
+// Minimal structural type for group.students elements.
+// Only fields actually used in the .map() callback are listed.
+type StudentWithUser = { id: string; user: { fullName: string } };
 
 // Local enum to avoid depending on generated Prisma types export
 const EnrollmentStatus = {
@@ -176,7 +171,7 @@ export async function POST(request: NextRequest) {
 
       // Создаём enrollments для всех студентов в группе
       const enrollments = await Promise.all(
-        group.students.map(async (student: GroupStudent) => {
+        group.students.map(async (student: StudentWithUser) => {
           // Проверяем есть ли уже доступ
           const existing = await prisma.enrollment.findFirst({
             where: {

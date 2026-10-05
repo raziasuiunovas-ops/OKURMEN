@@ -243,7 +243,7 @@ export default function StatsBar() {
       )}
 
       <div className="container relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
           {statsData.map((stat, index) => {
             const Icon = stat.icon;
             const isActive = index === activeStatIndex && isInView;
@@ -294,7 +294,7 @@ export default function StatsBar() {
                   
                   {/* Number with enhanced gradient on active state */}
                   <div className="relative">
-                    <div className={`text-5xl md:text-6xl font-display font-extrabold bg-clip-text text-transparent transition-all duration-1000 ${
+                    <div className={`text-4xl sm:text-5xl md:text-6xl font-display font-extrabold bg-clip-text text-transparent transition-all duration-1000 ${
                       isActive
                         ? 'bg-gradient-to-br from-orange-600 to-blue-600 dark:from-orange-400 dark:to-blue-400 scale-110 drop-shadow-lg'
                         : 'bg-gradient-to-br from-slate-900 to-slate-700 dark:from-white dark:to-gray-300 group-hover:from-orange-600 group-hover:to-blue-600 dark:group-hover:from-orange-400 dark:group-hover:to-blue-400 group-hover:scale-110'
