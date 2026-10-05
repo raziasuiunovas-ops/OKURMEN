@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { prisma, Prisma } from '@okurmen/database';
+import { prisma } from '@okurmen/database';
 import { requireAdmin } from '@/lib/auth/utils';
 import {
   successResponse,
@@ -9,10 +9,14 @@ import {
 } from '@/lib/api-response';
 import { z } from 'zod';
 
-// Type of a student element inside group.students (with user included)
-type GroupStudent = Prisma.StudentProfileGetPayload<{
-  include: { user: true };
-}>;
+// Derive the student element type directly from the Prisma query result shape.
+// This avoids depending on Prisma.StudentProfileGetPayload which may not be
+// available in all Prisma Client versions on production.
+type GroupQueryResult = Awaited<ReturnType<typeof prisma.group.findUnique<{
+  where: { id: string };
+  include: { students: { include: { user: true } } };
+}>>>;
+type GroupStudent = NonNullable<GroupQueryResult>['students'][number];
 
 // Local enum to avoid depending on generated Prisma types export
 const EnrollmentStatus = {
