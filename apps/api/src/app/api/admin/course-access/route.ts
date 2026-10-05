@@ -13,6 +13,16 @@ import { z } from 'zod';
 // Only fields actually used in the .map() callback are listed.
 type StudentWithUser = { id: string; user: { fullName: string } };
 
+// Type for student with enrollments (used in GET /api/admin/course-access?groupId=...)
+type StudentWithEnrollments = {
+  enrollments: Array<{
+    courseId: string;
+    course: {
+      translations: Array<unknown>;
+    };
+  }>;
+};
+
 // Local enum to avoid depending on generated Prisma types export
 const EnrollmentStatus = {
   ACTIVE:    'ACTIVE',
@@ -286,7 +296,7 @@ export async function GET(request: NextRequest) {
 
       // Агрегируем курсы
       const coursesMap = new Map();
-      group.students.forEach((student) => {
+      group.students.forEach((student: StudentWithEnrollments) => {
         student.enrollments.forEach((enrollment) => {
           const courseId = enrollment.courseId;
           if (!coursesMap.has(courseId)) {
