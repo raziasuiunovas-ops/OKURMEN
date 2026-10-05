@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
               ? JSON.parse(course.coverGradient) 
               : course.coverGradient;
           } catch (e) {
-            console.error('Failed to parse coverGradient:', e);
+            console.error('Failed to parse coverGradient for course:', course.id, e);
           }
         }
         
@@ -110,17 +110,26 @@ export async function GET(request: NextRequest) {
         let translation = course.translations.find(t => t.languageCode === language);
         
         // Если перевода нет, ищем fallback (RU -> EN -> KY)
-        if (!translation) {
+        if (!translation && course.translations.length > 0) {
           const fallbackOrder = language === 'RU' ? ['EN', 'KY'] : language === 'EN' ? ['RU', 'KY'] : ['RU', 'EN'];
           for (const fallbackLang of fallbackOrder) {
             translation = course.translations.find(t => t.languageCode === fallbackLang);
             if (translation) break;
           }
           // Если все еще нет, берем первый доступный
-          if (!translation) {
+          if (!translation && course.translations.length > 0) {
             translation = course.translations[0];
           }
         }
+        
+        // Создаём fallback translation если translations пустой
+        const finalTranslation = translation || {
+          languageCode: language as 'RU' | 'EN' | 'KY',
+          title: course.slug,
+          description: null,
+          program: null,
+          level: 'BEGINNER' as const,
+        };
         
         return {
           ...course,
@@ -131,11 +140,7 @@ export async function GET(request: NextRequest) {
           totalHours: stats.totalHours,
           coverGradient: parsedGradient,
           // Для frontend удобнее один объект translation
-          translation: translation || {
-            title: course.slug, // Используем slug как последний fallback
-            description: '',
-            level: 'BEGINNER',
-          },
+          translation: finalTranslation,
           _count: {
             ...course._count,
             lessons: stats.lessonsCount,
