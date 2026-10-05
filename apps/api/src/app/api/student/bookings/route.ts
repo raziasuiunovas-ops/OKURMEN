@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
     const session = await requireAuth(request);
 
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     const bookings = await prisma.booking.findMany({
@@ -87,11 +87,11 @@ export async function POST(request: NextRequest) {
     }
 
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     const bookingDate = new Date(date);

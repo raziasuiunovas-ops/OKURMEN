@@ -85,8 +85,8 @@ export async function PATCH(
           select: {
             id: true,
             courseId: true,
-            startDate: true,
-            endDate: true,
+            startedAt: true,
+            completedAt: true,
             status: true,
           },
         },

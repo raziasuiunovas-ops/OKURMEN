@@ -1,11 +1,11 @@
-import { NextRequest } from 'next/server';
+﻿import { NextRequest } from 'next/server';
 import { requireAuth } from './utils';
 import { prisma, UserRole, EmployeePosition } from '@okurmen/database';
 
 export async function requireEmployee(request?: NextRequest) {
   const session = await requireAuth(request);
   
-  if (session.user.role !== UserRole.EMPLOYEE && session.user.role !== UserRole.ADMIN) {
+  if ((session.user as any)?.role !== UserRole.EMPLOYEE && (session.user as any)?.role !== UserRole.ADMIN) {
     throw new Error('Forbidden: Employee access required');
   }
   
@@ -68,10 +68,10 @@ export async function requireMentor(request?: NextRequest) {
   const session = await requireEmployee(request);
   
   const employee = await prisma.employeeProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId: session.user!.id },
   });
 
-  if (!employee || employee.position !== EmployeePosition.MENTOR) {
+  if (!employee || !employee.positions?.includes(EmployeePosition.MENTOR)) {
     throw new Error('Forbidden: Mentor access required');
   }
 
@@ -82,10 +82,10 @@ export async function requireTeacher(request?: NextRequest) {
   const session = await requireEmployee(request);
   
   const employee = await prisma.employeeProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId: session.user!.id },
   });
 
-  if (!employee || employee.position !== EmployeePosition.TEACHER) {
+  if (!employee || !employee.positions?.includes(EmployeePosition.TEACHER)) {
     throw new Error('Forbidden: Teacher access required');
   }
 
@@ -96,10 +96,10 @@ export async function requireManager(request?: NextRequest) {
   const session = await requireEmployee(request);
   
   const employee = await prisma.employeeProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId: session.user!.id },
   });
 
-  if (!employee || employee.position !== EmployeePosition.MANAGER) {
+  if (!employee || !employee.positions?.includes(EmployeePosition.MANAGER)) {
     throw new Error('Forbidden: Manager access required');
   }
 

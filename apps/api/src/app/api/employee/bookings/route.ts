@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     
     const session = await requireEmployee(request);
-    const employee = await getEmployeeProfile(session.user.id);
+    const employee = await getEmployeeProfile(session.user!.id);
 
     if (!employee) {
       return errorResponse('Employee profile not found', 404);

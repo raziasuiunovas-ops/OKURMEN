@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { prisma, EnrollmentStatus } from '@okurmen/database';
+import { prisma } from '@okurmen/database';
 import { requireAdmin } from '@/lib/auth/utils';
 import {
   successResponse,
@@ -8,6 +8,14 @@ import {
   serverErrorResponse,
 } from '@/lib/api-response';
 import { z } from 'zod';
+
+// Local enum to avoid depending on generated Prisma types export
+const EnrollmentStatus = {
+  ACTIVE:    'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  PAUSED:    'PAUSED',
+  CANCELLED: 'CANCELLED',
+} as const;
 
 // Схема для открытия доступа к курсу для одного студента
 const grantCourseAccessSchema = z.object({

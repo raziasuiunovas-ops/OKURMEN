@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch all applications
     const applications = await prisma.application.findMany({
-      orderBy: { submittedAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       include: {
         user: {
           select: {
@@ -45,8 +45,8 @@ export async function GET(request: NextRequest) {
         course: {
           include: {
             translations: {
-              select: { title: true, language: true },
-              orderBy: { language: 'asc' },
+              select: { title: true, languageCode: true },
+              orderBy: { languageCode: 'asc' },
             },
           },
         },
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       completedEnrollments: enrollments.filter((e) => e.status === 'COMPLETED').length,
       totalApplications: applications.length,
       pendingApplications: applications.filter((a) => a.status === 'PENDING').length,
-      approvedApplications: applications.filter((a) => a.status === 'APPROVED').length,
+      approvedApplications: applications.filter((a) => a.status === 'CONFIRMED').length,
       rejectedApplications: applications.filter((a) => a.status === 'REJECTED').length,
     };
 

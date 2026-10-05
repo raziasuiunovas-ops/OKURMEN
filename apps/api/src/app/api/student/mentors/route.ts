@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@okurmen/database';
 import { requireAuth } from '@/lib/auth/utils';
 import {
+  errorResponse,
   successResponse,
   serverErrorResponse,
   forbiddenResponse,
@@ -13,18 +14,18 @@ export async function GET(request: NextRequest) {
     const session = await requireAuth(request);
 
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     // Получаем активных менторов/учителей
     const mentors = await prisma.employeeProfile.findMany({
       where: {
         isActive: true,
-        position: { in: ['TEACHER', 'MENTOR'] },
+        positions: { hasSome: ['TEACHER', 'MENTOR'] },
       },
       include: {
         user: {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
     const mentorsData = mentors.map(mentor => ({
       id: mentor.id,
       name: mentor.user.fullName,
-      position: mentor.position,
+      position: mentor.positions?.[0],
       bio: mentor.bio,
       education: mentor.education,
       experience: mentor.experience,

@@ -7,7 +7,7 @@ import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-r
 export async function GET(request: NextRequest) {
   try {
     const session = await requireEmployee(request);
-    const employee = await getEmployeeProfile(session.user.id);
+    const employee = await getEmployeeProfile(session.user!.id);
 
     if (!employee) {
       return errorResponse('Employee profile not found', 404);

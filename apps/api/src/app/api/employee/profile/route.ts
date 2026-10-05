@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await requireEmployee(request);
 
-    const employee = await getEmployeeProfile(session.user.id);
+    const employee = await getEmployeeProfile(session.user!.id);
 
     if (!employee) {
       return errorResponse('Employee profile not found', 404);
@@ -39,7 +39,7 @@ export async function PATCH(request: NextRequest) {
     const { bio, education, experience, photoUrl } = body;
 
     const employee = await prisma.employeeProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!employee) {

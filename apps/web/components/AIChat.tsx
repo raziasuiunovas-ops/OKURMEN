@@ -108,7 +108,7 @@ export default function AIChat() {
       {/* AI Button - Fixed position, always visible, above ScrollToTop */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-6 z-40 flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-5 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+        className="fixed bottom-8 right-8 z-40 flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-5 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
         aria-label="Open AI Assistant"
       >
         <Brain className="w-5 h-5" />
@@ -189,21 +189,94 @@ export default function AIChat() {
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-3.5 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-2.5 transition-colors duration-200">
-                        {/* Typing dots */}
+                      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-3.5 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-3 transition-colors duration-200">
+                        {/* Uiverse loader — scoped to AI Chat only */}
                         <style>{`
-                          @keyframes typingDot {
-                            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-                            30% { transform: translateY(-5px); opacity: 1; }
+                          .aichat-loader {
+                            --color-one: #ffbf48;
+                            --color-two: #be4a1d;
+                            --color-three: #ffbf4780;
+                            --color-four: #bf4a1d80;
+                            --color-five: #ffbf4740;
+                            --time-animation: 2s;
+                            --size: 1;
+                            position: relative;
+                            border-radius: 50%;
+                            transform: scale(var(--size));
+                            box-shadow:
+                              0 0 25px 0 var(--color-three),
+                              0 20px 50px 0 var(--color-four);
+                            animation: aichat-colorize calc(var(--time-animation) * 3) ease-in-out infinite;
+                            width: 100px;
+                            height: 100px;
+                            flex-shrink: 0;
                           }
-                          .typing-dot:nth-child(1) { animation: typingDot 1.2s infinite 0s; }
-                          .typing-dot:nth-child(2) { animation: typingDot 1.2s infinite 0.2s; }
-                          .typing-dot:nth-child(3) { animation: typingDot 1.2s infinite 0.4s; }
+                          .aichat-loader::before {
+                            content: "";
+                            position: absolute;
+                            top: 0; left: 0;
+                            width: 100px; height: 100px;
+                            border-radius: 50%;
+                            border-top: solid 1px var(--color-one);
+                            border-bottom: solid 1px var(--color-two);
+                            background: linear-gradient(180deg, var(--color-five), var(--color-four));
+                            box-shadow:
+                              inset 0 10px 10px 0 var(--color-three),
+                              inset 0 -10px 10px 0 var(--color-four);
+                          }
+                          .aichat-loader .aichat-box {
+                            width: 100px; height: 100px;
+                            background: linear-gradient(180deg, var(--color-one) 30%, var(--color-two) 70%);
+                            mask: url(#aichat-clipping);
+                            -webkit-mask: url(#aichat-clipping);
+                          }
+                          .aichat-loader svg { position: absolute; }
+                          .aichat-loader svg #aichat-clipping {
+                            filter: contrast(15);
+                            animation: aichat-roundness calc(var(--time-animation) / 2) linear infinite;
+                          }
+                          .aichat-loader svg #aichat-clipping polygon { filter: blur(7px); }
+                          .aichat-loader svg #aichat-clipping polygon:nth-child(1) { transform-origin: 75% 25%; transform: rotate(90deg); }
+                          .aichat-loader svg #aichat-clipping polygon:nth-child(2) { transform-origin: 50% 50%; animation: aichat-rotation var(--time-animation) linear infinite reverse; }
+                          .aichat-loader svg #aichat-clipping polygon:nth-child(3) { transform-origin: 50% 60%; animation: aichat-rotation var(--time-animation) linear infinite; animation-delay: calc(var(--time-animation) / -3); }
+                          .aichat-loader svg #aichat-clipping polygon:nth-child(4) { transform-origin: 40% 40%; animation: aichat-rotation var(--time-animation) linear infinite reverse; }
+                          .aichat-loader svg #aichat-clipping polygon:nth-child(5) { transform-origin: 40% 40%; animation: aichat-rotation var(--time-animation) linear infinite reverse; animation-delay: calc(var(--time-animation) / -2); }
+                          .aichat-loader svg #aichat-clipping polygon:nth-child(6) { transform-origin: 60% 40%; animation: aichat-rotation var(--time-animation) linear infinite; }
+                          .aichat-loader svg #aichat-clipping polygon:nth-child(7) { transform-origin: 60% 40%; animation: aichat-rotation var(--time-animation) linear infinite; animation-delay: calc(var(--time-animation) / -1.5); }
+                          @keyframes aichat-rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                          @keyframes aichat-roundness {
+                            0%   { filter: contrast(15); }
+                            20%  { filter: contrast(3); }
+                            40%  { filter: contrast(3); }
+                            60%  { filter: contrast(15); }
+                            100% { filter: contrast(15); }
+                          }
+                          @keyframes aichat-colorize {
+                            0%   { filter: hue-rotate(0deg); }
+                            20%  { filter: hue-rotate(-30deg); }
+                            40%  { filter: hue-rotate(-60deg); }
+                            60%  { filter: hue-rotate(-90deg); }
+                            80%  { filter: hue-rotate(-45deg); }
+                            100% { filter: hue-rotate(0deg); }
+                          }
                         `}</style>
-                        <div className="flex items-center gap-1">
-                          <span className="typing-dot w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
-                          <span className="typing-dot w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
-                          <span className="typing-dot w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
+                        <div style={{ width: 32, height: 32, position: 'relative', flexShrink: 0, transform: 'scale(0.32)', transformOrigin: 'left center' }}>
+                          <div className="aichat-loader">
+                            <svg width="100" height="100" viewBox="0 0 100 100">
+                              <defs>
+                                <mask id="aichat-clipping">
+                                  <polygon points="0,0 100,0 100,100 0,100" fill="black" />
+                                  <polygon points="25,25 75,25 50,75" fill="white" />
+                                  <polygon points="50,25 75,75 25,75" fill="white" />
+                                  <polygon points="35,35 65,35 50,65" fill="white" />
+                                  <polygon points="35,35 65,35 50,65" fill="white" />
+                                  <polygon points="35,35 65,35 50,65" fill="white" />
+                                  <polygon points="35,35 65,35 50,65" fill="white" />
+                                </mask>
+                              </defs>
+                            </svg>
+                            <div className="aichat-box" />
+                          </div>
                         </div>
                         <p className="text-sm text-slate-500 dark:text-slate-400">{t('loading')}...</p>
                       </div>

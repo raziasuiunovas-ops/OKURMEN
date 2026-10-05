@@ -7,16 +7,23 @@ import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-r
 export async function GET(request: NextRequest) {
   try {
     const session = await requireEmployee(request);
-    const employee = await getEmployeeProfile(session.user.id);
+    const employee = await getEmployeeProfile(session.user!.id);
 
     if (!employee) {
       return errorResponse('Employee profile not found', 404);
     }
 
+    // Fetch positions separately since getEmployeeProfile select doesn't include it
+    const employeeRaw = await prisma.employeeProfile.findUnique({
+      where: { id: employee.id },
+      select: { positions: true },
+    });
+    const primaryPosition = employeeRaw?.positions?.[0] ?? null;
+
     let stats = {};
 
     // Role-based statistics
-    switch (employee.position) {
+    switch (primaryPosition) {
       case EmployeePosition.MENTOR:
         stats = await getMentorStats(employee.id);
         break;
@@ -42,7 +49,7 @@ export async function GET(request: NextRequest) {
     }
 
     return successResponse({
-      position: employee.position,
+      position: primaryPosition,
       stats,
     });
   } catch (error: any) {

@@ -41,26 +41,57 @@ export async function POST(request: NextRequest) {
 
     // Detect user language from message
     const detectLanguage = (text: string): 'ky' | 'ru' | 'en' => {
-      // Кыргыз тилине гана тиешелүү тамгалар
-      const kyrgyzOnly = /[ӨөҮүҢңЖж]/;
-      // Орус тилине гана тиешелүү тамгалар
-      const russianOnly = /[ЁёЪъЫыЭэ]/;
+      // 1. Кыргыз тилине ГАНА тиешелүү тамгалар (орус алфавитинде жок)
+      if (/[ӨөҮүҢң]/.test(text)) return 'ky';
 
-      if (kyrgyzOnly.test(text)) return 'ky';
-      if (russianOnly.test(text)) return 'ru';
+      // 2. Орус тилине ГАНА тиешелүү тамгалар.
+      //    Э/э алынды — ОКУРМЭН сөзүндө бар.
+      //    Ы/ы алынды — кыргыз сөздөрүндө да кездешет (убакыт, барбы, сабактары).
+      if (/[ЁёЪъ]/.test(text)) return 'ru';
 
-      const lowerText = text.toLowerCase();
+      const lower = text.toLowerCase();
 
-      // Кыргызча мүнөздүү сөздөр/мүчөлөр
-      if (lowerText.match(/\b(канча|кайда|барбы|болобу|эмне|кантип|менен|берилеби|барбы|болобу|жазылсам|окуй|жооп|сурайм|кошуп|кийин|болот|окушат|иштейт|тандасам|ылайыктуу)\b/)) return 'ky';
+      // 3. Кыргызча мүнөздүү сөздөр (keyword тизмеси менен)
+      const kyWords = [
+        // суроо мүчөлөрү
+        'берилеби','барбы','болобу','коштойбу','болотбу','окутабы',
+        'иштейби','бармы','жокпу','алабы',
+        // этиштер
+        'коштойт','окушат','иштейт','тактаңыз','тактап',
+        'жазылсам','жазылуу','катталуу','кайрылыңыз',
+        'бүткөндөн','бүтүргөндөн',
+        // суроо сөздөрү
+        'канча','кайда','кайсы','кантип','эмне','кимдер',
+        // зат атоочтор
+        'сабактары','сабактар','окуу',
+        'дарек','дареги','дарегин','байланыш',
+        'стипендия','белек','сыйлык',
+        'ментор','менторлор','ментордун',
+        // башкалар
+        'ылайыктуу','тандасам','билгим','кеңеш',
+        'кийин','болот',
+        'кандай','кандагы',
+        'сабак','talking',
+      ];
+      for (const w of kyWords) {
+        if (lower.includes(w)) return 'ky';
+      }
 
-      // Орусча мүнөздүү сөздөр
-      if (lowerText.match(/\b(сколько|где|есть|как|что|когда|можно|нельзя|будет|хочу|нужно|подойдёт|подойдет|выдают|проходит|работать)\b/)) return 'ru';
+      // 4. Орусча мүнөздүү сөздөр
+      const ruWords = [
+        'сколько','где','есть','как ','что ','когда','можно','нельзя',
+        'будет','хочу','нужно','выдают','проходит','работать',
+        'обучение','стипендии','занятия','курсы','подойдёт','подойдет',
+        'записаться','поступить','расписание',
+      ];
+      for (const w of ruWords) {
+        if (lower.includes(w)) return 'ru';
+      }
 
-      // Латын (английский)
-      if (lowerText.match(/\b(how|where|what|when|is|are|there|can|does|do|will|have|get|study|work|course|learn)\b/)) return 'en';
+      // 5. Латын — английский
+      if (/\b(how|where|what|when|is|are|there|can|does|do|will|have|get|study|work|course|learn|scholarship|diploma|mentor|tuition)\b/.test(lower)) return 'en';
 
-      // Кириллица бар — орусча деп кабыл алабыз
+      // 6. Кириллица бар — орусча деп кабыл алабыз
       if (/[а-яА-Я]/.test(text)) return 'ru';
 
       return 'en';
@@ -1086,9 +1117,15 @@ Respond directly, concisely, naturally, and ALWAYS in user's language (${userLan
     // Извлекаем текст ответа
     const aiResponse = resultData.candidates?.[0]?.content?.parts?.[0]?.text || 'Извините, не могу ответить на этот вопрос.';
 
+    // Приветствие только при первом сообщении (history пуст)
+    const isFirstMessageGemini = history.length === 0;
+    const greetingGemini = isFirstMessageGemini
+      ? 'Саламатсызбы! ОКУРМЭН чатына кош келиңиз. Сурооңузду жазыңыз, жардам берүүгө даярмын.\n\n'
+      : '';
+
     return NextResponse.json({
       success: true,
-      response: aiResponse
+      response: greetingGemini + aiResponse
     });
 
   } catch (error) {

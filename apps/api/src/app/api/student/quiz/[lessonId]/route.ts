@@ -19,11 +19,11 @@ export async function GET(
     const { lessonId } = await params;
 
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     // Получаем урок
@@ -45,7 +45,7 @@ export async function GET(
     });
 
     if (!enrollment) {
-      return forbiddenResponse('You do not have access to this quiz');
+      return errorResponse('You do not have access to this quiz', 403);
     }
 
     // Получаем quiz
@@ -118,11 +118,11 @@ export async function POST(
     const { answers } = body; // { questionId: selectedAnswer(s) }
 
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     // Получаем quiz

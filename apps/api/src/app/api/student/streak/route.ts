@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     // Get student profile
     const student = await prisma.studentProfile.findUnique({
-      where: { userId: authUser.id },
+      where: { userId: authUser.user!.id },
       include: {
         user: {
           select: {

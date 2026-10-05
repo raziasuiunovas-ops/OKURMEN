@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@okurmen/database';
 import { requireAuth } from '@/lib/auth/utils';
 import {
+  errorResponse,
   successResponse,
   serverErrorResponse,
   forbiddenResponse,
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     
     // Получаем профиль студента
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
       include: {
         user: {
           select: {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     // Получаем активные enrollments

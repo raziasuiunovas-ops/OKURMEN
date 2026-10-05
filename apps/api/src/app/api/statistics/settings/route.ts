@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@okurmen/database';
-import { successResponse, errorResponse, serverErrorResponse, unauthorizedResponse } from '@/lib/api-response';
-import { verifyAuth } from '@/lib/auth';
+import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-response';
+import { requireAdmin } from '@/lib/auth/utils';
 
 // GET /api/statistics/settings - Get current statistics settings
 export async function GET(request: NextRequest) {
@@ -34,10 +34,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // Verify admin authorization
-    const authResult = await verifyAuth(request);
-    if (!authResult.authenticated || authResult.user?.role !== 'ADMIN') {
-      return unauthorizedResponse();
-    }
+    await requireAdmin(request);
 
     const body = await request.json();
     const { periodType, month, year, enabledMetrics, displayOrder, isPublished } = body;

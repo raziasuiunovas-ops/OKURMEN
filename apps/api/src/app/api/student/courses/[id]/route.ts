@@ -3,6 +3,7 @@ import { prisma } from '@okurmen/database';
 import { requireAuth } from '@/lib/auth/utils';
 import {
   successResponse,
+  errorResponse,
   notFoundResponse,
   serverErrorResponse,
   forbiddenResponse,
@@ -21,11 +22,11 @@ export async function GET(
 
     // Получаем профиль студента
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     // Проверяем доступ - есть ли у студента enrollment на этот курс
@@ -38,7 +39,7 @@ export async function GET(
     });
 
     if (!enrollment) {
-      return forbiddenResponse('You do not have access to this course');
+      return errorResponse('You do not have access to this course', 403);
     }
 
     // Получаем курс со всеми данными
@@ -124,7 +125,7 @@ export async function GET(
         id: t.employee.id,
         name: t.employee.user.fullName,
         photoUrl: t.employee.photoUrl,
-        position: t.employee.position,
+        position: t.employee.positions?.[0],
       })),
       lessons: lessonsWithProgress,
       progress: {

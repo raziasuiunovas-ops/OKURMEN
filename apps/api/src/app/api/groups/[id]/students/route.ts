@@ -113,7 +113,7 @@ export async function POST(
         data: {
           studentId: user.studentProfile.id,
           courseId,
-          startDate: startDate ? new Date(startDate) : new Date(),
+          startedAt: startDate ? new Date(startDate) : new Date(),
           status: 'ACTIVE',
         },
       });

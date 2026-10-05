@@ -1,25 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@okurmen/database';
 import { requireEmployee } from '@/lib/auth/employee-utils';
 
 export async function GET(request: NextRequest) {
   try {
-    const employee = await requireEmployee(request);
+    const session = await requireEmployee(request);
+
+    // Fetch employee profile for role check
+    const empProfile = await prisma.employeeProfile.findUnique({
+      where: { userId: session.user!.id },
+      select: { id: true, positions: true },
+    });
 
     // Get courses based on employee position
     let courseIds: string[] = [];
 
-    if (employee.position === 'TEACHER') {
+    if (empProfile?.positions?.includes('TEACHER')) {
       // Teacher sees reviews for their courses
       const courses = await prisma.course.findMany({
-        where: { teacherId: employee.id },
+        where: { teachers: { some: { employeeId: empProfile.id } } },
         select: { id: true },
       });
       courseIds = courses.map(c => c.id);
-    } else if (employee.position === 'MENTOR') {
+    } else if (empProfile?.positions?.includes('MENTOR')) {
       // Mentor sees reviews for their group's course
       const group = await prisma.group.findUnique({
-        where: { mentorId: employee.id },
+        where: { mentorId: empProfile.id },
         select: { courseId: true },
       });
       if (group?.courseId) {
@@ -68,8 +74,8 @@ export async function GET(request: NextRequest) {
         course: {
           include: {
             translations: {
-              select: { title: true, language: true },
-              orderBy: { language: 'asc' },
+              select: { title: true, languageCode: true },
+              orderBy: { languageCode: 'asc' },
             },
           },
         },

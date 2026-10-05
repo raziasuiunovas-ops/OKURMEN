@@ -45,8 +45,8 @@ export async function GET(
               select: {
                 id: true,
                 courseId: true,
-                startDate: true,
-                endDate: true,
+                startedAt: true,
+                completedAt: true,
                 status: true,
               },
             },

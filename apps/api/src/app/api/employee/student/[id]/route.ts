@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await requireEmployee(request);
-    const employee = await getEmployeeProfile(session.user.id);
+    const employee = await getEmployeeProfile(session.user!.id);
 
     if (!employee) {
       return errorResponse('Employee profile not found', 404);
@@ -20,7 +20,7 @@ export async function GET(
     // Check if employee has access to this student
     const hasAccess = await checkStudentAccess(employee.id, id);
     
-    if (!hasAccess && session.user.role !== 'ADMIN') {
+    if (!hasAccess && (session.user as any)?.role !== 'ADMIN') {
       return forbiddenResponse();
     }
 

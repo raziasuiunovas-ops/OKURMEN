@@ -31,7 +31,7 @@ export default function ScrollToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-primary-500 text-white rounded-full shadow-lg hover:bg-primary-600 transition-all duration-300 flex items-center justify-center hover:scale-110"
+      className="fixed bottom-24 right-6 z-40 w-12 h-12 bg-primary-500 text-white rounded-full shadow-lg hover:bg-primary-600 transition-all duration-300 flex items-center justify-center hover:scale-110"
       aria-label="Прокрутить наверх"
     >
       <ArrowUp size={24} strokeWidth={2.5} />

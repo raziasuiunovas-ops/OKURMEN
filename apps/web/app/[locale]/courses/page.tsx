@@ -256,7 +256,7 @@ export default function CoursesPage() {
                     >
                     {/* Course Cover */}
                     {course.coverImage ? (
-                      <div className="w-full h-48 rounded-xl mb-6 overflow-hidden">
+                      <div className="w-full aspect-video rounded-xl mb-6 overflow-hidden flex-shrink-0">
                         <img
                           src={course.coverImage}
                           alt={course.translation.title}
@@ -265,7 +265,7 @@ export default function CoursesPage() {
                       </div>
                     ) : (
                       <div
-                        className="w-full h-48 rounded-xl mb-6 flex items-center justify-center group-hover:scale-105 transition-all duration-500 relative overflow-hidden shine-effect shadow-lg"
+                        className="w-full aspect-video rounded-xl mb-6 flex items-center justify-center group-hover:scale-105 transition-all duration-500 relative overflow-hidden shine-effect shadow-lg flex-shrink-0"
                         style={{
                           background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`,
                         }}

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@okurmen/database';
 import { requireManager } from '@/lib/auth/employee-utils';
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       prisma.group.count(),
       prisma.group.count({ where: { isActive: true } }),
       prisma.course.count(),
-      prisma.course.count({ where: { isPublished: true } }),
+      prisma.course.count({ where: { isActive: true } }),
       prisma.booking.count({
         where: {
           date: {
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     // Recent enrollments (last 10)
     const recentEnrollments = await prisma.enrollment.findMany({
       take: 10,
-      orderBy: { enrolledAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       include: {
         student: {
           include: {
@@ -46,16 +46,13 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        group: {
-          select: { name: true },
-        },
       },
     });
 
     // Recent applications (last 10)
     const recentApplications = await prisma.application.findMany({
       take: 10,
-      orderBy: { submittedAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       include: {
         user: {
           select: { fullName: true, email: true },
@@ -63,8 +60,8 @@ export async function GET(request: NextRequest) {
         course: {
           include: {
             translations: {
-              select: { title: true, language: true },
-              orderBy: { language: 'asc' },
+              select: { title: true, languageCode: true },
+              orderBy: { languageCode: 'asc' },
             },
           },
         },
@@ -98,17 +95,17 @@ export async function GET(request: NextRequest) {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const enrollmentsByDay = await prisma.enrollment.groupBy({
-      by: ['enrolledAt'],
+      by: ['createdAt'],
       where: {
-        enrolledAt: { gte: thirtyDaysAgo },
+        createdAt: { gte: thirtyDaysAgo },
       },
       _count: true,
     });
 
     const applicationsByDay = await prisma.application.groupBy({
-      by: ['submittedAt'],
+      by: ['createdAt'],
       where: {
-        submittedAt: { gte: thirtyDaysAgo },
+        createdAt: { gte: thirtyDaysAgo },
       },
       _count: true,
     });
@@ -121,12 +118,12 @@ export async function GET(request: NextRequest) {
       const dateStr = date.toISOString().split('T')[0];
 
       const enrollmentsCount = enrollmentsByDay.filter((e) => {
-        const eDate = new Date(e.enrolledAt).toISOString().split('T')[0];
+        const eDate = new Date(e.createdAt).toISOString().split('T')[0];
         return eDate === dateStr;
       }).reduce((sum, e) => sum + e._count, 0);
 
       const applicationsCount = applicationsByDay.filter((a) => {
-        const aDate = new Date(a.submittedAt).toISOString().split('T')[0];
+        const aDate = new Date(a.createdAt).toISOString().split('T')[0];
         return aDate === dateStr;
       }).reduce((sum, a) => sum + a._count, 0);
 

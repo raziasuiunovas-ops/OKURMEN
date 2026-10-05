@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@okurmen/database';
 import { requireAuth } from '@/lib/auth/utils';
 import {
+  errorResponse,
   successResponse,
   serverErrorResponse,
   forbiddenResponse,
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
     const session = await requireAuth(request);
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: session.user!.id },
       include: {
         studentProfile: {
           include: {
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user || !user.studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     // Получаем статистику токенов
@@ -84,7 +85,7 @@ export async function PATCH(request: NextRequest) {
     const { fullName, phone, preferredLanguage } = body;
 
     const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: session.user!.id },
       data: {
         ...(fullName && { fullName }),
         ...(phone !== undefined && { phone }),

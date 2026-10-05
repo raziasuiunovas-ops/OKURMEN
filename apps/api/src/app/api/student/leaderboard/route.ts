@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@okurmen/database';
 import { requireAuth } from '@/lib/auth/utils';
 import {
+  errorResponse,
   successResponse,
   serverErrorResponse,
   forbiddenResponse,
@@ -15,11 +16,11 @@ export async function GET(request: NextRequest) {
     const period = searchParams.get('period') || 'all';
 
     const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: session.user!.id },
     });
 
     if (!studentProfile) {
-      return forbiddenResponse('Student profile not found');
+      return errorResponse('Student profile not found', 403);
     }
 
     let dateFilter = {};

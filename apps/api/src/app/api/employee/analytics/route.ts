@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       return errorResponse('User ID not found', 401);
     }
     
-    const employee = await getEmployeeProfile(session.user.id);
+    const employee = await getEmployeeProfile(session.user!.id);
 
     if (!employee) {
       return errorResponse('Employee profile not found', 404);
