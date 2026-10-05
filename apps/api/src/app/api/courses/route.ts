@@ -151,11 +151,13 @@ export async function GET(request: NextRequest) {
 
     return successResponse(coursesWithStats);
   } catch (error) {
-    console.error('Get courses error:', error);
-    return serverErrorResponse();
-  }
+  console.error('COURSES_API_ERROR:', error);
+  console.error(
+    'COURSES_API_STACK:',
+    error instanceof Error ? error.stack : String(error)
+  );
+  return serverErrorResponse();
 }
-
 // POST /api/courses - Protected (admin only)
 export async function POST(request: NextRequest) {
   try {
