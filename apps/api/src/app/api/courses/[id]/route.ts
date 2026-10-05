@@ -20,7 +20,7 @@ async function calculateCourseStats(courseId: string) {
   });
 
   const averageRating = reviews.length > 0
-    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    ? reviews.reduce((sum: number, r) => sum + r.rating, 0) / reviews.length
     : 0;
 
   // 2. Количество студентов из Enrollment (только активные и завершенные)
