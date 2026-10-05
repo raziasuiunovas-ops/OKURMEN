@@ -14,6 +14,16 @@ import {
 // Local type for courseReview query result
 type CourseReviewRating = { rating: number };
 
+// Local type for lesson query result
+type LessonDuration = { duration: number | null };
+
+// Local type for course translation
+type CourseTranslation = {
+  languageCode: string;
+  title: string;
+  description: string | null;
+};
+
 // Helper: Рассчитать реальную статистику курса
 async function calculateCourseStats(courseId: string) {
   // 1. Рейтинг и количество отзывов из CourseReview
@@ -43,7 +53,7 @@ async function calculateCourseStats(courseId: string) {
     select: { duration: true },
   });
 
-  const totalDurationMinutes = lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+  const totalDurationMinutes = lessons.reduce((sum: number, lesson: LessonDuration) => sum + (lesson.duration || 0), 0);
   const totalHours = Math.round(totalDurationMinutes / 60);
 
   return {
@@ -159,8 +169,8 @@ export async function PUT(
           deleteMany: { languageCode: 'RU' },
           create: {
             languageCode: 'RU',
-            title: title || existingCourse.translations.find(t => t.languageCode === 'RU')?.title || '',
-            description: description || existingCourse.translations.find(t => t.languageCode === 'RU')?.description || '',
+            title: title || existingCourse.translations.find((t: CourseTranslation) => t.languageCode === 'RU')?.title || '',
+            description: description || existingCourse.translations.find((t: CourseTranslation) => t.languageCode === 'RU')?.description || '',
             level: courseLevel,
           },
         },
@@ -261,7 +271,7 @@ export async function PATCH(
     if (teacherIds) {
       updateData.teachers = {
         deleteMany: {},
-        create: teacherIds.map((employeeId) => ({
+        create: teacherIds.map((employeeId: string) => ({
           employeeId,
         })),
       };
