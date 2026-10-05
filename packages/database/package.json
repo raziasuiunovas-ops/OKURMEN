@@ -4,12 +4,13 @@
   "packageManager": "pnpm@9.15.0",
   "private": true,
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:push": "prisma db push --schema=./prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:student": "tsx prisma/seed-test-student.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio --schema=./prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
